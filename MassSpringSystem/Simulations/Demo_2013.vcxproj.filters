@@ -8,6 +8,7 @@
       <Filter>util</Filter>
     </ClCompile>
     <ClCompile Include="TemplateSimulator.cpp" />
+    <ClCompile Include="MassSpringSystemSimulator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="util">
