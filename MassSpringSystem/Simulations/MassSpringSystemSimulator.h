@@ -1,6 +1,8 @@
 #ifndef MASSSPRINGSYSTEMSIMULATOR_h
 #define MASSSPRINGSYSTEMSIMULATOR_h
 #include "Simulator.h"
+#include "point.h"
+#include "spring.h"
 
 // Do Not Change
 #define EULER 0
@@ -38,6 +40,10 @@ public:
 	void applyExternalForce(Vec3 force);
 
 private:
+	// Masspoints and Springs
+	std::vector<point> m_massPoints;
+	std::vector<spring> m_springs;
+
 	// Data Attributes
 	float m_fMass;
 	float m_fStiffness;
