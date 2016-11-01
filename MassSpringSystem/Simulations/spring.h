@@ -1,5 +1,7 @@
 #ifndef UTIL_SPRING_H
 #define UTIL_SPRING_H
+#include "point.h"
+#include "MassSpringSystemSimulator.h"
 
 class spring {
 public:
@@ -7,10 +9,10 @@ public:
 	int point2;
 	float initialLength;
 
-	// defined in lecture but not used yet
+	// suggested in lecture but not used yet
 	/*
-	float stiffness
-	float currentLength
+	float stiffness;
+	float currentLength;
 	*/
 };
 

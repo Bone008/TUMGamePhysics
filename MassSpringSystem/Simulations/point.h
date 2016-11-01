@@ -7,14 +7,17 @@ class point {
 public:
 	Vec3 position;
 	Vec3 velocity;
-	bool isFixed;
-
-	// defined in lecture but not used yet
-	/*	
 	Vec3 force;
 	float mass;
+
+	bool isFixed;
+
+	// suggested in lecture but not used yet
+	/*	
 	float damping;
 	*/
+
+	void clearForce();
 };
 
 #endif

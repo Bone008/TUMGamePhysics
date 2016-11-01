@@ -10,6 +10,9 @@
 #define MIDPOINT 2
 // Do Not Change
 
+#define MASS_POINT_SIZE 0.02
+#define MASS_POINT_COLOR Vec3(0, 1, 1)
+#define SPRING_COLOR Vec3(1, 1, 0)
 
 class MassSpringSystemSimulator:public Simulator{
 public:
@@ -26,6 +29,7 @@ public:
 	void simulateTimestep(float timeStep);
 	void onClick(int x, int y);
 	void onMouse(int x, int y);
+
 	// Specific Functions
 	void setIntegrator(int integrator);
 	void setMass(float mass);
@@ -38,6 +42,15 @@ public:
 	Vec3 getPositionOfMassPoint(int index);
 	Vec3 getVelocityOfMassPoint(int index);
 	void applyExternalForce(Vec3 force);
+
+	// Drawing functions
+	void drawMassPoint(point p);
+	void drawSpring(spring s);
+
+	// Force and integrating functions
+	void clearForces();
+	void computeElasticForces();
+	void integrateEuler(float timeStep);
 
 private:
 	// Masspoints and Springs

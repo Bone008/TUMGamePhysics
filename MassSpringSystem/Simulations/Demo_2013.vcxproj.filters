@@ -9,6 +9,7 @@
     </ClCompile>
     <ClCompile Include="TemplateSimulator.cpp" />
     <ClCompile Include="MassSpringSystemSimulator.cpp" />
+    <ClCompile Include="point.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="util">
