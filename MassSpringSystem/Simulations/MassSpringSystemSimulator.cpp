@@ -7,7 +7,7 @@ MassSpringSystemSimulator::MassSpringSystemSimulator()
 	// Data Attributes
 	m_fMass       = 10;
 	m_fStiffness  = 40;
-	m_fDamping    = 0;
+	m_fDamping    = 0.1f;
 	m_iIntegrator = EULER;
 
 	// UI Attributes
@@ -88,20 +88,71 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 			addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false),
 			1
 		);
-		setMass(0.01f);
-		setStiffness(25.0f);
-		setDampingFactor(0.01f);
-		setIntegrator(MIDPOINT);
-		for (int i = 0; i <10; i++)
-			simulateTimestep(0.005);
-
-		cout << "p1 " << getPositionOfMassPoint(0) << "\n";
-		cout << "p2 " << getPositionOfMassPoint(1) << "\n";
 		break;
 
 	case COMPLEX_SETUP:
 		cout << "complex setup!\n";
-		// TODO think of complex example (10+ mass points, 10+ springs)
+		reset();
+		// cube
+		{
+			// global position of cube
+			int x = 0;
+			int y = 0;
+			int z = 0;
+
+			// vertices
+			int p000 = addMassPoint(Vec3(x + 0, y + 0, z + 0), Vec3(), true);
+			int p001 = addMassPoint(Vec3(x + 0, y + 0, z + 1), Vec3(), false);
+			int p010 = addMassPoint(Vec3(x + 0, y + 1, z + 0), Vec3(), false);
+			int p011 = addMassPoint(Vec3(x + 0, y + 1, z + 1), Vec3(), false);
+			int p100 = addMassPoint(Vec3(x + 1, y + 0, z + 0), Vec3(), false);
+			int p101 = addMassPoint(Vec3(x + 1, y + 0, z + 1), Vec3(), false);
+			int p110 = addMassPoint(Vec3(x + 1, y + 1, z + 0), Vec3(), false);
+			int p111 = addMassPoint(Vec3(x + 1, y + 1, z + 1), Vec3(), false);
+			
+			// edges
+			addSpring(p000, p001, 2);
+			addSpring(p000, p010, 2);
+			addSpring(p000, p100, 2);
+			addSpring(p001, p011, 2);
+			addSpring(p001, p101, 2);
+			addSpring(p010, p011, 2);
+			addSpring(p010, p110, 2);
+			addSpring(p011, p111, 2);
+			addSpring(p100, p101, 2);
+			addSpring(p100, p110, 2);
+			addSpring(p101, p111, 2);
+			addSpring(p110, p111, 2);
+
+			// diagonals
+			float diagLength = sqrt(3) * 2;
+			addSpring(p000, p111, diagLength);
+			addSpring(p001, p110, diagLength);
+			addSpring(p010, p101, diagLength);
+			addSpring(p011, p100, diagLength);
+		}
+
+		// tetrahedron
+		{
+			// global position of tetrahedron
+			int x = 2;
+			int y = 2;
+			int z = 2;
+
+			// 4 corners
+			int a = addMassPoint(Vec3(x + 1, y + 1, z - 1), Vec3(), false);
+			int b = addMassPoint(Vec3(x - 1, y - 1, z - 1), Vec3(), false);
+			int c = addMassPoint(Vec3(x - 1, y + 1, z + 1), Vec3(), false);
+			int d = addMassPoint(Vec3(x + 1, y - 1, z + 1), Vec3(), false);
+
+			// edges
+			addSpring(a, b, 2);
+			addSpring(a, c, 2);
+			addSpring(a, d, 2);
+			addSpring(b, c, 2);
+			addSpring(b, d, 2);
+			addSpring(c, d, 2);
+		}
 		break;
 
 	default:
@@ -115,8 +166,7 @@ void MassSpringSystemSimulator::externalForcesCalculations(float timeElapsed)
 }
 
 void MassSpringSystemSimulator::simulateTimestep(float timeStep)
-{
-	
+{	
 	// integrate position from forces
 	switch (m_iTestCase)
 	{
@@ -234,6 +284,12 @@ void MassSpringSystemSimulator::computeElasticForces()
 	{
 		currentSpring.computeElasticForces();
 	}
+
+	// subtract damping factor
+	for (int i = 0; i < getNumberOfMassPoints(); i++)
+	{
+		m_massPoints[i].force -= m_fDamping * getVelocityOfMassPoint(i);
+	}
 }
 
 void MassSpringSystemSimulator::integrate(float timeStep)
@@ -260,6 +316,9 @@ void MassSpringSystemSimulator::integrateEuler(float timeStep)
 	{
 		point* p = & m_massPoints[i];
 
+		if (p->isFixed)
+			continue;
+
 		// calculate acceleration a = f/m
 		Vec3 acceleration = p->force / p->mass;
 
@@ -277,6 +336,9 @@ void MassSpringSystemSimulator::integrateMidpoint(float timeStep)
 	for (int i = 0; i < getNumberOfMassPoints(); i++)
 	{
 		point* p = &m_massPoints[i];
+
+		if (p->isFixed)
+			continue;
 
 		// calculate acceleration a = f/m
 		Vec3 acceleration = p->force / p->mass;
