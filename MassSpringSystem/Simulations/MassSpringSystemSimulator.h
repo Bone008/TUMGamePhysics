@@ -61,5 +61,6 @@ private:
 	void clearForces();
 	void computeElasticForces();
 	void integrateEuler(float timeStep);
+	void integrateMidpoint(float timeStep);
 };
 #endif

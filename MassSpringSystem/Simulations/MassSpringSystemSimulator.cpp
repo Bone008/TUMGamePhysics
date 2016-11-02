@@ -65,6 +65,18 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 
 	case 3:
 		cout << "3: Simple Midpoint simulation!\n";
+
+		// simple scenario using euler
+		setMass(10);
+		setStiffness(40);
+		setIntegrator(MIDPOINT);
+
+		addSpring(
+			addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false),
+			addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false),
+			1
+		);
+
 		break;
 
 	case 4:
@@ -77,7 +89,7 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 
 	default:
 		cout << "Empty test!\n";
-		notifyCaseChanged(2); // just for testing purpose TODO remove
+		notifyCaseChanged(3); // just for testing purpose TODO remove
 		break;
 	}
 }
@@ -96,6 +108,12 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep)
 		clearForces();
 		computeElasticForces();
 		integrateEuler(timeStep);
+		break;
+
+	case 3:
+		clearForces();
+		computeElasticForces();
+		integrateMidpoint(timeStep);
 		break;
 
 	default:
@@ -221,6 +239,33 @@ void MassSpringSystemSimulator::integrateEuler(float timeStep)
 		p->velocity += acceleration * timeStep;
 
 		// calculate position from velocity and delta t
+		p->position += p->velocity * timeStep;
+	}
+}
+
+void MassSpringSystemSimulator::integrateMidpoint(float timeStep)
+{
+	for (int i = 0; i < getNumberOfMassPoints(); i++)
+	{
+		point* p = &m_massPoints[i];
+
+		// calculate acceleration a = f/m
+		Vec3 acceleration = p->force / p->mass;
+
+		// calculate midpoint (delta t / 2)
+		// calculate velocity (position) from acceleration (velocity)
+		p->velocity += acceleration * (timeStep / 2);
+		p->position += p->velocity * (timeStep / 2);
+
+		// recompute elastic forces based on midpoint
+		computeElasticForces();
+
+		// calculate acceleration a = f/m
+		acceleration = p->force / p->mass;
+
+		// calculate final point from force of midpoint
+		// calculate velocity (position) from acceleration (velocity)
+		p->velocity += acceleration * timeStep;
 		p->position += p->velocity * timeStep;
 	}
 }
