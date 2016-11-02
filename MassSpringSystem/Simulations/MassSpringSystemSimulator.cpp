@@ -2,21 +2,57 @@
 
 MassSpringSystemSimulator::MassSpringSystemSimulator()
 {
+	m_iTestCase = TWO_POINT_SETUP;
+
+	// Data Attributes
+	m_fMass       = 10;
+	m_fStiffness  = 40;
+	m_fDamping    = 0;
+	m_iIntegrator = EULER;
+
+	// UI Attributes
+	m_externalForce = Vec3();
+	m_mouse         = Point2D();
+	m_trackmouse    = Point2D();
+	m_oldtrackmouse = Point2D();
 }
 
 // Functions
 const char * MassSpringSystemSimulator::getTestCasesStr()
 {
-	return "Mass spring system using Euler and Midpoint";
+	return "One-step test,2 point setup,complex setup";
 }
 
 void MassSpringSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 {
 	this->DUC = DUC;
+	switch (m_iTestCase)
+	{
+	case ONE_STEP_TEST: // no ui needed
+		break;
+
+	case TWO_POINT_SETUP:
+	case COMPLEX_SETUP:
+		// add integrator-selection
+		TwAddSeparator(DUC->g_pTweakBar, "Separator", "");
+		TwEnumVal integrators[] =
+		{
+			{ EULER, "Euler" },
+			{ MIDPOINT, "Midpoint" },
+			{ LEAPFROG, "Leapfrog" }
+		};
+		TwType integratorType = TwDefineEnum("Integrator", integrators, 3);
+		TwAddVarRW(DUC->g_pTweakBar, "Integrator", integratorType, &m_iIntegrator, "");
+
+
+	}
 }
 
 void MassSpringSystemSimulator::reset()
 {
+	// delete all mass points and springs
+	m_springs.clear();
+	m_massPoints.clear();
 }
 
 void MassSpringSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext)
@@ -39,57 +75,37 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 	m_iTestCase = testCase;
 	switch (m_iTestCase)
 	{
-	case 1:
-		cout << "1: Simple one-step test!\n";
+	case ONE_STEP_TEST:
+		cout << "Simple one-step test!\n";
+		// TODO print calculations to console
 		break;
 
-	case 2:
-		cout << "2: Simple Euler simulation!\n";
-		
-		// simple scenario using euler
-		setMass(10);
-		setStiffness(40);
-
-		// TODO setting the integrator here doesnt make sense:
-		// in the test cases, the integrator is set BEFORE calling this function
-		// so it will get overwritten this way
-		setIntegrator(EULER);
-
-		addSpring(
-			addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false),
-			addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false),
-			1
-		);		
-
-		break;
-
-	case 3:
-		cout << "3: Simple Midpoint simulation!\n";
-
-		// simple scenario using euler
-		setMass(10);
-		setStiffness(40);
-		setIntegrator(MIDPOINT);
-
+	case TWO_POINT_SETUP:
+		cout << "2-point setup!\n";
+		reset();
 		addSpring(
 			addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false),
 			addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false),
 			1
 		);
+		setMass(0.01f);
+		setStiffness(25.0f);
+		setDampingFactor(0.01f);
+		setIntegrator(MIDPOINT);
+		for (int i = 0; i <10; i++)
+			simulateTimestep(0.005);
 
+		cout << "p1 " << getPositionOfMassPoint(0) << "\n";
+		cout << "p2 " << getPositionOfMassPoint(1) << "\n";
 		break;
 
-	case 4:
-		cout << "4: Complex simulation, stability comparison!\n";
-		break;
-
-	case 5:
-		cout << "5: Leap-Frog method!\n";
+	case COMPLEX_SETUP:
+		cout << "complex setup!\n";
+		// TODO think of complex example (10+ mass points, 10+ springs)
 		break;
 
 	default:
 		cout << "Empty test!\n";
-		notifyCaseChanged(3); // just for testing purpose TODO remove
 		break;
 	}
 }
@@ -104,20 +120,15 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep)
 	// integrate position from forces
 	switch (m_iTestCase)
 	{
-	case 2:
-		clearForces();
-		computeElasticForces();
-		integrateEuler(timeStep);
+	case ONE_STEP_TEST: // no simulation, just console output
 		break;
 
-	case 3:
+	case TWO_POINT_SETUP:
+	case COMPLEX_SETUP:
 		clearForces();
 		computeElasticForces();
-		integrateMidpoint(timeStep);
-		break;
-
-	default:
-		break;
+		integrate(timeStep);
+		break;		
 	}
 }
 
@@ -222,6 +233,24 @@ void MassSpringSystemSimulator::computeElasticForces()
 	for (spring currentSpring : m_springs)
 	{
 		currentSpring.computeElasticForces();
+	}
+}
+
+void MassSpringSystemSimulator::integrate(float timeStep)
+{
+	switch (m_iIntegrator)
+	{
+	case EULER:
+		integrateEuler(timeStep);
+		break;
+
+	case MIDPOINT:
+		integrateMidpoint(timeStep);
+		break;
+
+	case LEAPFROG:
+		// TODO
+		break;
 	}
 }
 

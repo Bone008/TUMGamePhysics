@@ -11,6 +11,11 @@
 #define MIDPOINT 2
 // Do Not Change
 
+// Testcases
+#define ONE_STEP_TEST 0
+#define TWO_POINT_SETUP 1
+#define COMPLEX_SETUP 2
+
 class MassSpringSystemSimulator:public Simulator{
 public:
 	//Construtors
@@ -60,6 +65,7 @@ private:
 	// Force and integrating functions
 	void clearForces();
 	void computeElasticForces();
+	void integrate(float timeStep);
 	void integrateEuler(float timeStep);
 	void integrateMidpoint(float timeStep);
 };
