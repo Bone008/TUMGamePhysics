@@ -322,12 +322,11 @@ void MassSpringSystemSimulator::integrateEuler(float timeStep)
 		// calculate acceleration a = f/m
 		Vec3 acceleration = p->force / p->mass;
 
-		// TODO correct order?
-		// calculate velocity from acceleration and delta t
-		p->velocity += acceleration * timeStep;
-
 		// calculate position from velocity and delta t
 		p->position += p->velocity * timeStep;
+
+		// calculate velocity from acceleration and delta t
+		p->velocity += acceleration * timeStep;
 	}
 }
 
@@ -345,8 +344,8 @@ void MassSpringSystemSimulator::integrateMidpoint(float timeStep)
 
 		// calculate midpoint (delta t / 2)
 		// calculate velocity (position) from acceleration (velocity)
-		p->velocity += acceleration * (timeStep / 2);
 		p->position += p->velocity * (timeStep / 2);
+		p->velocity += acceleration * (timeStep / 2);
 
 		// recompute elastic forces based on midpoint
 		computeElasticForces();
@@ -356,7 +355,7 @@ void MassSpringSystemSimulator::integrateMidpoint(float timeStep)
 
 		// calculate final point from force of midpoint
 		// calculate velocity (position) from acceleration (velocity)
-		p->velocity += acceleration * timeStep;
 		p->position += p->velocity * timeStep;
+		p->velocity += acceleration * timeStep;
 	}
 }
