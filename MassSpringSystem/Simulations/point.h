@@ -3,6 +3,9 @@
 
 #include "Simulator.h"
 
+#define MASS_POINT_SIZE 0.02
+#define MASS_POINT_COLOR Vec3(0, 1, 1)
+
 class point {
 public:
 	Vec3 position;
@@ -17,6 +20,7 @@ public:
 	float damping;
 	*/
 
+	void draw(DrawingUtilitiesClass * DUC);
 	void clearForce();
 };
 

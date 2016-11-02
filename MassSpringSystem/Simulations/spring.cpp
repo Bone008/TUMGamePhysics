@@ -1,10 +1,22 @@
 #include "spring.h"
 
+void spring::draw(DrawingUtilitiesClass * DUC)
+{
+	// get start/end points of spring
+	point p1 = m_massPoints->at(point1);
+	point p2 = m_massPoints->at(point2);
+
+	// draw line between the two points
+	DUC->beginLine();
+	DUC->drawLine(p1.position, SPRING_COLOR, p2.position, SPRING_COLOR);
+	DUC->endLine();
+}
+
 void spring::computeElasticForces()
 {
 	// shortcut to endpoints of spring
-	point* p1 = &m_massPoints.at(point1);
-	point* p2 = &m_massPoints.at(point2);
+	point* p1 = &m_massPoints->at(point1);
+	point* p2 = &m_massPoints->at(point2);
 
 	// calculate current length of spring
 	float currentLength = sqrt(p1->position.squaredDistanceTo(p2->position));

@@ -18,7 +18,7 @@ namespace SimulatorTester
 		{
 			MassSpringSystemSimulator * msss =  new MassSpringSystemSimulator();;
 			msss->notifyCaseChanged(1);
-			Assert::AreEqual(1.0f,(float)msss->getNumberOfSprings(),0.0001f,L"Number of Mass Points is not equal to 1",LINE_INFO());
+			Assert::AreEqual(1.0f,(float)msss->getNumberOfSprings(),0.0001f,L"Number of springs is not equal to 1",LINE_INFO());
 		}
 		TEST_METHOD(TestPositionOfMassPointsInitially)
 		{

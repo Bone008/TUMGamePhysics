@@ -10,6 +10,7 @@
     <ClCompile Include="TemplateSimulator.cpp" />
     <ClCompile Include="MassSpringSystemSimulator.cpp" />
     <ClCompile Include="point.cpp" />
+    <ClCompile Include="spring.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="util">

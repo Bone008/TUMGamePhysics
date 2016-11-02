@@ -24,13 +24,13 @@ void MassSpringSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateCon
 	// draw all mass points
 	for each(point tmpPoint in m_massPoints)
 	{
-		drawMassPoint(tmpPoint);
+		tmpPoint.draw(DUC);
 	}
 
 	// draw all springs
 	for each(spring tmpSpring in m_springs)
 	{
-		drawSpring(tmpSpring);
+		tmpSpring.draw(DUC);
 	}
 }
 
@@ -49,6 +49,10 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 		// simple scenario using euler
 		setMass(10);
 		setStiffness(40);
+
+		// TODO setting the integrator here doesnt make sense:
+		// in the test cases, the integrator is set BEFORE calling this function
+		// so it will get overwritten this way
 		setIntegrator(EULER);
 
 		addSpring(
@@ -152,6 +156,8 @@ void MassSpringSystemSimulator::addSpring(int masspoint1, int masspoint2, float 
 	newSpring.point1 = masspoint1;
 	newSpring.point2 = masspoint2;
 	newSpring.initialLength = initialLength;
+	newSpring.stiffness = m_fStiffness;
+	newSpring.m_massPoints = &m_massPoints;
 
 	// push new spring to vector of springs
 	m_springs.push_back(newSpring);
@@ -181,27 +187,8 @@ void MassSpringSystemSimulator::applyExternalForce(Vec3 force)
 {
 }
 
-// Drawing functions
-void MassSpringSystemSimulator::drawMassPoint(point p)
-{
-	DUC->setUpLighting(Vec3(), MASS_POINT_COLOR, 100, MASS_POINT_COLOR);
-	DUC->drawSphere(p.position, Vec3(MASS_POINT_SIZE, MASS_POINT_SIZE, MASS_POINT_SIZE));
-}
-
-void MassSpringSystemSimulator::drawSpring(spring s)
-{
-	// get start/end points of spring
-	point p1 = m_massPoints.at(s.point1);
-	point p2 = m_massPoints.at(s.point2);	
-
-	// draw line between the two points
-	DUC->beginLine();
-	DUC->drawLine(p1.position, SPRING_COLOR, p2.position, SPRING_COLOR);
-	DUC->endLine();
-}
 
 // Force and integrating functions
-
 void MassSpringSystemSimulator::clearForces()
 {
 	// clear force of every point
@@ -211,27 +198,12 @@ void MassSpringSystemSimulator::clearForces()
 	}
 }
 
-// TODO move to spring-class!
 void MassSpringSystemSimulator::computeElasticForces()
 {
 	// calculate forces of each point
 	for (spring currentSpring : m_springs)
 	{
-		// shortcut to endpoints of spring
-		point* p1 = &m_massPoints.at(currentSpring.point1);
-		point* p2 = &m_massPoints.at(currentSpring.point2);
-
-		// calculate current length of spring
-		float currentLength = sqrt(p1->position.squaredDistanceTo(p2->position));
-
-		// calculate force of spring/p1
-		Vec3 force = -m_fStiffness
-			* (currentLength - currentSpring.initialLength)
-			* ((p1->position - p2->position) / currentLength);
-
-		// store forces in points for later integration
-		p1->force += force;
-		p2->force -= force;
+		currentSpring.computeElasticForces();
 	}
 }
 
