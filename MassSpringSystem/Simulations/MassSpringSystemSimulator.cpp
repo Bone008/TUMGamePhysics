@@ -348,6 +348,7 @@ void MassSpringSystemSimulator::integrateMidpoint(float timeStep)
 		p->velocity += acceleration * (timeStep / 2);
 
 		// recompute elastic forces based on midpoint
+		clearForces();
 		computeElasticForces();
 
 		// calculate acceleration a = f/m
