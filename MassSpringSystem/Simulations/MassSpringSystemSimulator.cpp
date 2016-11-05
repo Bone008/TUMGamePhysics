@@ -84,8 +84,8 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 		cout << "2-point setup!\n";
 		reset();
 		addSpring(
-			addMassPoint(Vec3(0, 1, 0), Vec3(-1, 0, 0), false),
-			addMassPoint(Vec3(0, -1, 0), Vec3(1, 0, 0), false),
+			addMassPoint(Vec3(0, 2, 0), Vec3(-1, 0, 0), false),
+			addMassPoint(Vec3(0, 0, 0), Vec3(1, 0, 0), false),
 			1
 		);
 		break;
