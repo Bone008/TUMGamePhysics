@@ -12,9 +12,7 @@ public:
 	Vec3 position;
 	Vec3 velocity;
 	Vec3 force;
-	//test
 	Vec3 initPosition;
-	Vec3 initVelocity;
 
 	float mass;
 
@@ -27,7 +25,9 @@ public:
 
 	void draw(DrawingUtilitiesClass * DUC);
 	void clearForce();
+	void resetPosition();
 	void addGravity(float timeStep);
+	void removeGravity();
 };
 
 #endif
