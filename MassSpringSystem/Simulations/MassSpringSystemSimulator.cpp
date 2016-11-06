@@ -221,6 +221,10 @@ int MassSpringSystemSimulator::addMassPoint(Vec3 position, Vec3 velocity, bool i
 	newMassPoint.mass = m_fMass;
 	newMassPoint.isFixed = isFixed;
 
+	//test
+	newMassPoint.initPosition = position;
+	newMassPoint.initVelocity = velocity;
+
 	// push new mass point to vector of mass points
 	m_massPoints.push_back(newMassPoint);
 
@@ -319,6 +323,9 @@ void MassSpringSystemSimulator::integrateEuler(float timeStep)
 		if (p->isFixed)
 			continue;
 
+		//add gravity
+		p->addGravity(timeStep);
+
 		// calculate acceleration a = f/m
 		Vec3 acceleration = p->force / p->mass;
 
@@ -338,6 +345,9 @@ void MassSpringSystemSimulator::integrateMidpoint(float timeStep)
 
 		if (p->isFixed)
 			continue;
+
+		//add gravity
+		p->addGravity(timeStep);
 
 		// calculate acceleration a = f/m
 		Vec3 acceleration = p->force / p->mass;

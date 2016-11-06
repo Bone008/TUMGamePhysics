@@ -10,3 +10,10 @@ void point::clearForce()
 {
 	force = Vec3();
 }
+
+
+void point::addGravity(float timeStep)
+{
+	velocity.y += -GRAVITY*timeStep;
+	position += ((float)(-1 / 2))*GRAVITY*timeStep*timeStep;
+}
