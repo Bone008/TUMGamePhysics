@@ -1,6 +1,6 @@
 #include "point.h"
 
-void point::draw(DrawingUtilitiesClass * DUC)
+void point::draw(DrawingUtilitiesClass * DUC) const
 {
 	DUC->setUpLighting(Vec3(), MASS_POINT_COLOR, 100, MASS_POINT_COLOR);
 	DUC->drawSphere(position, Vec3(MASS_POINT_SIZE, MASS_POINT_SIZE, MASS_POINT_SIZE));
@@ -16,7 +16,7 @@ void point::resetPosition()
 	position = initPosition;
 }
 
-
+// obsolete
 void point::addGravity(float timeStep)
 {
 	velocity.y += -GRAVITY*timeStep;

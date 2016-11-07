@@ -1,6 +1,6 @@
 #include "spring.h"
 
-void spring::draw(DrawingUtilitiesClass * DUC)
+void spring::draw(DrawingUtilitiesClass * DUC) const
 {
 	// get start/end points of spring
 	point p1 = m_massPoints->at(point1);
@@ -27,6 +27,6 @@ void spring::computeElasticForces()
 		* ((p1->position - p2->position) / currentLength);
 
 	// store forces in points for later integration
-	p1->force = force;
-	p2->force = -force;
+	p1->force += force;
+	p2->force -= force;
 }

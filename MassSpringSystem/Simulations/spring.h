@@ -19,7 +19,7 @@ public:
 	float currentLength;
 	*/
 
-	void draw(DrawingUtilitiesClass * DUC);
+	void draw(DrawingUtilitiesClass * DUC) const;
 	void computeElasticForces();
 };
 

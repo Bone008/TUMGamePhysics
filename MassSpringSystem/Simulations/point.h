@@ -23,7 +23,7 @@ public:
 	float damping;
 	*/
 
-	void draw(DrawingUtilitiesClass * DUC);
+	void draw(DrawingUtilitiesClass * DUC) const;
 	void clearForce();
 	void resetPosition();
 	void addGravity(float timeStep);
