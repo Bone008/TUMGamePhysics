@@ -87,6 +87,7 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 	{
 	case ONE_STEP_TEST:
 		cout << "Simple one-step test!\n";
+		// FIXME the one step test should only print values to stdout
 		oneStepSimulation = true;
 		reset();
 		addSpring(
@@ -305,9 +306,9 @@ void MassSpringSystemSimulator::applyExternalForce(Vec3 force)
 void MassSpringSystemSimulator::clearForces()
 {
 	// clear force of every point
-	for (int i = 0; i < getNumberOfMassPoints(); i++)
+	for (point& p : m_massPoints)
 	{
-		m_massPoints[i].clearForce();
+		p.clearForce();
 	}
 }
 
@@ -320,9 +321,9 @@ void MassSpringSystemSimulator::computeElasticForces()
 	}
 
 	// subtract damping factor
-	for (int i = 0; i < getNumberOfMassPoints(); i++)
+	for (point& p : m_massPoints)
 	{
-		m_massPoints[i].force -= m_fDamping * getVelocityOfMassPoint(i);
+		p.force -= m_fDamping * p.velocity;
 	}
 }
 
@@ -369,6 +370,8 @@ void MassSpringSystemSimulator::integrateEuler(float timeStep)
 		// calculate velocity from acceleration and delta t
 		p->velocity += acceleration * timeStep;
 
+		validatePointPosition(*p);
+
 		if (oneStepSimulation)
 			cout << "Point " << i << " vel " << p->velocity.toString() << ", pos " << p->position.toString() << "\n";
 	}
@@ -413,8 +416,20 @@ void MassSpringSystemSimulator::integrateMidpoint(float timeStep)
 		p->position += p->velocity * timeStep;
 		p->velocity += acceleration * timeStep;
 
+		validatePointPosition(*p);
+
 		if (oneStepSimulation)
 			cout << "Point " << i << " vel " << p->velocity.toString() << ", pos " << p->position.toString() << "\n";
 		
+	}
+}
+
+// TODO maybe move to point class and use getter/setter?
+void MassSpringSystemSimulator::validatePointPosition(point& p)
+{
+	// points below the floor are moved back above
+	if (p.position.y < FLOOR_Y)
+	{
+		p.position.y = FLOOR_Y;
 	}
 }

@@ -16,6 +16,9 @@
 #define TWO_POINT_SETUP 1
 #define COMPLEX_SETUP 2
 
+// Floor
+#define FLOOR_Y (-1.0f + MASS_POINT_SIZE)
+
 class MassSpringSystemSimulator:public Simulator{
 public:
 	//Construtors
@@ -72,5 +75,6 @@ private:
 	void integrate(float timeStep);
 	void integrateEuler(float timeStep);
 	void integrateMidpoint(float timeStep);
+	void validatePointPosition(point& p);
 };
 #endif
