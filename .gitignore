@@ -3,9 +3,12 @@ Win32
 Debug
 Release
 debug32
+ipch
 *.suo
 *.sdf
 *.opensdf
+*.VC.db
+*.VC.opendb
 
 # Compiled Object files
 *.slo
