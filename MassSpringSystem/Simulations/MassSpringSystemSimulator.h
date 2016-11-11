@@ -16,8 +16,9 @@
 #define TWO_POINT_SETUP 1
 #define COMPLEX_SETUP 2
 
-// Floor
-#define FLOOR_Y (-1.0f + MASS_POINT_SIZE)
+// Bounding Box
+#define BBOX_CENTER Vec3()
+#define BBOX_SIZE 0.5f
 
 class MassSpringSystemSimulator:public Simulator{
 public:

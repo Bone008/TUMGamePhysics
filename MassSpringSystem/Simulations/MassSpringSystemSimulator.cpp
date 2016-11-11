@@ -427,9 +427,13 @@ void MassSpringSystemSimulator::integrateMidpoint(float timeStep)
 // TODO maybe move to point class and use getter/setter?
 void MassSpringSystemSimulator::validatePointPosition(point& p)
 {
-	// points below the floor are moved back above
-	if (p.position.y < FLOOR_Y)
-	{
-		p.position.y = FLOOR_Y;
-	}
+	Vec3 minPositions = BBOX_CENTER - BBOX_SIZE + MASS_POINT_SIZE;	
+	p.position.x = max(p.position.x, minPositions.x);
+	p.position.y = max(p.position.y, minPositions.y);
+	p.position.z = max(p.position.z, minPositions.z);
+
+	Vec3 maxPositions = BBOX_CENTER + BBOX_SIZE - MASS_POINT_SIZE;
+	p.position.x = min(p.position.x, maxPositions.x);
+	p.position.y = min(p.position.y, maxPositions.y);
+	p.position.z = min(p.position.z, maxPositions.z);
 }
