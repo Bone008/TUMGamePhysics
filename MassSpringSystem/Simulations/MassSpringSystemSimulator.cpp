@@ -346,72 +346,88 @@ void MassSpringSystemSimulator::integrate(float timeStep)
 
 void MassSpringSystemSimulator::integrateEuler(float timeStep)
 {	
-	for (int i = 0; i < getNumberOfMassPoints(); i++)
+	for (point& p : m_massPoints)
 	{
-		point* p = & m_massPoints[i];
-
-		if (p->isFixed)
+		// ignore fixed points
+		if (p.isFixed)
 			continue;
 
 		// calculate acceleration a = f/m
-		Vec3 acceleration = p->force / p->mass;
+		Vec3 acceleration = p.force / p.mass;
 
 		// calculate position from velocity and delta t
-		p->position += p->velocity * timeStep;
+		p.position += p.velocity * timeStep;
 
 		// calculate velocity from acceleration and delta t
-		p->velocity += acceleration * timeStep;
+		p.velocity += acceleration * timeStep;
 
-		validatePointPosition(*p);
-
+		validatePointPosition(p);
 	}
 }
 
+// TODO now correct?
 void MassSpringSystemSimulator::integrateMidpoint(float timeStep)
 {
-	for (int i = 0; i < getNumberOfMassPoints(); i++)
+	// create copy of masspoints
+	// FIXME is this really a copy or just a copy of references?
+	std::vector<point> cp_massPoints(m_massPoints);
+	
+	// first step: calculate midpoint values
+	for (point& p : m_massPoints)
 	{
-		// TODO fix this algorithm
-
-		point* p = &m_massPoints[i];
-
-		if (p->isFixed)
+		// ignore fixed points
+		if (p.isFixed)
 			continue;
-		
+
 		// calculate acceleration a = f/m
-		Vec3 acceleration = p->force / p->mass;
+		Vec3 acceleration = p.force / p.mass;
 
 		// calculate midpoint (delta t / 2)
 		// calculate velocity (position) from acceleration (velocity)
-		p->position += p->velocity * (timeStep / 2);
-		p->velocity += acceleration * (timeStep / 2);
+		p.position += p.velocity * (timeStep / 2);
+		p.velocity += acceleration * (timeStep / 2);
 
-		// recompute elastic forces based on midpoint
-		clearForces();
-		computeElasticForces();
+		// TODO validate point positions here, too?
+	}
+
+	// recompute elastic forces based on midpoint
+	clearForces();
+	computeElasticForces();
+
+	// step 2: compute actual values from position/velocity before step 1 (cp_massPoints) and force calculated from midpoint
+	for (int i = 0; i < getNumberOfMassPoints(); i++)
+	{
+		point& p = m_massPoints[i];
+
+		// ignore fixed points
+		if (p.isFixed)
+			continue;
 
 		// calculate acceleration a = f/m
-		acceleration = p->force / p->mass;
+		Vec3 acceleration = p.force / p.mass;
 
 		// calculate final point from force of midpoint
 		// calculate velocity (position) from acceleration (velocity)
-		p->position += p->velocity * timeStep;
-		p->velocity += acceleration * timeStep;
+		p.position = cp_massPoints[i].position + p.velocity * timeStep;
+		p.velocity = cp_massPoints[i].velocity + acceleration * timeStep;
 
-		validatePointPosition(*p);		
+		validatePointPosition(p);		
 	}
 }
 
 // TODO maybe move to point class and use getter/setter?
 void MassSpringSystemSimulator::validatePointPosition(point& p)
 {
-	Vec3 minPositions = BBOX_CENTER - BBOX_SIZE + MASS_POINT_SIZE;	
-	p.position.x = max(p.position.x, minPositions.x);
-	p.position.y = max(p.position.y, minPositions.y);
-	p.position.z = max(p.position.z, minPositions.z);
+	// no validation of positions in one step test
+	if (m_iTestCase != ONE_STEP_TEST) {
+		Vec3 minPositions = BBOX_CENTER - BBOX_SIZE + MASS_POINT_SIZE;
+		p.position.x = max(p.position.x, minPositions.x);
+		p.position.y = max(p.position.y, minPositions.y);
+		p.position.z = max(p.position.z, minPositions.z);
 
-	Vec3 maxPositions = BBOX_CENTER + BBOX_SIZE - MASS_POINT_SIZE;
-	p.position.x = min(p.position.x, maxPositions.x);
-	p.position.y = min(p.position.y, maxPositions.y);
-	p.position.z = min(p.position.z, maxPositions.z);
+		Vec3 maxPositions = BBOX_CENTER + BBOX_SIZE - MASS_POINT_SIZE;
+		p.position.x = min(p.position.x, maxPositions.x);
+		p.position.y = min(p.position.y, maxPositions.y);
+		p.position.z = min(p.position.z, maxPositions.z);
+	}
 }
