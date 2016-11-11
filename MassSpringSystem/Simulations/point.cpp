@@ -10,21 +10,3 @@ void point::clearForce()
 {
 	force = Vec3();
 }
-
-void point::resetPosition()
-{
-	position = initPosition;
-}
-
-// obsolete
-void point::addGravity(float timeStep)
-{
-	velocity.y += -GRAVITY*timeStep;
-	//as with the example from the lecture - this should be here.
-	//position += ((float)(-1 / 2))*GRAVITY*timeStep*timeStep;
-}
-
-void point::removeGravity()
-{
-	velocity.y += 0;
-}

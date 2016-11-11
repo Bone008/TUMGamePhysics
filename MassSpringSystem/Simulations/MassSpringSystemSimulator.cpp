@@ -57,14 +57,6 @@ void MassSpringSystemSimulator::reset()
 	m_massPoints.clear();
 }
 
-// return all points to there init positions
-void MassSpringSystemSimulator::returnInitState()
-{
-	for(point& p : m_massPoints)
-		p.resetPosition();
-}
-
-
 void MassSpringSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext)
 {
 	// draw all mass points
@@ -87,22 +79,49 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 	{
 	case ONE_STEP_TEST:
 		cout << "Simple one-step test!\n";
-		// FIXME the one step test should only print values to stdout
-		oneStepSimulation = true;
+
+		// setup scene
 		reset();
+		setMass(10);
+		setStiffness(40);
 		addSpring(
-			addMassPoint(Vec3(0, 2, 0), Vec3(-1, 0, 0), false),
-			addMassPoint(Vec3(0, 0, 0), Vec3(1, 0, 0), false),
+			addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false),
+			addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false),
 			1
 		);
+
+		// calculate and print values using Euler
+		integrateEuler(0.1);
+		cout << "After an Euler step:" << endl;
+		cout << "Point 0 vel " << getVelocityOfMassPoint(0).toString() << ", pos " << getPositionOfMassPoint(0).toString() << endl;
+		cout << "Point 1 vel " << getVelocityOfMassPoint(1).toString() << ", pos " << getPositionOfMassPoint(1).toString() << endl;
+		cout << endl;
+		
+		// setup scene
+		reset();
+		setMass(10);
+		setStiffness(40);
+		addSpring(
+			addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false),
+			addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false),
+			1
+		);
+
+		// calculate and print values using midpoint
+		integrateMidpoint(0.1);
+		cout << "After a midpoint step:" << endl;
+		cout << "Point 0 vel " << getVelocityOfMassPoint(0).toString() << ", pos " << getPositionOfMassPoint(0).toString() << endl;
+		cout << "Point 1 vel " << getVelocityOfMassPoint(1).toString() << ", pos " << getPositionOfMassPoint(1).toString() << endl;
+		cout << endl;
+
 		break;
 
 	case TWO_POINT_SETUP:
 		cout << "2-point setup!\n";
 		reset();
 		addSpring(
-			addMassPoint(Vec3(0, 2, 0), Vec3(-1, 0, 0), false),
-			addMassPoint(Vec3(0, 0, 0), Vec3(1, 0, 0), false),
+			addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false),
+			addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false),
 			1
 		);
 		break;
@@ -189,18 +208,8 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep)
 	// integrate position from forces
 	switch (m_iTestCase)
 	{
-	case ONE_STEP_TEST:
-		if (oneStepSimulation)
-		{
-			clearForces();
-			//TODO change main -> g_fTimestep and not hard coded like this
-			integrateEuler(0.1);
-			returnInitState();
-			integrateMidpoint(0.1);
-			oneStepSimulation = false;
-		}
-		break;
-		
+	case ONE_STEP_TEST:		
+		break;		
 
 	case TWO_POINT_SETUP:
 	case COMPLEX_SETUP:
@@ -250,7 +259,6 @@ int MassSpringSystemSimulator::addMassPoint(Vec3 position, Vec3 velocity, bool i
 	newMassPoint.force = Vec3();
 	newMassPoint.mass = m_fMass;
 	newMassPoint.isFixed = isFixed;
-	newMassPoint.initPosition = position;
 
 	// push new mass point to vector of mass points
 	m_massPoints.push_back(newMassPoint);
@@ -346,20 +354,13 @@ void MassSpringSystemSimulator::integrate(float timeStep)
 }
 
 void MassSpringSystemSimulator::integrateEuler(float timeStep)
-{
-	if (oneStepSimulation)
-		cout << "After an euler step:" << endl;
+{	
 	for (int i = 0; i < getNumberOfMassPoints(); i++)
 	{
 		point* p = & m_massPoints[i];
 
 		if (p->isFixed)
 			continue;
-
-		// with no velocity damping or gravity forces for the one step simulation
-		//if(!oneStepSimulation)
-		//add gravity
-			//p->addGravity(timeStep);
 
 		// calculate acceleration a = f/m
 		Vec3 acceleration = p->force / p->mass;
@@ -372,16 +373,11 @@ void MassSpringSystemSimulator::integrateEuler(float timeStep)
 
 		validatePointPosition(*p);
 
-		if (oneStepSimulation)
-			cout << "Point " << i << " vel " << p->velocity.toString() << ", pos " << p->position.toString() << "\n";
 	}
 }
 
 void MassSpringSystemSimulator::integrateMidpoint(float timeStep)
 {
-	if (oneStepSimulation)
-		cout << "After a mid point step:" << endl;
-
 	for (int i = 0; i < getNumberOfMassPoints(); i++)
 	{
 		// TODO fix this algorithm
@@ -390,12 +386,7 @@ void MassSpringSystemSimulator::integrateMidpoint(float timeStep)
 
 		if (p->isFixed)
 			continue;
-
-		// with no velocity damping or gravity forces for the one step simulation
-		//if (!oneStepSimulation)
-			//add gravity
-			//p->addGravity(timeStep);
-
+		
 		// calculate acceleration a = f/m
 		Vec3 acceleration = p->force / p->mass;
 
@@ -416,11 +407,7 @@ void MassSpringSystemSimulator::integrateMidpoint(float timeStep)
 		p->position += p->velocity * timeStep;
 		p->velocity += acceleration * timeStep;
 
-		validatePointPosition(*p);
-
-		if (oneStepSimulation)
-			cout << "Point " << i << " vel " << p->velocity.toString() << ", pos " << p->position.toString() << "\n";
-		
+		validatePointPosition(*p);		
 	}
 }
 

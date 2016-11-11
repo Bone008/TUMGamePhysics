@@ -29,7 +29,6 @@ public:
 	const char * getTestCasesStr();
 	void initUI(DrawingUtilitiesClass * DUC);
 	void reset();
-	void returnInitState();
 	void drawFrame(ID3D11DeviceContext* pd3dImmediateContext);
 	void notifyCaseChanged(int testCase);
 	void externalForcesCalculations(float timeElapsed);
@@ -66,10 +65,7 @@ private:
 	Point2D m_mouse;
 	Point2D m_trackmouse;
 	Point2D m_oldtrackmouse;
-
-	// one step simulation 
-	bool oneStepSimulation;
-
+	
 	// Force and integrating functions
 	void clearForces();
 	void computeElasticForces();
