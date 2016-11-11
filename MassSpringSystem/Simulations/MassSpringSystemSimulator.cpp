@@ -132,21 +132,20 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 		// cube
 		{
 			// global position of cube
-			int x = 0;
-			int y = 0;
-			int z = 0;
+			const Vec3 pos = Vec3();
+			const float size = 0.3f;
 
 			// vertices
-			int p000 = addMassPoint(Vec3(x + 0, y + 0, z + 0), Vec3(), false);
-			int p001 = addMassPoint(Vec3(x + 0, y + 0, z + 1), Vec3(), false);
-			int p010 = addMassPoint(Vec3(x + 0, y + 1, z + 0), Vec3(), true);
-			int p011 = addMassPoint(Vec3(x + 0, y + 1, z + 1), Vec3(), false);
-			int p100 = addMassPoint(Vec3(x + 1, y + 0, z + 0), Vec3(), false);
-			int p101 = addMassPoint(Vec3(x + 1, y + 0, z + 1), Vec3(), false);
-			int p110 = addMassPoint(Vec3(x + 1, y + 1, z + 0), Vec3(), false);
-			int p111 = addMassPoint(Vec3(x + 1, y + 1, z + 1), Vec3(), false);
+			int p000 = addMassPoint(pos + Vec3(0, 0, 0), Vec3(), false);
+			int p001 = addMassPoint(pos + Vec3(0, 0, size), Vec3(), false);
+			int p010 = addMassPoint(pos + Vec3(0, size, 0), Vec3(), true);
+			int p011 = addMassPoint(pos + Vec3(0, size, size), Vec3(), false);
+			int p100 = addMassPoint(pos + Vec3(size, 0, 0), Vec3(), false);
+			int p101 = addMassPoint(pos + Vec3(size, 0, size), Vec3(), false);
+			int p110 = addMassPoint(pos + Vec3(size, size, 0), Vec3(), false);
+			int p111 = addMassPoint(pos + Vec3(size, size, size), Vec3(), false);
 			
-			const float springLengthFac = 1.2;
+			const float springLengthFac = size + 0.2f;
 
 			// edges
 			addSpring(p000, p001, springLengthFac);
@@ -161,35 +160,27 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 			addSpring(p100, p110, springLengthFac);
 			addSpring(p101, p111, springLengthFac);
 			addSpring(p110, p111, springLengthFac);
-
-			// diagonals
-			float diagLength = sqrt(2) * springLengthFac;
-			//addSpring(p000, p111, diagLength);
-			//addSpring(p001, p110, diagLength);
-			//addSpring(p010, p101, diagLength);
-			//addSpring(p011, p100, diagLength);
 		}
 
 		// tetrahedron
 		{
 			// global position of tetrahedron
-			int x = 2;
-			int y = 2;
-			int z = 2;
+			const Vec3 pos = Vec3();
+			const float halfSize = 0.2f;
 
 			// 4 corners
-			int a = addMassPoint(Vec3(x + 1, y + 1, z - 1), Vec3(), false);
-			int b = addMassPoint(Vec3(x - 1, y - 1, z - 1), Vec3(), false);
-			int c = addMassPoint(Vec3(x - 1, y + 1, z + 1), Vec3(), false);
-			int d = addMassPoint(Vec3(x + 1, y - 1, z + 1), Vec3(), false);
+			int a = addMassPoint(pos + Vec3(+halfSize, +halfSize, -halfSize), Vec3(), false);
+			int b = addMassPoint(pos + Vec3(-halfSize, -halfSize, -halfSize), Vec3(), false);
+			int c = addMassPoint(pos + Vec3(-halfSize, +halfSize, +halfSize), Vec3(), false);
+			int d = addMassPoint(pos + Vec3(+halfSize, -halfSize, +halfSize), Vec3(), false);
 
 			// edges
-			addSpring(a, b, 2);
-			addSpring(a, c, 2);
-			addSpring(a, d, 2);
-			addSpring(b, c, 2);
-			addSpring(b, d, 2);
-			addSpring(c, d, 2);
+			addSpring(a, b, halfSize);
+			addSpring(a, c, halfSize);
+			addSpring(a, d, halfSize);
+			addSpring(b, c, halfSize);
+			addSpring(b, d, halfSize);
+			addSpring(c, d, halfSize);
 		}
 		break;
 
