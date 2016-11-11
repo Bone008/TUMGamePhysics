@@ -129,10 +129,11 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 	case COMPLEX_SETUP:
 		cout << "complex setup!\n";
 		reset();
+		
 		// cube
 		{
 			// global position of cube
-			const Vec3 pos = Vec3();
+			const Vec3 pos = Vec3(-0.25f, 0, 0);
 			const float size = 0.3f;
 
 			// vertices
@@ -181,6 +182,43 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 			addSpring(b, c, halfSize);
 			addSpring(b, d, halfSize);
 			addSpring(c, d, halfSize);
+		}
+		
+		// star-like thingy
+		{
+			const Vec3 pos = Vec3(0.25f, 0, 0);
+			const float halfSize = 0.1f;
+
+			int m = addMassPoint((pos), Vec3(), false);
+			int l = addMassPoint(pos + Vec3(-halfSize, 0, 0), Vec3(), false);
+			int r = addMassPoint(pos + Vec3(+halfSize, 0, 0), Vec3(), false);
+			int d = addMassPoint(pos + Vec3(0, -halfSize, 0), Vec3(), false);
+			int t = addMassPoint(pos + Vec3(0, +halfSize, 0), Vec3(), false);
+			int f = addMassPoint(pos + Vec3(0, 0, -halfSize), Vec3(), false);
+			int b = addMassPoint(pos + Vec3(0, 0, +halfSize), Vec3(), false);
+
+			// connect middle with other directions
+			addSpring(m, l, halfSize);
+			addSpring(m, r, halfSize);
+			addSpring(m, d, halfSize);
+			addSpring(m, t, halfSize);
+			addSpring(m, f, halfSize);
+			addSpring(m, b, halfSize);
+
+			// diagonals
+			const float sideLength = sqrt(2) * halfSize;
+			addSpring(l, t, sideLength);
+			addSpring(l, d, sideLength);
+			addSpring(l, f, sideLength);
+			addSpring(l, b, sideLength);
+			addSpring(r, t, sideLength);
+			addSpring(r, d, sideLength);
+			addSpring(r, f, sideLength);
+			addSpring(r, b, sideLength);
+			addSpring(d, f, sideLength);
+			addSpring(d, b, sideLength);
+			addSpring(t, f, sideLength);
+			addSpring(t, b, sideLength);
 		}
 		break;
 
@@ -393,6 +431,7 @@ void MassSpringSystemSimulator::integrateMidpoint(float timeStep)
 	// recompute elastic forces based on midpoint
 	clearForces();
 	computeElasticForces();
+	applyExternalForce(m_externalForce);
 
 	// step 2: compute actual values from position/velocity before step 1 (cp_massPoints) and force calculated from midpoint
 	for (int i = 0; i < getNumberOfMassPoints(); i++)
