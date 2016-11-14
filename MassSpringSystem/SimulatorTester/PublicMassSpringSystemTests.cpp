@@ -4,130 +4,124 @@
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace SimulatorTester
-{		
+{
 	TEST_CLASS(PublicMassSpringSystemTests)
 	{
-	public: 
+	public:
+		void setupBaseTest(MassSpringSystemSimulator * msss) {
+			msss->m_iTestCase = 1;
+			msss->setMass(10.0f);
+			msss->setDampingFactor(0.0f);
+			msss->setStiffness(40.0f);
+			msss->applyExternalForce(Vec3(0.0f, 0.0f, 0.0f));// no gravity or other forces should be used!
+			msss->addMassPoint(Vec3(0.0, 0.0f, 0), Vec3(-1.0, 0.0f, 0), false);
+			msss->addMassPoint(Vec3(0.0, 2.0f, 0), Vec3(1.0, 0.0f, 0), false);
+			msss->addSpring(0, 1, 1.0);
+		}
 		TEST_METHOD(TestNumberofMassPoints)
 		{
-			MassSpringSystemSimulator * msss =  new MassSpringSystemSimulator();
-			msss->notifyCaseChanged(1);
-			Assert::AreEqual(2.0f,(float)msss->getNumberOfMassPoints(),0.0001f,L"Number of Mass Points is not equal to 2",LINE_INFO());
+			MassSpringSystemSimulator * msss = new MassSpringSystemSimulator();
+			setupBaseTest(msss);
+			Assert::AreEqual(2.0f, (float)msss->getNumberOfMassPoints(), 0.0001f, L"Number of Mass Points is not equal to 2", LINE_INFO());
+			delete msss;
 		}
 		TEST_METHOD(TestNumberofSprings)
 		{
-			MassSpringSystemSimulator * msss =  new MassSpringSystemSimulator();;
-			msss->notifyCaseChanged(1);
-			Assert::AreEqual(1.0f,(float)msss->getNumberOfSprings(),0.0001f,L"Number of springs is not equal to 1",LINE_INFO());
+			MassSpringSystemSimulator * msss = new MassSpringSystemSimulator();;
+			setupBaseTest(msss);
+			Assert::AreEqual(1.0f, (float)msss->getNumberOfSprings(), 0.0001f, L"Number of Mass Points is not equal to 1", LINE_INFO());
+			delete msss;
 		}
 		TEST_METHOD(TestPositionOfMassPointsInitially)
 		{
-			MassSpringSystemSimulator * msss =  new MassSpringSystemSimulator();
-			msss->setMass(0.01f);
-			msss->setStiffness(25.0f);
-			msss->setDampingFactor(0.01f);
-			msss->notifyCaseChanged(1);
-			Assert::AreEqual(0.0f,(float)msss->getPositionOfMassPoint(0).x,0.0001f,L"Mass Point at index 0, X value is wrong !!",LINE_INFO());
-			Assert::AreEqual(0.0f,(float)msss->getPositionOfMassPoint(0).y,0.0001f,L"Mass Point at index 0, Y value is wrong !!",LINE_INFO());
-			Assert::AreEqual(0.0f,(float)msss->getPositionOfMassPoint(0).z,0.0001f,L"Mass Point at index 0, Z value is wrong !!",LINE_INFO());
-			Assert::AreEqual(0.0f,(float)msss->getPositionOfMassPoint(1).x,0.0001f,L"Mass Point at index 1, X value is wrong !!",LINE_INFO());
-			Assert::AreEqual(2.0f,(float)msss->getPositionOfMassPoint(1).y,0.0001f,L"Mass Point at index 1, Y value is wrong !!",LINE_INFO());
-			Assert::AreEqual(0.0f,(float)msss->getPositionOfMassPoint(1).z,0.0001f,L"Mass Point at index 1, Z value is wrong !!",LINE_INFO());
+			MassSpringSystemSimulator * msss = new MassSpringSystemSimulator();
+			setupBaseTest(msss);
+
+			Assert::AreEqual(0.0f, (float)msss->getPositionOfMassPoint(0).x, 0.0001f, L"Mass Point at index 0, X value is wrong !!", LINE_INFO());
+			Assert::AreEqual(0.0f, (float)msss->getPositionOfMassPoint(0).y, 0.0001f, L"Mass Point at index 0, Y value is wrong !!", LINE_INFO());
+			Assert::AreEqual(0.0f, (float)msss->getPositionOfMassPoint(0).z, 0.0001f, L"Mass Point at index 0, Z value is wrong !!", LINE_INFO());
+			Assert::AreEqual(0.0f, (float)msss->getPositionOfMassPoint(1).x, 0.0001f, L"Mass Point at index 1, X value is wrong !!", LINE_INFO());
+			Assert::AreEqual(2.0f, (float)msss->getPositionOfMassPoint(1).y, 0.0001f, L"Mass Point at index 1, Y value is wrong !!", LINE_INFO());
+			Assert::AreEqual(0.0f, (float)msss->getPositionOfMassPoint(1).z, 0.0001f, L"Mass Point at index 1, Z value is wrong !!", LINE_INFO());
+			delete msss;
 		}
 
-		TEST_METHOD(TestPositionOfMassPointsAfter10TimeStepEuler)
-		{
-			MassSpringSystemSimulator * msss =  new MassSpringSystemSimulator();
-			msss->setMass(0.01f);
-			msss->setStiffness(25.0f);
-			msss->setDampingFactor(0.01f);
-			DrawingUtilitiesClass * DUC = new DrawingUtilitiesClass();
-			msss->initUI(DUC);
-			msss->setIntegrator(EULER);
-			msss->notifyCaseChanged(1);
-			for(int i =0; i <10; i++)
-				msss->simulateTimestep(0.005);;
-			Assert::AreEqual(-0.04994f,(float)msss->getPositionOfMassPoint(0).x,0.0001f,L"Mass Point at index 0, X value is wrong !!",LINE_INFO());
-			Assert::AreEqual(0.00449f,(float)msss->getPositionOfMassPoint(0).y,0.0001f,L"Mass Point at index 0, Y value is wrong !!",LINE_INFO());
-			Assert::AreEqual(0.0f,(float)msss->getPositionOfMassPoint(0).z,0.0001f,L"Mass Point at index 0, Z value is wrong !!",LINE_INFO());
-			Assert::AreEqual(0.04994f,(float)msss->getPositionOfMassPoint(1).x,0.0001f,L"Mass Point at index 1, X value is wrong !!",LINE_INFO());
-			Assert::AreEqual(1.9955f,(float)msss->getPositionOfMassPoint(1).y,0.0001f,L"Mass Point at index 1, Y value is wrong !!",LINE_INFO());
-			Assert::AreEqual(0.0f,(float)msss->getPositionOfMassPoint(1).z,0.0001f,L"Mass Point at index 1, Z value is wrong !!",LINE_INFO());
-		}
 
-		TEST_METHOD(TestPositionOfMassPointsAfter10TimeStepMidPoint)
+		TEST_METHOD(TestPositionOfMassPointsAfter1TimeStepMidPoint)
 		{
-			MassSpringSystemSimulator * msss =  new MassSpringSystemSimulator();
-			msss->setMass(0.01f);
-			msss->setStiffness(25.0f);
-			msss->setDampingFactor(0.01f);
-			DrawingUtilitiesClass * DUC = new DrawingUtilitiesClass();
-			msss->initUI(DUC);
+			MassSpringSystemSimulator * msss = new MassSpringSystemSimulator();
+			setupBaseTest(msss);
 			msss->setIntegrator(MIDPOINT);
-			msss->notifyCaseChanged(1);
-			for(int i =0; i <10; i++)
-				msss->simulateTimestep(0.005);
-			Assert::AreEqual(-0.0499164f,(float)msss->getPositionOfMassPoint(0).x,0.0001f,L"Mass Point at index 0, X value is wrong !!",LINE_INFO());
-			Assert::AreEqual(0.0049928f,(float)msss->getPositionOfMassPoint(0).y,0.0001f,L"Mass Point at index 0, Y value is wrong !!",LINE_INFO());
-			Assert::AreEqual(0.0f,(float)msss->getPositionOfMassPoint(0).z,0.0001f,L"Mass Point at index 0, Z value is wrong !!",LINE_INFO());
-			Assert::AreEqual(0.0499164f,(float)msss->getPositionOfMassPoint(1).x,0.0001f,L"Mass Point at index 1, X value is wrong !!",LINE_INFO());
-			Assert::AreEqual(1.99501f,(float)msss->getPositionOfMassPoint(1).y,0.0001f,L"Mass Point at index 1, Y value is wrong !!",LINE_INFO());
-			Assert::AreEqual(0.0f,(float)msss->getPositionOfMassPoint(1).z,0.0001f,L"Mass Point at index 1, Z value is wrong !!",LINE_INFO());
+			msss->simulateTimestep(0.1);
+			Assert::AreEqual(-0.1f, (float)msss->getPositionOfMassPoint(0).x, 0.0001f, L"Mass Point at index 0, X value is wrong !!", LINE_INFO());
+			Assert::AreEqual(0.02f, (float)msss->getPositionOfMassPoint(0).y, 0.0001f, L"Mass Point at index 0, Y value is wrong !!", LINE_INFO());
+			Assert::AreEqual(0.0f, (float)msss->getPositionOfMassPoint(0).z, 0.0001f, L"Mass Point at index 0, Z value is wrong !!", LINE_INFO());
+			Assert::AreEqual(0.1f, (float)msss->getPositionOfMassPoint(1).x, 0.0001f, L"Mass Point at index 1, X value is wrong !!", LINE_INFO());
+			Assert::AreEqual(1.98f, (float)msss->getPositionOfMassPoint(1).y, 0.0001f, L"Mass Point at index 1, Y value is wrong !!", LINE_INFO());
+			Assert::AreEqual(0.0f, (float)msss->getPositionOfMassPoint(1).z, 0.0001f, L"Mass Point at index 1, Z value is wrong !!", LINE_INFO());
+			delete msss;
 		}
+
+		TEST_METHOD(TestPositionOfMassPointsAfter1TimeStepEuler)
+		{
+			MassSpringSystemSimulator * msss = new MassSpringSystemSimulator();
+			setupBaseTest(msss);
+			msss->setIntegrator(EULER);
+			//msss->notifyCaseChanged(1);
+			msss->simulateTimestep(0.1);
+			Assert::AreEqual(-0.1f, (float)msss->getPositionOfMassPoint(0).x, 0.0001f, L"Mass Point at index 0, X value is wrong !!", LINE_INFO());
+			Assert::AreEqual(0.0f, (float)msss->getPositionOfMassPoint(0).y, 0.0001f, L"Mass Point at index 0, Y value is wrong !!", LINE_INFO());
+			Assert::AreEqual(0.0f, (float)msss->getPositionOfMassPoint(0).z, 0.0001f, L"Mass Point at index 0, Z value is wrong !!", LINE_INFO());
+			Assert::AreEqual(0.1f, (float)msss->getPositionOfMassPoint(1).x, 0.0001f, L"Mass Point at index 1, X value is wrong !!", LINE_INFO());
+			Assert::AreEqual(2.0f, (float)msss->getPositionOfMassPoint(1).y, 0.0001f, L"Mass Point at index 1, Y value is wrong !!", LINE_INFO());
+			Assert::AreEqual(0.0f, (float)msss->getPositionOfMassPoint(1).z, 0.0001f, L"Mass Point at index 1, Z value is wrong !!", LINE_INFO());
+
+			delete msss;
+		}
+
+
 
 		TEST_METHOD(TestVelocityOfMassPointsInitially)
 		{
-			MassSpringSystemSimulator * msss =  new MassSpringSystemSimulator();
-			msss->setMass(0.01f);
-			msss->setStiffness(25.0f);
-			msss->setDampingFactor(0.01f);
-			msss->notifyCaseChanged(1);
-			Assert::AreEqual(-1.0f,(float)msss->getVelocityOfMassPoint(0).x,0.0001f,L"Mass Point at index 0, X value is wrong !!",LINE_INFO());
-			Assert::AreEqual(0.0f,(float)msss->getVelocityOfMassPoint(0).y,0.0001f,L"Mass Point at index 0, Y value is wrong !!",LINE_INFO());
-			Assert::AreEqual(0.0f,(float)msss->getVelocityOfMassPoint(0).z,0.0001f,L"Mass Point at index 0, Z value is wrong !!",LINE_INFO());
-			Assert::AreEqual(1.0f,(float)msss->getVelocityOfMassPoint(1).x,0.0001f,L"Mass Point at index 1, X value is wrong !!",LINE_INFO());
-			Assert::AreEqual(0.0f,(float)msss->getVelocityOfMassPoint(1).y,0.0001f,L"Mass Point at index 1, Y value is wrong !!",LINE_INFO());
-			Assert::AreEqual(0.0f,(float)msss->getVelocityOfMassPoint(1).z,0.0001f,L"Mass Point at index 1, Z value is wrong !!",LINE_INFO());
+			MassSpringSystemSimulator * msss = new MassSpringSystemSimulator();
+			setupBaseTest(msss);
+			Assert::AreEqual(-1.0f, (float)msss->getVelocityOfMassPoint(0).x, 0.0001f, L"Mass Point at index 0, X value is wrong !!", LINE_INFO());
+			Assert::AreEqual(0.0f, (float)msss->getVelocityOfMassPoint(0).y, 0.0001f, L"Mass Point at index 0, Y value is wrong !!", LINE_INFO());
+			Assert::AreEqual(0.0f, (float)msss->getVelocityOfMassPoint(0).z, 0.0001f, L"Mass Point at index 0, Z value is wrong !!", LINE_INFO());
+			Assert::AreEqual(1.0f, (float)msss->getVelocityOfMassPoint(1).x, 0.0001f, L"Mass Point at index 1, X value is wrong !!", LINE_INFO());
+			Assert::AreEqual(0.0f, (float)msss->getVelocityOfMassPoint(1).y, 0.0001f, L"Mass Point at index 1, Y value is wrong !!", LINE_INFO());
+			Assert::AreEqual(0.0f, (float)msss->getVelocityOfMassPoint(1).z, 0.0001f, L"Mass Point at index 1, Z value is wrong !!", LINE_INFO());
+			delete msss;
 		}
 
-		TEST_METHOD(TestVelocityOfMassPointsAfter10TimeStepEuler)
+		TEST_METHOD(TestVelocityOfMassPointsAfter1TimeStepEuler)
 		{
-			MassSpringSystemSimulator * msss =  new MassSpringSystemSimulator();
-			msss->setMass(0.01f);
-			msss->setStiffness(25.0f);
-			msss->setDampingFactor(0.01f);
-			DrawingUtilitiesClass * DUC = new DrawingUtilitiesClass();
-			msss->initUI(DUC);
+			MassSpringSystemSimulator * msss = new MassSpringSystemSimulator();
+			setupBaseTest(msss);
 			msss->setIntegrator(EULER);
-			msss->notifyCaseChanged(1);
-			for(int i =0; i <10; i++)
-				msss->simulateTimestep(0.005);
-			Assert::AreEqual(-0.995508f,(float)msss->getVelocityOfMassPoint(0).x,0.0001f,L"Mass Point at index 0, X value is wrong !!",LINE_INFO());
-			Assert::AreEqual(0.199592f,(float)msss->getVelocityOfMassPoint(0).y,0.0001f,L"Mass Point at index 0, Y value is wrong !!",LINE_INFO());
-			Assert::AreEqual(0.0f,(float)msss->getVelocityOfMassPoint(0).z,0.0001f,L"Mass Point at index 0, Z value is wrong !!",LINE_INFO());
-			Assert::AreEqual(0.995508f,(float)msss->getVelocityOfMassPoint(1).x,0.0001f,L"Mass Point at index 1, X value is wrong !!",LINE_INFO());
-			Assert::AreEqual(-0.199592f,(float)msss->getVelocityOfMassPoint(1).y,0.0001f,L"Mass Point at index 1, Y value is wrong !!",LINE_INFO());
-			Assert::AreEqual(0.0f,(float)msss->getVelocityOfMassPoint(1).z,0.0001f,L"Mass Point at index 1, Z value is wrong !!",LINE_INFO());
+			msss->simulateTimestep(0.1);
+			Assert::AreEqual(-1.0f, (float)msss->getVelocityOfMassPoint(0).x, 0.0001f, L"Mass Point at index 0, X value is wrong !!", LINE_INFO());
+			Assert::AreEqual(0.4f, (float)msss->getVelocityOfMassPoint(0).y, 0.0001f, L"Mass Point at index 0, Y value is wrong !!", LINE_INFO());
+			Assert::AreEqual(0.0f, (float)msss->getVelocityOfMassPoint(0).z, 0.0001f, L"Mass Point at index 0, Z value is wrong !!", LINE_INFO());
+			Assert::AreEqual(1.0f, (float)msss->getVelocityOfMassPoint(1).x, 0.0001f, L"Mass Point at index 1, X value is wrong !!", LINE_INFO());
+			Assert::AreEqual(-0.4f, (float)msss->getVelocityOfMassPoint(1).y, 0.0001f, L"Mass Point at index 1, Y value is wrong !!", LINE_INFO());
+			Assert::AreEqual(0.0f, (float)msss->getVelocityOfMassPoint(1).z, 0.0001f, L"Mass Point at index 1, Z value is wrong !!", LINE_INFO());
+			delete msss;
 		}
 
-		TEST_METHOD(TestVelocityOfMassPointsAfter10TimeStepMidPoint)
+		TEST_METHOD(TestVelocityOfMassPointsAfter1TimeStepMidPoint)
 		{
-			MassSpringSystemSimulator * msss =  new MassSpringSystemSimulator();
-			msss->setMass(0.01f);
-			msss->setStiffness(25.0f);
-			msss->setDampingFactor(0.01f);
-			DrawingUtilitiesClass * DUC = new DrawingUtilitiesClass();
-			msss->initUI(DUC);
+			MassSpringSystemSimulator * msss = new MassSpringSystemSimulator();
+			setupBaseTest(msss);
 			msss->setIntegrator(MIDPOINT);
-			msss->notifyCaseChanged(1);
-			for(int i =0; i <10; i++)
-				msss->simulateTimestep(0.005);
-			Assert::AreEqual(-0.995013f,(float)msss->getVelocityOfMassPoint(0).x,0.0001f,L"Mass Point at index 0, X value is wrong !!",LINE_INFO());
-			Assert::AreEqual(0.199424f,(float)msss->getVelocityOfMassPoint(0).y,0.0001f,L"Mass Point at index 0, Y value is wrong !!",LINE_INFO());
-			Assert::AreEqual(0.0f,(float)msss->getVelocityOfMassPoint(0).z,0.0001f,L"Mass Point at index 0, Z value is wrong !!",LINE_INFO());
-			Assert::AreEqual(0.995013f,(float)msss->getVelocityOfMassPoint(1).x,0.0001f,L"Mass Point at index 1, X value is wrong !!",LINE_INFO());
-			Assert::AreEqual(-0.199424f,(float)msss->getVelocityOfMassPoint(1).y,0.0001f,L"Mass Point at index 1, Y value is wrong !!",LINE_INFO());
-			Assert::AreEqual(0.0f,(float)msss->getVelocityOfMassPoint(1).z,0.0001f,L"Mass Point at index 1, Z value is wrong !!",LINE_INFO());
+			msss->simulateTimestep(0.1);
+			Assert::AreEqual(-0.979975f, (float)msss->getVelocityOfMassPoint(0).x, 0.0001f, L"Mass Point at index 0, X value is wrong !!", LINE_INFO());
+			Assert::AreEqual(0.400499f, (float)msss->getVelocityOfMassPoint(0).y, 0.0001f, L"Mass Point at index 0, Y value is wrong !!", LINE_INFO());
+			Assert::AreEqual(0.0f, (float)msss->getVelocityOfMassPoint(0).z, 0.0001f, L"Mass Point at index 0, Z value is wrong !!", LINE_INFO());
+			Assert::AreEqual(0.979975f, (float)msss->getVelocityOfMassPoint(1).x, 0.0001f, L"Mass Point at index 1, X value is wrong !!", LINE_INFO());
+			Assert::AreEqual(-0.400499f, (float)msss->getVelocityOfMassPoint(1).y, 0.0001f, L"Mass Point at index 1, Y value is wrong !!", LINE_INFO());
+			Assert::AreEqual(0.0f, (float)msss->getVelocityOfMassPoint(1).z, 0.0001f, L"Mass Point at index 1, Z value is wrong !!", LINE_INFO());
+			delete msss;
 		}
 
 	};
