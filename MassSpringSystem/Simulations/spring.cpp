@@ -19,12 +19,10 @@ void spring::computeElasticForces()
 	point* p2 = &m_massPoints->at(point2);
 
 	// calculate current length of spring
-	float currentLength = sqrt(p1->position.squaredDistanceTo(p2->position));
+	// must not be 0 to prevent division by 0 in next line
+	double currentLength = max(DBL_MIN, sqrt(p1->position.squaredDistanceTo(p2->position)));
 
 	// calculate force of spring/p1
-	// FIXME at the moment, currentLength can equal 0 -> force equals NAN -> points disappear
-	//       either handle currentLength = 0 or somehow prevent currentLength getting equal to 0
-	//       somehow the stiffness of the springs doesnt do shit
 	Vec3 force = -stiffness
 		* (currentLength - initialLength)
 		* ((p1->position - p2->position) / currentLength);
