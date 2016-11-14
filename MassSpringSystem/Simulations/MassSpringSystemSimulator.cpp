@@ -15,6 +15,7 @@ MassSpringSystemSimulator::MassSpringSystemSimulator()
 	m_mouse         = Point2D();
 	m_trackmouse    = Point2D();
 	m_oldtrackmouse = Point2D();
+	m_collision = false; // important for the automatic tests
 }
 
 // Functions
@@ -47,6 +48,7 @@ void MassSpringSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 
 		TwAddVarRW(DUC->g_pTweakBar, "Damp factor", TW_TYPE_FLOAT, &this->m_fDamping, "min=0.0");
 		TwAddVarRW(DUC->g_pTweakBar, "Gravity force", TW_TYPE_DIR3D, &this->m_externalForce, "");
+		TwAddVarRW(DUC->g_pTweakBar, "Collision", TW_TYPE_BOOLCPP, &this->m_collision, "");		
 	}
 }
 
@@ -380,6 +382,16 @@ void MassSpringSystemSimulator::integrate(float timeStep)
 		// TODO
 		break;
 	}
+
+	// collision
+	// no validation of positions in one step test
+	if (m_collision && m_iTestCase != ONE_STEP_TEST)			
+	{
+		for(point& p : m_massPoints) 
+		{
+			validatePointPosition(p);
+		}
+	}
 }
 
 void MassSpringSystemSimulator::integrateEuler(float timeStep)
@@ -398,8 +410,6 @@ void MassSpringSystemSimulator::integrateEuler(float timeStep)
 
 		// calculate velocity from acceleration and delta t
 		p.velocity += acceleration * timeStep;
-
-		validatePointPosition(p);
 	}
 }
 
@@ -424,8 +434,6 @@ void MassSpringSystemSimulator::integrateMidpoint(float timeStep)
 		// calculate velocity (position) from acceleration (velocity)
 		p.position += p.velocity * (timeStep / 2);
 		p.velocity += acceleration * (timeStep / 2);
-
-		// TODO validate point positions here, too?
 	}
 
 	// recompute elastic forces based on midpoint
@@ -449,24 +457,19 @@ void MassSpringSystemSimulator::integrateMidpoint(float timeStep)
 		// calculate velocity (position) from acceleration (velocity)
 		p.position = cp_massPoints[i].position + p.velocity * timeStep;
 		p.velocity = cp_massPoints[i].velocity + acceleration * timeStep;
-
-		validatePointPosition(p);		
 	}
 }
 
 // TODO maybe move to point class and use getter/setter?
 void MassSpringSystemSimulator::validatePointPosition(point& p)
 {
-	// no validation of positions in one step test
-	if (m_iTestCase != ONE_STEP_TEST) {
-		Vec3 minPositions = BBOX_CENTER - BBOX_SIZE + MASS_POINT_SIZE;
-		p.position.x = max(p.position.x, minPositions.x);
-		p.position.y = max(p.position.y, minPositions.y);
-		p.position.z = max(p.position.z, minPositions.z);
+	Vec3 minPositions = BBOX_CENTER - BBOX_SIZE + MASS_POINT_SIZE;
+	p.position.x = max(p.position.x, minPositions.x);
+	p.position.y = max(p.position.y, minPositions.y);
+	p.position.z = max(p.position.z, minPositions.z);
 
-		Vec3 maxPositions = BBOX_CENTER + BBOX_SIZE - MASS_POINT_SIZE;
-		p.position.x = min(p.position.x, maxPositions.x);
-		p.position.y = min(p.position.y, maxPositions.y);
-		p.position.z = min(p.position.z, maxPositions.z);
-	}
+	Vec3 maxPositions = BBOX_CENTER + BBOX_SIZE - MASS_POINT_SIZE;
+	p.position.x = min(p.position.x, maxPositions.x);
+	p.position.y = min(p.position.y, maxPositions.y);
+	p.position.z = min(p.position.z, maxPositions.z);
 }

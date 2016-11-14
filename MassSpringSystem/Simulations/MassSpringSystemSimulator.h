@@ -65,6 +65,7 @@ private:
 	Point2D m_mouse;
 	Point2D m_trackmouse;
 	Point2D m_oldtrackmouse;
+	bool m_collision;
 	
 	// Force and integrating functions
 	void clearForces();
