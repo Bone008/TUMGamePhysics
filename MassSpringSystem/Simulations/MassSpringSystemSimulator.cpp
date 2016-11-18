@@ -16,6 +16,8 @@ MassSpringSystemSimulator::MassSpringSystemSimulator()
 	m_trackmouse    = Point2D();
 	m_oldtrackmouse = Point2D();
 	m_collision = false; // important for the automatic tests
+
+	firstTime = true; // important for the leap-frog 
 }
 
 // Functions
@@ -436,7 +438,7 @@ void MassSpringSystemSimulator::integrate(float timeStep)
 		break;
 
 	case LEAPFROG:
-		// TODO
+		integrateLeapfrog(timeStep);
 		break;
 	}
 
@@ -514,6 +516,50 @@ void MassSpringSystemSimulator::integrateMidpoint(float timeStep)
 		// calculate velocity (position) from acceleration (velocity)
 		p.position = cp_massPoints[i].position + p.velocity * timeStep;
 		p.velocity = cp_massPoints[i].velocity + acceleration * timeStep;
+	}
+}
+
+
+//TODO (Konstantin) need to be finished
+void MassSpringSystemSimulator::integrateLeapfrog(float timeStep)
+{
+	//First time the object velocity should be at midpoint
+	if (firstTime) {
+		for (point& p : m_massPoints)
+		{
+			// ignore fixed points
+			if (p.isFixed)
+				continue;
+
+			// calculate acceleration a = f/m
+			Vec3 acceleration = p.force / p.mass;
+
+			// calculate velocity from acceleration and delta t /2 
+			p.velocity += acceleration * timeStep/2;
+
+			// calculate position from velocity and delta t
+			p.position += p.velocity * timeStep;
+
+			//reset boolean
+			firstTime = false;
+		}
+	}
+	else {
+		for (point& p : m_massPoints)
+		{
+			// ignore fixed points
+			if (p.isFixed)
+				continue;
+
+			// calculate acceleration a = f/m
+			Vec3 acceleration = p.force / p.mass;
+
+			// calculate velocity from acceleration and delta t 
+			p.velocity += acceleration * timeStep;
+
+			// calculate position from velocity and delta t
+			p.position += p.velocity * timeStep;
+		}
 	}
 }
 

@@ -69,6 +69,9 @@ private:
 	float m_fStiffness;
 	float m_fDamping;
 	int m_iIntegrator;
+
+	//For leap-frog
+	bool firstTime;
 	
 	// UI Attributes
 	Vec3 m_externalForce;
@@ -83,6 +86,7 @@ private:
 	void integrate(float timeStep);
 	void integrateEuler(float timeStep);
 	void integrateMidpoint(float timeStep);
+	void integrateLeapfrog(float timeStep);
 	void validatePointPosition(point& p);
 
 	void changePosition(Vec3 externalForce);
