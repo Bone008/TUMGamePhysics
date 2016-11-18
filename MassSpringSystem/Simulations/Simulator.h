@@ -11,6 +11,8 @@
 
 struct Point2D {
 	int x,y;
+	bool operator==(Point2D b) { return x == b.x && y == b.y; }
+	
 };
 
 using namespace std;
@@ -69,7 +71,6 @@ public:
 	input x,y: the click position in pixels
 	*/
 	virtual void onMouse(int x, int y) = 0;
-
 };
 
 #endif

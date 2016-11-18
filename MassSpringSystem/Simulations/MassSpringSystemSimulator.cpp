@@ -252,8 +252,34 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep)
 	}
 }
 
+// on left click
 void MassSpringSystemSimulator::onClick(int x, int y)
 {
+	
+	//check if old mouse was set
+	if (!isSet(m_mouse)) {
+		m_mouse = setBoth(x, y);
+	}
+	else {
+		m_trackmouse = setBoth(x, y);
+		//try to ignore just random clicks on the screen
+		if (getDistance(m_trackmouse,m_oldtrackmouse) > MAX_MOUSE_DISTANCE && isSet(m_oldtrackmouse)){
+			cout << "HERE distance = " << getDistance(m_mouse, m_oldtrackmouse) << "\n";
+			m_oldtrackmouse = m_mouse;
+			m_mouse = m_trackmouse;
+		}
+		else {
+			m_oldtrackmouse = m_mouse;
+			m_mouse = m_trackmouse;
+			Vec3 direction = getMouseDirection(m_mouse, m_oldtrackmouse);
+			//cout << "in degree atan2 = " << atan2(m_oldtrackmouse.y - m_mouse.y,m_oldtrackmouse.x - m_mouse.x)*180/M_PI << endl;
+			cout << "Mouse direction " << direction.x << " " << direction.y << endl;
+
+			changePosition(direction);
+		}
+		
+	}
+	
 }
 
 void MassSpringSystemSimulator::onMouse(int x, int y)
@@ -340,6 +366,37 @@ void MassSpringSystemSimulator::applyExternalForce(Vec3 force)
 	}
 }
 
+Point2D MassSpringSystemSimulator::setBoth(int x, int y)
+{
+	Point2D res = Point2D();
+	res.x = x;
+	res.y = y;
+	return res;
+}
+// checks if the point is is set
+bool MassSpringSystemSimulator::isSet(Point2D p)
+{
+	return p.x != 0 && p.y != 0;
+}
+
+
+Vec3 MassSpringSystemSimulator::getMouseDirection(Point2D mouse, Point2D oldMouse)
+{
+	Vec3 dir = Vec3(0,0,0);
+	
+	dir.y = oldMouse.y - mouse.y;
+	
+	dir.x = mouse.x - oldMouse.x;
+
+	return dir/MAGIC_NUMBER_MOUSE_SUBTRACTION;
+}
+
+int MassSpringSystemSimulator::getDistance(Point2D a, Point2D b)
+{
+	return abs(a.x - b.x) >= abs(a.y - b.y) ? abs(a.x - b.x) : abs(a.y - b.y);
+}
+
+
 
 // Force and integrating functions
 void MassSpringSystemSimulator::clearForces()
@@ -401,7 +458,7 @@ void MassSpringSystemSimulator::integrateEuler(float timeStep)
 		// ignore fixed points
 		if (p.isFixed)
 			continue;
-
+		
 		// calculate acceleration a = f/m
 		Vec3 acceleration = p.force / p.mass;
 
@@ -472,4 +529,12 @@ void MassSpringSystemSimulator::validatePointPosition(point& p)
 	p.position.x = min(p.position.x, maxPositions.x);
 	p.position.y = min(p.position.y, maxPositions.y);
 	p.position.z = min(p.position.z, maxPositions.z);
+}
+
+void MassSpringSystemSimulator::changePosition(Vec3 externalForce)
+{
+	for (point& p : m_massPoints)
+	{
+		p.position += externalForce;
+	}
 }

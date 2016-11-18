@@ -20,6 +20,9 @@
 #define BBOX_CENTER Vec3()
 #define BBOX_SIZE 0.5f
 
+#define MAX_MOUSE_DISTANCE 50
+#define MAGIC_NUMBER_MOUSE_SUBTRACTION 1000
+
 class MassSpringSystemSimulator:public Simulator{
 public:
 	//Construtors
@@ -48,7 +51,14 @@ public:
 	Vec3 getPositionOfMassPoint(int index);
 	Vec3 getVelocityOfMassPoint(int index);
 	void applyExternalForce(Vec3 force);
+
+	//Point2D functions. TODO Make class just for it
+	Point2D setBoth(int x, int y);
+	bool isSet(Point2D p);
+	Vec3 getMouseDirection(Point2D mouse, Point2D oldMouse);
+	int getDistance(Point2D a, Point2D b);
 	
+
 private:
 	// Masspoints and Springs
 	std::vector<point> m_massPoints;
@@ -74,5 +84,7 @@ private:
 	void integrateEuler(float timeStep);
 	void integrateMidpoint(float timeStep);
 	void validatePointPosition(point& p);
+
+	void changePosition(Vec3 externalForce);
 };
 #endif
