@@ -266,7 +266,6 @@ void MassSpringSystemSimulator::onClick(int x, int y)
 		m_trackmouse = setBoth(x, y);
 		//try to ignore just random clicks on the screen
 		if (getDistance(m_trackmouse,m_oldtrackmouse) > MAX_MOUSE_DISTANCE && isSet(m_oldtrackmouse)){
-			cout << "HERE distance = " << getDistance(m_mouse, m_oldtrackmouse) << "\n";
 			m_oldtrackmouse = m_mouse;
 			m_mouse = m_trackmouse;
 		}
@@ -275,8 +274,6 @@ void MassSpringSystemSimulator::onClick(int x, int y)
 			m_mouse = m_trackmouse;
 			Vec3 direction = getMouseDirection(m_mouse, m_oldtrackmouse);
 			//cout << "in degree atan2 = " << atan2(m_oldtrackmouse.y - m_mouse.y,m_oldtrackmouse.x - m_mouse.x)*180/M_PI << endl;
-			cout << "Mouse direction " << direction.x << " " << direction.y << endl;
-
 			changePosition(direction);
 		}
 		
@@ -470,6 +467,8 @@ void MassSpringSystemSimulator::integrateEuler(float timeStep)
 		// calculate velocity from acceleration and delta t
 		p.velocity += acceleration * timeStep;
 	}
+	//reset the leapfrog boolean
+	firstTime = true;
 }
 
 // TODO now correct?
@@ -517,10 +516,11 @@ void MassSpringSystemSimulator::integrateMidpoint(float timeStep)
 		p.position = cp_massPoints[i].position + p.velocity * timeStep;
 		p.velocity = cp_massPoints[i].velocity + acceleration * timeStep;
 	}
+
+	//reset the leapfrog boolean
+	firstTime = true;
 }
 
-
-//TODO (Konstantin) need to be finished
 void MassSpringSystemSimulator::integrateLeapfrog(float timeStep)
 {
 	//First time the object velocity should be at midpoint
@@ -540,9 +540,10 @@ void MassSpringSystemSimulator::integrateLeapfrog(float timeStep)
 			// calculate position from velocity and delta t
 			p.position += p.velocity * timeStep;
 
-			//reset boolean
-			firstTime = false;
 		}
+
+		//reset boolean
+		firstTime = false;
 	}
 	else {
 		for (point& p : m_massPoints)
@@ -581,6 +582,9 @@ void MassSpringSystemSimulator::changePosition(Vec3 externalForce)
 {
 	for (point& p : m_massPoints)
 	{
+		//skip fixed points
+		if (p.isFixed)
+			continue;
 		p.position += externalForce;
 	}
 }
