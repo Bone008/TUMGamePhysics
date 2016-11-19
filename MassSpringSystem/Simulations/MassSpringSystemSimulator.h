@@ -72,13 +72,16 @@ private:
 
 	//For leap-frog
 	bool firstTime;
+	bool isMouseActive;
 	
 	// UI Attributes
 	Vec3 m_externalForce;
+	Vec3 m_mouseForce;
 	Point2D m_mouse;
 	Point2D m_trackmouse;
 	Point2D m_oldtrackmouse;
 	bool m_collision;
+	bool m_mouseInteraction;
 	
 	// Force and integrating functions
 	void clearForces();
@@ -87,8 +90,8 @@ private:
 	void integrateEuler(float timeStep);
 	void integrateMidpoint(float timeStep);
 	void integrateLeapfrog(float timeStep);
-	void validatePointPosition(point& p);
-
-	void changePosition(Vec3 externalForce);
+	void validatePointPositionAndMouseIntegration(point& p);
+	void applyMouseForce(float timeStep);
+	void clearMouseForce();
 };
 #endif

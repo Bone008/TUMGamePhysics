@@ -12,12 +12,19 @@ MassSpringSystemSimulator::MassSpringSystemSimulator()
 
 	// UI Attributes
 	m_externalForce = Vec3();
+	m_mouseForce	= Vec3();
 	m_mouse         = Point2D();
 	m_trackmouse    = Point2D();
 	m_oldtrackmouse = Point2D();
 	m_collision = false; // important for the automatic tests
 
 	firstTime = true; // important for the leap-frog 
+
+	m_mouseInteraction = true; // twakbar boolean
+
+	isMouseActive = false; //measures whether the mouse is active or not
+
+
 }
 
 // Functions
@@ -51,6 +58,8 @@ void MassSpringSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 		TwAddVarRW(DUC->g_pTweakBar, "Damp factor", TW_TYPE_FLOAT, &this->m_fDamping, "min=0.0");
 		TwAddVarRW(DUC->g_pTweakBar, "Gravity force", TW_TYPE_DIR3D, &this->m_externalForce, "");
 		TwAddVarRW(DUC->g_pTweakBar, "Collision", TW_TYPE_BOOLCPP, &this->m_collision, "");		
+		TwAddVarRW(DUC->g_pTweakBar, "Mouse interaction", TW_TYPE_BOOLCPP, &this->m_mouseInteraction, "");
+		TwAddVarRW(DUC->g_pTweakBar, "Mouse force", TW_TYPE_DIR3D, &this->m_mouseForce, "");
 	}
 }
 
@@ -249,6 +258,7 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep)
 		clearForces();
 		computeElasticForces();
 		applyExternalForce(m_externalForce);
+		applyMouseForce(timeStep);
 		integrate(timeStep);
 		break;		
 	}
@@ -257,28 +267,30 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep)
 // on left click
 void MassSpringSystemSimulator::onClick(int x, int y)
 {
+	if (m_mouseInteraction) {
 	
-	//check if old mouse was set
-	if (!isSet(m_mouse)) {
-		m_mouse = setBoth(x, y);
-	}
-	else {
-		m_trackmouse = setBoth(x, y);
-		//try to ignore just random clicks on the screen
-		if (getDistance(m_trackmouse,m_oldtrackmouse) > MAX_MOUSE_DISTANCE && isSet(m_oldtrackmouse)){
-			m_oldtrackmouse = m_mouse;
-			m_mouse = m_trackmouse;
+		isMouseActive = true;
+
+		//check if old mouse was set
+		if (!isSet(m_mouse)) {
+			m_mouse = setBoth(x, y);
 		}
 		else {
-			m_oldtrackmouse = m_mouse;
-			m_mouse = m_trackmouse;
-			Vec3 direction = getMouseDirection(m_mouse, m_oldtrackmouse);
-			//cout << "in degree atan2 = " << atan2(m_oldtrackmouse.y - m_mouse.y,m_oldtrackmouse.x - m_mouse.x)*180/M_PI << endl;
-			changePosition(direction);
+			m_trackmouse = setBoth(x, y);
+			//try to ignore just random clicks on the screen
+			if (getDistance(m_trackmouse, m_oldtrackmouse) > MAX_MOUSE_DISTANCE && isSet(m_oldtrackmouse)) {
+				m_oldtrackmouse = m_mouse;
+				m_mouse = m_trackmouse;
+			}
+			else {
+				//it is real mouse input so handle it
+				m_oldtrackmouse = m_mouse;
+				m_mouse = m_trackmouse;
+				Vec3 direction = getMouseDirection(m_mouse, m_oldtrackmouse);
+				m_mouseForce += direction;
+			}
 		}
-		
 	}
-	
 }
 
 void MassSpringSystemSimulator::onMouse(int x, int y)
@@ -383,11 +395,12 @@ Vec3 MassSpringSystemSimulator::getMouseDirection(Point2D mouse, Point2D oldMous
 {
 	Vec3 dir = Vec3(0,0,0);
 	
-	dir.y = oldMouse.y - mouse.y;
+	dir.y = oldMouse.y - mouse.y >= 1 ? 1: -1;
 	
-	dir.x = mouse.x - oldMouse.x;
+	dir.x = mouse.x - oldMouse.x >= 1 ? 1: -1;
 
-	return dir/MAGIC_NUMBER_MOUSE_SUBTRACTION;
+	return dir;
+
 }
 
 int MassSpringSystemSimulator::getDistance(Point2D a, Point2D b)
@@ -428,10 +441,14 @@ void MassSpringSystemSimulator::integrate(float timeStep)
 	{
 	case EULER:
 		integrateEuler(timeStep);
+		//reset the leapfrog boolean
+		firstTime = true;
 		break;
 
 	case MIDPOINT:
 		integrateMidpoint(timeStep);
+		//reset the leapfrog boolean
+		firstTime = true;
 		break;
 
 	case LEAPFROG:
@@ -445,7 +462,7 @@ void MassSpringSystemSimulator::integrate(float timeStep)
 	{
 		for(point& p : m_massPoints) 
 		{
-			validatePointPosition(p);
+			validatePointPositionAndMouseIntegration(p);
 		}
 	}
 }
@@ -467,8 +484,6 @@ void MassSpringSystemSimulator::integrateEuler(float timeStep)
 		// calculate velocity from acceleration and delta t
 		p.velocity += acceleration * timeStep;
 	}
-	//reset the leapfrog boolean
-	firstTime = true;
 }
 
 // TODO now correct?
@@ -541,9 +556,6 @@ void MassSpringSystemSimulator::integrateLeapfrog(float timeStep)
 			p.position += p.velocity * timeStep;
 
 		}
-
-		//reset boolean
-		firstTime = false;
 	}
 	else {
 		for (point& p : m_massPoints)
@@ -564,27 +576,64 @@ void MassSpringSystemSimulator::integrateLeapfrog(float timeStep)
 	}
 }
 
-// TODO maybe move to point class and use getter/setter?
-void MassSpringSystemSimulator::validatePointPosition(point& p)
+void MassSpringSystemSimulator::validatePointPositionAndMouseIntegration(point& p)
 {
 	Vec3 minPositions = BBOX_CENTER - BBOX_SIZE + MASS_POINT_SIZE;
-	p.position.x = max(p.position.x, minPositions.x);
-	p.position.y = max(p.position.y, minPositions.y);
-	p.position.z = max(p.position.z, minPositions.z);
-
 	Vec3 maxPositions = BBOX_CENTER + BBOX_SIZE - MASS_POINT_SIZE;
-	p.position.x = min(p.position.x, maxPositions.x);
-	p.position.y = min(p.position.y, maxPositions.y);
-	p.position.z = min(p.position.z, maxPositions.z);
-}
 
-void MassSpringSystemSimulator::changePosition(Vec3 externalForce)
-{
-	for (point& p : m_massPoints)
-	{
-		//skip fixed points
-		if (p.isFixed)
-			continue;
-		p.position += externalForce;
+	bool isAtTheBottom = minPositions.y > p.position.y || minPositions.x > p.position.x;
+	bool isAtTheTop = maxPositions.y < p.position.y || maxPositions.x < p.position.x;
+	if (isAtTheBottom || isAtTheTop){
+		//if the mouse is not active just change the position of the point
+		if (!isMouseActive) {
+			//min position
+			p.position.x = max(p.position.x, minPositions.x);
+			p.position.y = max(p.position.y, minPositions.y);
+			p.position.z = max(p.position.z, minPositions.z);
+			//max position
+			p.position.x = min(p.position.x, maxPositions.x);
+			p.position.y = min(p.position.y, maxPositions.y);
+			p.position.z = min(p.position.z, maxPositions.z);
+
+			//always reset the mouse force
+			clearMouseForce();
+		}else{
+			//apply the mouse force when needed
+			if (m_mouseForce.y > m_externalForce.y) {
+				p.clearForce();
+				//apply only here the mouse force directly to the velocity
+				//this can lead to calculation mistake but in order to work
+				//as natural as posible should be left like this!
+				//p.force += m_mouseForce isn't realistic at all!!
+				p.velocity = m_mouseForce;
+				isMouseActive = false;
+			}
+			else {
+				//otherwise just clean it 
+				clearMouseForce();
+				isMouseActive = false;
+			}
+
+		}
 	}
 }
+
+void MassSpringSystemSimulator::applyMouseForce(float timeStep)
+{
+
+	//for more realistic effect
+	if (m_mouseForce.y != 0) {
+		m_mouseForce += m_externalForce*timeStep;
+
+	}
+	for (point& p : m_massPoints)
+	{
+		p.force += m_mouseForce;
+	}
+}
+
+void MassSpringSystemSimulator::clearMouseForce()
+{
+	m_mouseForce = 0;
+}
+
