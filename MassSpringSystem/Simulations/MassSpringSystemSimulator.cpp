@@ -290,7 +290,7 @@ void MassSpringSystemSimulator::onClick(int x, int y)
 				m_mouseForce += direction;
 			}
 		}
-	}
+	} 
 }
 
 void MassSpringSystemSimulator::onMouse(int x, int y)
@@ -394,12 +394,13 @@ bool MassSpringSystemSimulator::isSet(Point2D p)
 Vec3 MassSpringSystemSimulator::getMouseDirection(Point2D mouse, Point2D oldMouse)
 {
 	Vec3 dir = Vec3(0,0,0);
-	
-	dir.y = oldMouse.y - mouse.y >= 1 ? 1: -1;
-	
-	dir.x = mouse.x - oldMouse.x >= 1 ? 1: -1;
 
-	return dir;
+	dir.y = oldMouse.y - mouse.y;
+	
+	dir.x = mouse.x - oldMouse.x;
+
+	//small corection because its too big value
+	return dir/10;
 
 }
 
@@ -620,12 +621,16 @@ void MassSpringSystemSimulator::validatePointPositionAndMouseIntegration(point& 
 
 void MassSpringSystemSimulator::applyMouseForce(float timeStep)
 {
+	//set limit
+	if (m_mouseForce > MAX_MOUSE_FORCE)
+		m_mouseForce = MAX_MOUSE_FORCE;
 
-	//for more realistic effect
+	//for more realistic effect add the gravity
 	if (m_mouseForce.y != 0) {
 		m_mouseForce += m_externalForce*timeStep;
 
 	}
+
 	for (point& p : m_massPoints)
 	{
 		p.force += m_mouseForce;

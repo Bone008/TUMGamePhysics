@@ -22,6 +22,7 @@
 
 #define MAX_MOUSE_DISTANCE 50
 #define MAGIC_NUMBER_MOUSE_SUBTRACTION 1000
+#define MAX_MOUSE_FORCE 15
 
 class MassSpringSystemSimulator:public Simulator{
 public:
