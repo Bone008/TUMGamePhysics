@@ -5,9 +5,9 @@ MassSpringSystemSimulator::MassSpringSystemSimulator()
 	m_iTestCase = TWO_POINT_SETUP;
 
 	// Data Attributes
-	m_fMass       = 10;
-	m_fStiffness  = 40;
-	m_fDamping    = 1.0f;
+	m_fMass       = 5;
+	m_fStiffness  = 400;
+	m_fDamping    = 10;
 	m_iIntegrator = MIDPOINT;
 
 	// UI Attributes
@@ -30,7 +30,7 @@ MassSpringSystemSimulator::MassSpringSystemSimulator()
 // Functions
 const char * MassSpringSystemSimulator::getTestCasesStr()
 {
-	return "One-step test,2 point setup,complex setup";
+	return "One-step test,2 point setup,complex setup,complex setup 2";
 }
 
 void MassSpringSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
@@ -44,6 +44,7 @@ void MassSpringSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 
 	case TWO_POINT_SETUP:
 	case COMPLEX_SETUP:
+	case COMPLEX_SETUP2:
 		// add integrator-selection
 		TwAddSeparator(DUC->g_pTweakBar, "Separator", "");
 		TwEnumVal integrators[] =
@@ -99,6 +100,7 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 		reset();
 		setMass(10);
 		setStiffness(40);
+		setDampingFactor(0);
 		addSpring(
 			addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false),
 			addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false),
@@ -116,6 +118,7 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 		reset();
 		setMass(10);
 		setStiffness(40);
+		setDampingFactor(0);
 		addSpring(
 			addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false),
 			addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false),
@@ -237,6 +240,41 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 		}
 		break;
 
+	case COMPLEX_SETUP2:
+		// bestest cube
+		{
+			cout << "complex setup 2!\n";
+			reset();
+
+			// global position of cube
+			const Vec3 pos = Vec3(-0.25f, 0, 0);
+			const float size = 0.3f;
+
+			// vertices
+			int p000 = addMassPoint(pos + Vec3(0, 0, 0), Vec3(), false);
+			int p001 = addMassPoint(pos + Vec3(0, 0, size), Vec3(), false);
+			int p010 = addMassPoint(pos + Vec3(0, size, 0), Vec3(), false);
+			int p011 = addMassPoint(pos + Vec3(0, size, size), Vec3(), false);
+			int p100 = addMassPoint(pos + Vec3(size, 0, 0), Vec3(), false);
+			int p101 = addMassPoint(pos + Vec3(size, 0, size), Vec3(), false);
+			int p110 = addMassPoint(pos + Vec3(size, size, 0), Vec3(), false);
+			int p111 = addMassPoint(pos + Vec3(size, size, size), Vec3(), false);
+
+			const float springLengthFac = size;
+
+			// connect all points to each other
+			for (int i = p000; i <= p111; i++)
+			{
+				for (int j = i + 1; j <= p111; j++)
+				{
+					float dst = sqrt(this->getPositionOfMassPoint(i).squaredDistanceTo(this->getPositionOfMassPoint(j)));
+					addSpring(i, j, dst);
+				}
+			}
+		}
+		break;
+
+
 	default:
 		cout << "Empty test!\n";
 		break;
@@ -257,6 +295,7 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep)
 
 	case TWO_POINT_SETUP:
 	case COMPLEX_SETUP:
+	case COMPLEX_SETUP2:
 		clearForces();
 		computeElasticForces();
 		applyExternalForce(m_externalForce);
@@ -375,7 +414,7 @@ void MassSpringSystemSimulator::applyExternalForce(Vec3 force)
 {
 	for (point& p : m_massPoints)
 	{
-		p.force += force;
+		p.force += force * p.mass;
 	}
 }
 
@@ -564,8 +603,8 @@ void MassSpringSystemSimulator::validatePointPositionAndMouseIntegration(point& 
 	Vec3 minPositions = BBOX_CENTER - BBOX_SIZE + MASS_POINT_SIZE;
 	Vec3 maxPositions = BBOX_CENTER + BBOX_SIZE - MASS_POINT_SIZE;
 
-	bool isAtTheBottom = minPositions.y > p.position.y || minPositions.x > p.position.x;
-	bool isAtTheTop = maxPositions.y < p.position.y || maxPositions.x < p.position.x;
+	bool isAtTheBottom = minPositions.y > p.position.y || minPositions.x > p.position.x || minPositions.z > p.position.z;
+	bool isAtTheTop = maxPositions.y < p.position.y || maxPositions.x < p.position.x || maxPositions.z < p.position.z;
 	if (isAtTheBottom || isAtTheTop){
 		//if the mouse is not active just change the position of the point
 		if (!isMouseActive) {

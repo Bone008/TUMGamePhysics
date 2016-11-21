@@ -15,6 +15,7 @@
 #define ONE_STEP_TEST 0
 #define TWO_POINT_SETUP 1
 #define COMPLEX_SETUP 2
+#define COMPLEX_SETUP2 3
 
 // Bounding Box
 #define BBOX_CENTER Vec3()
