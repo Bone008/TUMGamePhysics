@@ -634,6 +634,8 @@ void MassSpringSystemSimulator::applyMouseForce(float timeStep)
 
 	for (point& p : m_massPoints)
 	{
+		if (p.isFixed)
+			continue;
 		p.force += m_mouseForce;
 	}
 }
