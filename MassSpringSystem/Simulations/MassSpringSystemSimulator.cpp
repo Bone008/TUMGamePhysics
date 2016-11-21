@@ -487,28 +487,13 @@ void MassSpringSystemSimulator::integrateEuler(float timeStep)
 	}
 }
 
-// TODO now correct?
 void MassSpringSystemSimulator::integrateMidpoint(float timeStep)
 {
 	// create copy of masspoints
-	// FIXME is this really a copy or just a copy of references?
 	std::vector<point> cp_massPoints(m_massPoints);
 	
 	// first step: calculate midpoint values
-	for (point& p : m_massPoints)
-	{
-		// ignore fixed points
-		if (p.isFixed)
-			continue;
-
-		// calculate acceleration a = f/m
-		Vec3 acceleration = p.force / p.mass;
-
-		// calculate midpoint (delta t / 2)
-		// calculate velocity (position) from acceleration (velocity)
-		p.position += p.velocity * (timeStep / 2);
-		p.velocity += acceleration * (timeStep / 2);
-	}
+	integrateEuler(timeStep / 2);
 
 	// recompute elastic forces based on midpoint
 	clearForces();
