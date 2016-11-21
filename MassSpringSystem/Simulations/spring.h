@@ -20,7 +20,7 @@ public:
 	*/
 
 	void draw(DrawingUtilitiesClass * DUC) const;
-	void computeElasticForces();
+	void computeElasticForces(float dampingFactor);
 };
 
 #endif

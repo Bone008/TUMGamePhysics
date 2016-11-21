@@ -8,7 +8,7 @@ MassSpringSystemSimulator::MassSpringSystemSimulator()
 	m_fMass       = 10;
 	m_fStiffness  = 40;
 	m_fDamping    = 1.0f;
-	m_iIntegrator = EULER;
+	m_iIntegrator = MIDPOINT;
 
 	// UI Attributes
 	m_externalForce = Vec3();
@@ -16,7 +16,7 @@ MassSpringSystemSimulator::MassSpringSystemSimulator()
 	m_mouse         = Point2D();
 	m_trackmouse    = Point2D();
 	m_oldtrackmouse = Point2D();
-	m_collision = false; // important for the automatic tests
+	m_collision		= true; // TODO important to set to false for the automatic tests
 
 	firstTime = true; // important for the leap-frog 
 
@@ -56,6 +56,8 @@ void MassSpringSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 		TwAddVarRW(DUC->g_pTweakBar, "Integrator", integratorType, &m_iIntegrator, "");
 
 		TwAddVarRW(DUC->g_pTweakBar, "Damp factor", TW_TYPE_FLOAT, &this->m_fDamping, "min=0.0");
+		TwAddVarRW(DUC->g_pTweakBar, "Spring Stiffness", TW_TYPE_FLOAT, &this->m_fStiffness, "min=0.0");
+		TwAddVarRW(DUC->g_pTweakBar, "Point Mass", TW_TYPE_FLOAT, &this->m_fMass, "min=0.0");
 		TwAddVarRW(DUC->g_pTweakBar, "Gravity force", TW_TYPE_DIR3D, &this->m_externalForce, "");
 		TwAddVarRW(DUC->g_pTweakBar, "Collision", TW_TYPE_BOOLCPP, &this->m_collision, "");		
 		TwAddVarRW(DUC->g_pTweakBar, "Mouse interaction", TW_TYPE_BOOLCPP, &this->m_mouseInteraction, "");
@@ -147,19 +149,19 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 		{
 			// global position of cube
 			const Vec3 pos = Vec3(-0.25f, 0, 0);
-			const float size = 0.3f;
+			const float size = 0.1f;
 
 			// vertices
 			int p000 = addMassPoint(pos + Vec3(0, 0, 0), Vec3(), false);
 			int p001 = addMassPoint(pos + Vec3(0, 0, size), Vec3(), false);
-			int p010 = addMassPoint(pos + Vec3(0, size, 0), Vec3(), true);
+			int p010 = addMassPoint(pos + Vec3(0, size, 0), Vec3(), false);
 			int p011 = addMassPoint(pos + Vec3(0, size, size), Vec3(), false);
 			int p100 = addMassPoint(pos + Vec3(size, 0, 0), Vec3(), false);
 			int p101 = addMassPoint(pos + Vec3(size, 0, size), Vec3(), false);
 			int p110 = addMassPoint(pos + Vec3(size, size, 0), Vec3(), false);
 			int p111 = addMassPoint(pos + Vec3(size, size, size), Vec3(), false);
-			
-			const float springLengthFac = size + 0.2f;
+
+			const float springLengthFac = size;
 
 			// edges
 			addSpring(p000, p001, springLengthFac);
@@ -179,13 +181,13 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 		// tetrahedron
 		{
 			// global position of tetrahedron
-			const Vec3 pos = Vec3();
 			const float halfSize = 0.2f;
+			const Vec3 pos = Vec3(0, 0.5f - halfSize, 0);
 
 			// 4 corners
-			int a = addMassPoint(pos + Vec3(+halfSize, +halfSize, -halfSize), Vec3(), false);
+			int a = addMassPoint(pos + Vec3(+halfSize, +halfSize, -halfSize), Vec3(), true);
 			int b = addMassPoint(pos + Vec3(-halfSize, -halfSize, -halfSize), Vec3(), false);
-			int c = addMassPoint(pos + Vec3(-halfSize, +halfSize, +halfSize), Vec3(), false);
+			int c = addMassPoint(pos + Vec3(-halfSize, +halfSize, +halfSize), Vec3(), true);
 			int d = addMassPoint(pos + Vec3(+halfSize, -halfSize, +halfSize), Vec3(), false);
 
 			// edges
@@ -426,13 +428,7 @@ void MassSpringSystemSimulator::computeElasticForces()
 	// calculate forces of each point
 	for (spring currentSpring : m_springs)
 	{
-		currentSpring.computeElasticForces();
-	}
-
-	// subtract damping factor
-	for (point& p : m_massPoints)
-	{
-		p.force -= m_fDamping * p.velocity;
+		currentSpring.computeElasticForces(m_fDamping);
 	}
 }
 
@@ -499,6 +495,7 @@ void MassSpringSystemSimulator::integrateMidpoint(float timeStep)
 	clearForces();
 	computeElasticForces();
 	applyExternalForce(m_externalForce);
+	applyMouseForce(timeStep);
 
 	// step 2: compute actual values from position/velocity before step 1 (cp_massPoints) and force calculated from midpoint
 	for (int i = 0; i < getNumberOfMassPoints(); i++)
@@ -573,13 +570,32 @@ void MassSpringSystemSimulator::validatePointPositionAndMouseIntegration(point& 
 		//if the mouse is not active just change the position of the point
 		if (!isMouseActive) {
 			//min position
-			p.position.x = max(p.position.x, minPositions.x);
-			p.position.y = max(p.position.y, minPositions.y);
-			p.position.z = max(p.position.z, minPositions.z);
+			if (p.position.x < minPositions.x) {
+				p.position.x = minPositions.x;
+				p.velocity.x = 0;
+			}
+			if (p.position.y < minPositions.y) {
+				p.position.y = minPositions.y;
+				p.velocity.y = 0;
+			}
+			if (p.position.z < minPositions.z) {
+				p.position.z = minPositions.z;
+				p.velocity.z = 0;
+			}
+
 			//max position
-			p.position.x = min(p.position.x, maxPositions.x);
-			p.position.y = min(p.position.y, maxPositions.y);
-			p.position.z = min(p.position.z, maxPositions.z);
+			if (p.position.x > maxPositions.x) {
+				p.position.x = maxPositions.x;
+				p.velocity.x = 0;
+			}
+			if (p.position.y > maxPositions.y) {
+				p.position.y = maxPositions.y;
+				p.velocity.y = 0;
+			}
+			if (p.position.z > maxPositions.z) {
+				p.position.z = maxPositions.z;
+				p.velocity.z = 0;
+			}
 
 			//always reset the mouse force
 			clearMouseForce();

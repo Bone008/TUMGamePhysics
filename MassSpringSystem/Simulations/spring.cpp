@@ -12,7 +12,7 @@ void spring::draw(DrawingUtilitiesClass * DUC) const
 	DUC->endLine();
 }
 
-void spring::computeElasticForces()
+void spring::computeElasticForces(float dampingFactor)
 {
 	// shortcut to endpoints of spring
 	point* p1 = &m_massPoints->at(point1);
@@ -26,6 +26,10 @@ void spring::computeElasticForces()
 	Vec3 force = -stiffness
 		* (currentLength - initialLength)
 		* ((p1->position - p2->position) / currentLength);
+
+	// calculate damping
+	Vec3 velDiff = (p1->velocity - p2->velocity);
+	force -= velDiff * dampingFactor;
 
 	// store forces in points for later integration
 	p1->force += force;
