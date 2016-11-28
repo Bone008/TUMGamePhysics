@@ -362,7 +362,7 @@ int main(int argc, char* argv[])
 	g_pSimulator= new MassSpringSystemSimulator();
 #endif
 #ifdef RIGID_BODY_SYSTEM
-	//g_pSimulator= new RigidBodySystemSimulator();
+	g_pSimulator= new RigidBodySystemSimulator();
 #endif
 #ifdef SPH_SYSTEM
 	//g_pSimulator= new SPHSystemSimulator();
