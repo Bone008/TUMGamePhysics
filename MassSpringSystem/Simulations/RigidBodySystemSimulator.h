@@ -6,6 +6,12 @@
 
 #define TESTCASEUSEDTORUNTEST 2
 
+// Testcases
+#define ONE_STEP_SIMULATION 0
+#define SINGLE_BODY_SIMULATION 1
+#define DOUBLE_BODY_SIMULATION 2
+#define COMPLEX_BODY_SIMULATION 3
+
 class RigidBodySystemSimulator:public Simulator{
 public:
 	// Construtors
@@ -34,12 +40,15 @@ public:
 
 private:
 	// Attributes
-	RigidBodySystem * m_pRigidBodySystem;
+	std::vector<RigidBodySystem> m_pRigidBodySystem;
 	Vec3 m_externalForce;
 
 	// UI Attributes
 	Point2D m_mouse;
 	Point2D m_trackmouse;
 	Point2D m_oldtrackmouse;
+
+	
+
 	};
 #endif

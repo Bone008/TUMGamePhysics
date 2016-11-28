@@ -8,7 +8,7 @@ RigidBodySystemSimulator::RigidBodySystemSimulator()
 // Functions
 const char * RigidBodySystemSimulator::getTestCasesStr()
 {
-	return nullptr;
+	return "One-step test, Single rigid body, Two-rigid-body, Complex Simulation";
 }
 
 void RigidBodySystemSimulator::initUI(DrawingUtilitiesClass * DUC)
