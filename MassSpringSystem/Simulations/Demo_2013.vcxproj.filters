@@ -34,6 +34,10 @@
     <ClInclude Include="util\vectorbase.h" />
     <ClInclude Include="point.h" />
     <ClInclude Include="spring.h" />
+    <ClInclude Include="util\collisionDetect.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="RigidBodySystemSimulator.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="effect.fx" />
