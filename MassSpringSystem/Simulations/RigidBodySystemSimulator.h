@@ -1,8 +1,8 @@
 #ifndef RIGIDBODYSYSTEMSIMULATOR_h
 #define RIGIDBODYSYSTEMSIMULATOR_h
 #include "Simulator.h"
-// please include the head file of your rigid body system, fir e.g.:
-// #include "rigidBodySystem.hpp"
+
+#include "RigidBodySystem.h"
 
 #define TESTCASEUSEDTORUNTEST 2
 
