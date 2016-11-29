@@ -1,8 +1,20 @@
 #include "RigidBody.h"
 
+void RigidBody::resetExternalForces()
+{
+	m_externalForces = Vec3();
+	m_externalTorque = Vec3();
+}
+
+void RigidBody::applyExternalForce(Vec3 force, Vec3 forcePosition)
+{
+	m_externalForces += force;
+	//m_externalTorque += ???; TODO figure out which "x_i" to use for torque calcuation
+}
+
 void RigidBody::integrateTimestep(float timeStep)
 {
-	// TODO change position/orientation and stuff
+	// TODO integrate position/orientation and stuff
 
 	// update obj to world matrix
 	Mat4 translateMatrix, rotationMatrix, scaleMatrix;
