@@ -36,6 +36,7 @@ public:
 	Vec3 getAngularVelocityOfRigidBody(int i);
 	void applyForceOnBody(int i, Vec3 loc, Vec3 force);
 	void addRigidBody(Vec3 position, Vec3 size, int mass);
+	void addRigidBody(Vec3 position, Quat orientation, Vec3 size, int mass);
 	void setOrientationOf(int i,Quat orientation);
 	void setVelocityOf(int i, Vec3 velocity);
 
@@ -51,7 +52,7 @@ private:
 	Point2D m_trackmouse;
 	Point2D m_oldtrackmouse;
 
-	
+	void buildTower(Vec3 position, Vec3 size, Vec3 boxSize, float boxMass);
 
 	};
 #endif
