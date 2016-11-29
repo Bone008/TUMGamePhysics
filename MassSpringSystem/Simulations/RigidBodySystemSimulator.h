@@ -41,8 +41,9 @@ public:
 
 private:
 	// Attributes
-	RigidBodySystem* m_pRigidBodySystem;
-	std::vector<RigidBody> r_rigidBodies; 	//Rigid bodies
+	RigidBodySystem* m_pRigidBodySystem; // probably not needed
+
+	std::vector<RigidBody> m_rigidBodies; 	//Rigid bodies
 	Vec3 m_externalForce;
 
 	// UI Attributes
