@@ -45,9 +45,11 @@ private:
 	RigidBodySystem* m_pRigidBodySystem; // probably not needed
 
 	std::vector<RigidBody> m_rigidBodies; 	//Rigid bodies
-	Vec3 m_externalForce;
+	
 
 	// UI Attributes
+	Vec3 m_externalForce;
+	Vec3 m_externalForceLocation;
 	Point2D m_mouse;
 	Point2D m_trackmouse;
 	Point2D m_oldtrackmouse;

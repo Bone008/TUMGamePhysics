@@ -15,6 +15,19 @@ RigidBody::RigidBody(Vec3 position, Quat orientation, Vec3 size, float mass) :
 	inertiaTensor.value[3][3] = 1;
 
 	m_inertiaTensorInv = inertiaTensor.inverse();
+
+	updateObjToWorldMatrix();
+}
+
+// private, has to be called whenever the position changes
+void RigidBody::updateObjToWorldMatrix()
+{
+	Mat4 translateMatrix, rotationMatrix, scaleMatrix;
+	translateMatrix.initTranslation(m_position.x, m_position.y, m_position.z);
+	rotationMatrix = m_orientation.getRotMat();
+	scaleMatrix.initScaling(m_size.x, m_size.y, m_size.z);
+
+	m_objToWorldMatrix = scaleMatrix * rotationMatrix * translateMatrix;
 }
 
 void RigidBody::resetExternalForces()
@@ -26,8 +39,9 @@ void RigidBody::resetExternalForces()
 void RigidBody::applyExternalForce(Vec3 force, Vec3 forcePosition)
 {
 	m_externalForces += force;
-	m_externalTorque += (forcePosition - m_position) * force;
+	m_externalTorque += cross((forcePosition - m_position), force);
 }
+
 
 void RigidBody::integrateTimestep(float timeStep)
 {
@@ -40,28 +54,19 @@ void RigidBody::integrateTimestep(float timeStep)
 	m_orientation += (Quat(m_angularVelocity.x, m_angularVelocity.y, m_angularVelocity.z, 0) * m_orientation) * (timeStep * 0.5);
 	m_orientation /= m_orientation.norm(); // normalize; this acould be done more seldomly if performance becomes an issue
 
-
-	// === update obj to world matrix ===
-	Mat4 translateMatrix, rotationMatrix, scaleMatrix;
-	translateMatrix.initTranslation(m_position.x, m_position.y, m_position.z);
-	rotationMatrix = m_orientation.getRotMat();
-	scaleMatrix.initScaling(m_size.x, m_size.y, m_size.z);
-
-	m_objToWorldMatrix = scaleMatrix * rotationMatrix * translateMatrix;
-	// ==================================
-
-
-	// continue integrating values
 	// L
 	m_angularMomentum += timeStep * m_externalTorque;
 	
+	Mat4 rotationMatrix(m_orientation.getRotMat());
 	Mat4 rotationMatrixInv(rotationMatrix);
-	rotationMatrixInv.transpose(); // this is in-place for some reason, while inverse() is not ...
+	rotationMatrixInv.transpose(); // transpose() is in-place for some reason, while inverse() is not ...
 	// I^-1
 	Mat4 rotatedInertialTensorInv = rotationMatrix * m_inertiaTensorInv * rotationMatrixInv;
 
 	// w
 	m_angularVelocity = rotatedInertialTensorInv * m_angularMomentum;
+
+	updateObjToWorldMatrix();
 }
 
 void RigidBody::draw(DrawingUtilitiesClass * DUC) const

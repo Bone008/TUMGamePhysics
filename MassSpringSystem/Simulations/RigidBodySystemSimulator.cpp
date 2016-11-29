@@ -4,7 +4,8 @@
 RigidBodySystemSimulator::RigidBodySystemSimulator()
 {
 	//UI attributes
-	m_externalForce = Vec3(); // not sure if still useful
+	m_externalForce = Vec3(1, 0, 0);
+	m_externalForceLocation = Vec3(0, 0, 0.5);
 	m_mouse			= Point2D();
 	m_trackmouse	= Point2D();
 	m_oldtrackmouse = Point2D();
@@ -23,9 +24,12 @@ void RigidBodySystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 	switch (m_iTestCase)
 	{
 		case ONE_STEP_SIMULATION: // no ui needed
+			break;
 
-		//TODO Add interfaces
 		case SINGLE_BODY_SIMULATION:
+			TwAddVarRW(DUC->g_pTweakBar, "External force", TW_TYPE_DIR3D, &m_externalForce, "");
+			TwAddVarRW(DUC->g_pTweakBar, "External force loc", TW_TYPE_DIR3D, &m_externalForceLocation, "");
+			break;
 		case DOUBLE_BODY_SIMULATION:
 		case COMPLEX_BODY_SIMULATION:
 			break;
@@ -50,8 +54,14 @@ void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
 			addRigidBody(Vec3(0, 0, 0), Vec3(1, 0.6, 0.5), 2);
 			applyForceOnBody(0, Vec3(0.3, 0.5, 0.25), Vec3(1, 1, 0));
 			break;
+
 		case SINGLE_BODY_SIMULATION:
+			addRigidBody(Vec3(0, 0, 0), Vec3(1, 0.6, 0.5), 2);
+			break;
+
 		case DOUBLE_BODY_SIMULATION:
+			break;
+
 		case COMPLEX_BODY_SIMULATION:
 			Vec3 boxSize = Vec3(0.2f, 0.05f, 0.05f);
 			float boxMass = 1.0f;
@@ -81,6 +91,18 @@ void RigidBodySystemSimulator::buildTower(Vec3 position, Vec3 size, Vec3 boxSize
 void RigidBodySystemSimulator::externalForcesCalculations(float timeElapsed)
 {
 	// TODO per frame calls to RigidBody.resetExternalForces() and RigidBody.applyExternalForce(...) will go here
+
+	// some testing of applying torque
+	if (m_iTestCase == SINGLE_BODY_SIMULATION)
+	{
+		for (RigidBody& rb : m_rigidBodies)
+		{
+			// spin it! (but force it to stay in place)
+			rb.resetExternalForces();
+			rb.applyExternalForce(rb.m_objToWorldMatrix.transformVectorNormal(m_externalForce), rb.m_objToWorldMatrix.transformVector(m_externalForceLocation));
+			rb.m_externalForces = Vec3();
+		}
+	}
 }
 
 void RigidBodySystemSimulator::simulateTimestep(float timeStep)

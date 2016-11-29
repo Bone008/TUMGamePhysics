@@ -10,6 +10,9 @@
 	of 3D Rigid bodies in form of cubes.
 */
 class RigidBody {
+private:
+	void updateObjToWorldMatrix();
+
 public:
 	RigidBody() : RigidBody(Vec3(0, 0, 0), Quat(0, 0, 0, 1), Vec3(1, 1, 1), 1.0f) {}
 	RigidBody(Vec3 position, Quat orientation, Vec3 size, float mass);
