@@ -13,22 +13,27 @@ class RigidBody {
 public:
 	RigidBody() : RigidBody(Vec3(0, 0, 0), Vec3(1, 1, 1), 1.0f) {}
 
-	RigidBody(Vec3 position, Vec3 size, float mass) : 
-		m_position(position), m_size(size), m_mass(mass), m_orientation(0, 0, 0, 1) {}
+	RigidBody(Vec3 position, Vec3 size, float mass);
 
 	Vec3 m_position;        //x
 	Quat m_orientation;     //r
 	Vec3 m_linearVelocity;  //v
-	Vec3 m_angularVelocity; //w
+	Vec3 m_angularMomentum; //L
 	
 	Vec3 m_size;
 	float m_bounceFactor;   //c
 	float m_mass;           //M
 
-	// TODO store initial inertial tensor I as well
+	// note that this should be a Mat3, but we use a dummy 4th dimension because we don't have a Mat3
+	Mat4 m_inertiaTensorInv;
+
 
 	// updated each frame
+
+	Vec3 m_angularVelocity; //w - this will be overwritten with value derived from L!
+
 	Mat4 m_objToWorldMatrix;
+
 	Vec3 m_externalForces; // F
 	Vec3 m_externalTorque; // q
 
