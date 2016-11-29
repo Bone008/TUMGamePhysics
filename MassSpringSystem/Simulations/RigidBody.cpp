@@ -19,7 +19,7 @@ void RigidBody::integrateTimestep(float timeStep)
 	// update obj to world matrix
 	Mat4 translateMatrix, rotationMatrix, scaleMatrix;
 	translateMatrix.initTranslation(m_position.x, m_position.y, m_position.z);
-	rotationMatrix.initRotationXYZ(m_orientation.x, m_orientation.y, m_orientation.z);
+	rotationMatrix = m_orientation.getRotMat();
 	scaleMatrix.initScaling(m_size.x, m_size.y, m_size.z);
 
 	m_objToWorldMatrix = scaleMatrix * rotationMatrix * translateMatrix;
