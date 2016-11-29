@@ -1,7 +1,7 @@
 #include "RigidBody.h"
 
-RigidBody::RigidBody(Vec3 position, Vec3 size, float mass)
-		: m_position(position), m_size(size), m_mass(mass), m_orientation(0, 0, 0, 1)
+RigidBody::RigidBody(Vec3 position, Quat orientation, Vec3 size, float mass) : 
+	m_position(position), m_orientation(orientation), m_size(size), m_mass(mass)
 {
 	// calculate initial inertia tensor according to https://en.wikipedia.org/wiki/List_of_moments_of_inertia#List_of_3D_inertia_tensors
 	double w = m_size.x;
@@ -38,6 +38,8 @@ void RigidBody::integrateTimestep(float timeStep)
 	m_linearVelocity += timeStep * m_externalForces / m_mass;
 	// r
 	m_orientation += (Quat(m_angularVelocity.x, m_angularVelocity.y, m_angularVelocity.z, 0) * m_orientation) * (timeStep * 0.5);
+	m_orientation /= m_orientation.norm(); // normalize; this acould be done more seldomly if performance becomes an issue
+
 
 	// === update obj to world matrix ===
 	Mat4 translateMatrix, rotationMatrix, scaleMatrix;
@@ -64,7 +66,6 @@ void RigidBody::integrateTimestep(float timeStep)
 
 void RigidBody::draw(DrawingUtilitiesClass * DUC) const
 {
-	cout << m_objToWorldMatrix << endl;
 	DUC->setUpLighting(Vec3(0, 0, 0), 0.4*Vec3(1, 1, 1), 2000.0, Vec3(0.5, 0.5, 0.5));
 	DUC->drawRigidBody(m_objToWorldMatrix);
 }
