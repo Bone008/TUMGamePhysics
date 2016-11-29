@@ -12,6 +12,7 @@
     <ClCompile Include="point.cpp" />
     <ClCompile Include="spring.cpp" />
     <ClCompile Include="RigidBodySystemSimulator.cpp" />
+    <ClCompile Include="RigidBody.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="util">
@@ -40,6 +41,7 @@
     </ClInclude>
     <ClInclude Include="RigidBodySystemSimulator.h" />
     <ClInclude Include="RigidBodySystem.h" />
+    <ClInclude Include="RigidBody.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="effect.fx" />

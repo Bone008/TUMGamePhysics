@@ -225,6 +225,7 @@
   <ItemGroup>
     <ClCompile Include="MassSpringSystemSimulator.cpp" />
     <ClCompile Include="point.cpp" />
+    <ClCompile Include="RigidBody.cpp" />
     <ClCompile Include="RigidBodySystemSimulator.cpp" />
     <ClCompile Include="spring.cpp" />
     <ClCompile Include="TemplateSimulator.cpp" />
@@ -235,6 +236,7 @@
     <ClInclude Include="DrawingUtilitiesClass.h" />
     <ClInclude Include="MassSpringSystemSimulator.h" />
     <ClInclude Include="point.h" />
+    <ClInclude Include="RigidBody.h" />
     <ClInclude Include="RigidBodySystem.h" />
     <ClInclude Include="RigidBodySystemSimulator.h" />
     <ClInclude Include="Simulator.h" />

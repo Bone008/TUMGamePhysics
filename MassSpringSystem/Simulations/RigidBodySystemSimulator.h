@@ -3,6 +3,7 @@
 #include "Simulator.h"
 
 #include "RigidBodySystem.h"
+#include "RigidBody.h"
 
 #define TESTCASEUSEDTORUNTEST 2
 
@@ -40,7 +41,8 @@ public:
 
 private:
 	// Attributes
-	std::vector<RigidBodySystem> m_pRigidBodySystem;
+	RigidBodySystem* m_pRigidBodySystem;
+	std::vector<RigidBody> r_rigidBodies; 	//Rigid bodies
 	Vec3 m_externalForce;
 
 	// UI Attributes
