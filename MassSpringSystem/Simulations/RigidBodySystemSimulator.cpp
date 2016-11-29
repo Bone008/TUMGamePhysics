@@ -53,10 +53,29 @@ void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
 		case SINGLE_BODY_SIMULATION:
 		case DOUBLE_BODY_SIMULATION:
 		case COMPLEX_BODY_SIMULATION:
-			// TODO complex simulations
+			Vec3 boxSize = Vec3(0.2f, 0.05f, 0.05f);
+			float boxMass = 1.0f;
+
+			buildTower(Vec3(-0.5f, -0.5f, -0.5f), Vec3(0.2f, 1.0f, 0.2f), boxSize, boxMass);
+			buildTower(Vec3(-0.5f, -0.5f, +0.5f), Vec3(0.2f, 1.0f, 0.2f), boxSize, boxMass);
+			buildTower(Vec3(+0.5f, -0.5f, -0.5f), Vec3(0.2f, 1.0f, 0.2f), boxSize, boxMass);
+			buildTower(Vec3(+0.5f, -0.5f, +0.5f), Vec3(0.2f, 1.0f, 0.2f), boxSize, boxMass);
 			break;
 	}
 	
+}
+
+void RigidBodySystemSimulator::buildTower(Vec3 position, Vec3 size, Vec3 boxSize, float boxMass)
+{
+	float height = boxSize.y / 2;
+	for (int f = 0; f < size.y / (boxSize.y * 2); f++) {
+		addRigidBody(position + Vec3(0, height, +boxSize.x / 2 - boxSize.z / 2), boxSize, boxMass);
+		addRigidBody(position + Vec3(0, height, -boxSize.x / 2 + boxSize.z / 2), boxSize, boxMass);
+		height += boxSize.y;
+		addRigidBody(position + Vec3(+boxSize.x / 2 - boxSize.z / 2, height, 0), Quat(Vec3(0, 1, 0), M_PI / 2), boxSize, boxMass);
+		addRigidBody(position + Vec3(-boxSize.x / 2 + boxSize.z / 2, height, 0), Quat(Vec3(0, 1, 0), M_PI / 2), boxSize, boxMass);
+		height += boxSize.y;
+	}
 }
 
 void RigidBodySystemSimulator::externalForcesCalculations(float timeElapsed)
@@ -95,7 +114,12 @@ void RigidBodySystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateCont
 
 void RigidBodySystemSimulator::addRigidBody(Vec3 position, Vec3 size, int mass)
 {
-	RigidBody rb(position, size, mass);
+	addRigidBody(position, Quat(0, 0, 0, 1), size, mass);
+}
+
+void RigidBodySystemSimulator::addRigidBody(Vec3 position, Quat orientation, Vec3 size, int mass)
+{
+	RigidBody rb(position, orientation, size, mass);
 	//push it to the vector of rigid bodies
 	m_rigidBodies.push_back(rb);
 }
