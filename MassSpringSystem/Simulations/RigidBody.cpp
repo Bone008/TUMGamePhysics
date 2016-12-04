@@ -9,9 +9,9 @@ RigidBody::RigidBody(Vec3 position, Quat orientation, Vec3 size, float mass) :
 	double d = m_size.z;
 
 	Mat4 inertiaTensor;
-	inertiaTensor.value[0][0] = 1.0 / 12.0 * (h*h + d*d);
-	inertiaTensor.value[1][1] = 1.0 / 12.0 * (w*w + d*d);
-	inertiaTensor.value[2][2] = 1.0 / 12.0 * (h*h + h*h);
+	inertiaTensor.value[0][0] = m_mass / 12.0 * (h*h + d*d);
+	inertiaTensor.value[1][1] = m_mass / 12.0 * (w*w + d*d);
+	inertiaTensor.value[2][2] = m_mass / 12.0 * (h*h + h*h);
 	inertiaTensor.value[3][3] = 1;
 
 	m_inertiaTensorInv = inertiaTensor.inverse();
@@ -26,7 +26,7 @@ void RigidBody::updateObjToWorldMatrix()
 	translateMatrix.initTranslation(m_position.x, m_position.y, m_position.z);
 	rotationMatrix = m_orientation.getRotMat();
 	scaleMatrix.initScaling(m_size.x, m_size.y, m_size.z);
-
+	
 	m_objToWorldMatrix = scaleMatrix * rotationMatrix * translateMatrix;
 }
 
@@ -73,4 +73,10 @@ void RigidBody::draw(DrawingUtilitiesClass * DUC) const
 {
 	DUC->setUpLighting(Vec3(0, 0, 0), 0.4*Vec3(1, 1, 1), 2000.0, Vec3(0.5, 0.5, 0.5));
 	DUC->drawRigidBody(m_objToWorldMatrix);
+}
+
+//this the x vector, as described in the lecture, pointing from the object center to the point of act
+Vec3 RigidBody::getCenterToPoint(Vec3 pointOfAct)
+{
+	return pointOfAct - m_position;
 }

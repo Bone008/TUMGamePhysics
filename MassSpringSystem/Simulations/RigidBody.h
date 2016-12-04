@@ -23,7 +23,7 @@ public:
 	Vec3 m_angularMomentum; //L
 	
 	Vec3 m_size;
-	float m_bounceFactor;   //c
+	float m_bounciness;		//c  1 is fully elastic and 0 is plastic. Loss of kinetic energy for c<0
 	float m_mass;           //M
 
 	// note that this should be a Mat3, but we use a dummy 4th dimension because we don't have a Mat3
@@ -48,5 +48,7 @@ public:
 
 	void integrateTimestep(float timeStep);
 	void draw(DrawingUtilitiesClass * DUC) const;
+
+	Vec3 getVectorToCenter();
 
 };

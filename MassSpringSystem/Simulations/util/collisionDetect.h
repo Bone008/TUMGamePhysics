@@ -1,4 +1,6 @@
 ﻿// header file:
+
+#include "quaternion.h"
 #include <DirectXMath.h>
 #include <Vector>
 using namespace DirectX;
@@ -6,7 +8,7 @@ using namespace DirectX;
 // the return structure, with these values, you should be able to calculate the impulse
 // the depth shouldn't be used in your impulse calculation, it is a redundant value
 // if the normalWorld == XMVectorZero(), no collision
-struct CollisionInfo{
+struct CollisionInfo {
 	bool isValid;                          // whether there is a collision point, true for yes
 	GamePhysics::Vec3 collisionPointWorld; // the position of the collision point in world space
 	GamePhysics::Vec3 normalWorld;         // the direction of the impulse to A, negative of the collision face of A
@@ -14,8 +16,8 @@ struct CollisionInfo{
 };
 
 // tool data structures/functions called by the collision detection method, you can ignore the details here
-namespace collisionTools{
-	struct Projection{
+namespace collisionTools {
+	struct Projection {
 		float min, max;
 	};
 
@@ -72,7 +74,7 @@ namespace collisionTools{
 	{
 		XMVECTOR size = XMVectorZero();
 		XMVECTOR edges[3];
-		for (size_t i = 0; i < 3; ++i){
+		for (size_t i = 0; i < 3; ++i) {
 			edges[i] = XMVector3TransformNormal(XMVectorSetByIndex(XMVectorZero(), 0.5f, i), obj2World);
 			XMVECTOR length = XMVector3Length(edges[i]);
 
@@ -265,7 +267,7 @@ namespace collisionTools{
 				// then we can guarantee that the shapes do not overlap
 				return info;
 			}
-			else{
+			else {
 				// get the overlap
 				float o = getOverlap(p1, p2);
 				// check for minimum
@@ -288,7 +290,7 @@ namespace collisionTools{
 				// then we can guarantee that the shapes do not overlap
 				return  info;
 			}
-			else{
+			else {
 				// get the overlap
 				float o = getOverlap(p1, p2);
 				// check for minimum
@@ -313,7 +315,7 @@ namespace collisionTools{
 				// then we can guarantee that the shapes do not overlap
 				return info;
 			}
-			else{
+			else {
 				// get the overlap
 				float o = getOverlap(p1, p2);
 				// check for minimum
@@ -330,50 +332,50 @@ namespace collisionTools{
 		// if we get here then we know that every axis had overlap on it
 		// so we can guarantee an intersection
 		XMVECTOR normal;
-		switch (fromWhere){
-		case 0:{
-				   normal = axis;
-				   if (XMVectorGetX(XMVector3Dot(axis, toCenter)) <= 0)
-				   {
-					   normal = normal * -1.0f;
-				   }
-				   collisionPoint = handleVertexToface(obj2World_B, toCenter);
+		switch (fromWhere) {
+		case 0: {
+			normal = axis;
+			if (XMVectorGetX(XMVector3Dot(axis, toCenter)) <= 0)
+			{
+				normal = normal * -1.0f;
+			}
+			collisionPoint = handleVertexToface(obj2World_B, toCenter);
 		}break;
-		case 1:{
-				   normal = axis;
-				   if (XMVectorGetX(XMVector3Dot(axis, toCenter)) <= 0)
-				   {
-					   normal = normal * -1.0f;
-				   }
-				   collisionPoint = handleVertexToface(obj2World_A, toCenter*-1);
+		case 1: {
+			normal = axis;
+			if (XMVectorGetX(XMVector3Dot(axis, toCenter)) <= 0)
+			{
+				normal = normal * -1.0f;
+			}
+			collisionPoint = handleVertexToface(obj2World_A, toCenter*-1);
 		}break;
-		case 2:{
-				   XMVECTOR axis = XMVector3Normalize(XMVector3Cross(axes1[whichEdges / 3], axes2[whichEdges % 3]));
-				   normal = axis;
-				   if (XMVectorGetX(XMVector3Dot(axis, toCenter)) <= 0)
-				   {
-					   normal = normal * -1.0f;
-				   }
-				   XMVECTOR ptOnOneEdge = XMVectorSet(0.5, 0.5, 0.5, 1);
-				   XMVECTOR ptOnTwoEdge = XMVectorSet(0.5, 0.5, 0.5, 1);
+		case 2: {
+			XMVECTOR axis = XMVector3Normalize(XMVector3Cross(axes1[whichEdges / 3], axes2[whichEdges % 3]));
+			normal = axis;
+			if (XMVectorGetX(XMVector3Dot(axis, toCenter)) <= 0)
+			{
+				normal = normal * -1.0f;
+			}
+			XMVECTOR ptOnOneEdge = XMVectorSet(0.5, 0.5, 0.5, 1);
+			XMVECTOR ptOnTwoEdge = XMVectorSet(0.5, 0.5, 0.5, 1);
 
-				   for (int i = 0; i < 3; i++)
-				   {
-					   if (i == whichEdges / 3) ptOnOneEdge = XMVectorSetByIndex(ptOnOneEdge, 0, i);
-					   else if (XMVectorGetX(XMVector3Dot(axes1[i], normal)) < 0) ptOnOneEdge = XMVectorSetByIndex(ptOnOneEdge, -XMVectorGetByIndex(ptOnOneEdge, i), i);
+			for (int i = 0; i < 3; i++)
+			{
+				if (i == whichEdges / 3) ptOnOneEdge = XMVectorSetByIndex(ptOnOneEdge, 0, i);
+				else if (XMVectorGetX(XMVector3Dot(axes1[i], normal)) < 0) ptOnOneEdge = XMVectorSetByIndex(ptOnOneEdge, -XMVectorGetByIndex(ptOnOneEdge, i), i);
 
-					   if (i == whichEdges % 3) ptOnTwoEdge = XMVectorSetByIndex(ptOnTwoEdge, 0, i);
-					   else if (XMVectorGetX(XMVector3Dot(axes2[i], normal)) > 0) ptOnTwoEdge = XMVectorSetByIndex(ptOnTwoEdge, -XMVectorGetByIndex(ptOnTwoEdge, i), i);
-				   }
-				   ptOnOneEdge = XMVector3Transform(ptOnOneEdge, obj2World_A);
-				   ptOnTwoEdge = XMVector3Transform(ptOnTwoEdge, obj2World_B);
-				   collisionPoint = contactPoint(ptOnOneEdge,
-					   axes1[whichEdges / 3],
-					   (float)XMVectorGetByIndex(size_A, (whichEdges / 3)),
-					   ptOnTwoEdge,
-					   axes2[whichEdges % 3],
-					   XMVectorGetByIndex(size_B, (whichEdges % 3)),
-					   bestSingleAxis);
+				if (i == whichEdges % 3) ptOnTwoEdge = XMVectorSetByIndex(ptOnTwoEdge, 0, i);
+				else if (XMVectorGetX(XMVector3Dot(axes2[i], normal)) > 0) ptOnTwoEdge = XMVectorSetByIndex(ptOnTwoEdge, -XMVectorGetByIndex(ptOnTwoEdge, i), i);
+			}
+			ptOnOneEdge = XMVector3Transform(ptOnOneEdge, obj2World_A);
+			ptOnTwoEdge = XMVector3Transform(ptOnTwoEdge, obj2World_B);
+			collisionPoint = contactPoint(ptOnOneEdge,
+				axes1[whichEdges / 3],
+				(float)XMVectorGetByIndex(size_A, (whichEdges / 3)),
+				ptOnTwoEdge,
+				axes2[whichEdges % 3],
+				XMVectorGetByIndex(size_B, (whichEdges % 3)),
+				bestSingleAxis);
 		}break;
 		}
 
@@ -386,6 +388,7 @@ namespace collisionTools{
 	}
 }
 
+
 /* params:
 obj2World_A, the transfer matrix from object space of A to the world space
 obj2World_B, the transfer matrix from object space of B to the world space
@@ -395,18 +398,18 @@ inline CollisionInfo checkCollisionSAT(GamePhysics::Mat4& obj2World_A, GamePhysi
 	XMMATRIX MatA = obj2World_A.toDirectXMatrix(), MatB = obj2World_B.toDirectXMatrix();
 	XMVECTOR calSizeA = getBoxSize(MatA);
 	XMVECTOR calSizeB = getBoxSize(MatB);
-	
+
 	return checkCollisionSATHelper(MatA, MatB, calSizeA, calSizeB);
 }
 
 // example of using the checkCollisionSAT function
-inline void testCheckCollision(int caseid){
+inline void testCheckCollision(int caseid) {
 
-	if (caseid == 1){// simple examples, suppose that boxes A and B are cubes and have no rotation
+	if (caseid == 1) {// simple examples, suppose that boxes A and B are cubes and have no rotation
 		GamePhysics::Mat4 AM; AM.initTranslation(1.0, 1.0, 1.0);// box A at (1.0,1.0,1.0)
 		GamePhysics::Mat4 BM; BM.initTranslation(2.0, 2.0, 2.0);  //box B at (2.0,2.0,2.0)
 
-		// check for collision
+																  // check for collision
 		CollisionInfo simpletest = checkCollisionSAT(AM, BM);// should find out a collision here
 		if (!simpletest.isValid)
 			std::printf("No Collision\n");
@@ -419,13 +422,13 @@ inline void testCheckCollision(int caseid){
 		// collision point : 1.500000, 1.500000, 1.500000
 		// Box A should be pushed to the left
 	}
-	else if (caseid == 2){// case 2, collide at a corner of Box B:
+	else if (caseid == 2) {// case 2, collide at a corner of Box B:
 		GamePhysics::Mat4 AM, BM;
 		AM.initTranslation(0.2f, 5.0f, 1.0f); // box A moves(0.2f, 5.0f, 1.0f) from origin
-		// box B rotates 30 degree around axis z,
-		// always use the Quat(axis, angle).getRotMat() to get the rotation Matrix
-		// the initRotationZ(30) will give a wrong result...
-		BM = GamePhysics::Quat(GamePhysics::Vec3(0.0f, 0.0f, 1.0f), (M_PI / 6.0f)).getRotMat(); 
+											  // box B rotates 30 degree around axis z,
+											  // always use the Quat(axis, angle).getRotMat() to get the rotation Matrix
+											  // the initRotationZ(30) will give a wrong result...
+		BM = GamePhysics::Quat(GamePhysics::Vec3(0.0f, 0.0f, 1.0f), (M_PI / 6.0f)).getRotMat();
 		// box A size(9,2,3), box B size(8.f, 4.618802f, 2.0f)
 		GamePhysics::Mat4 SizeMat;
 		SizeMat.initScaling(9.0f, 2.0f, 3.0f);
@@ -445,26 +448,26 @@ inline void testCheckCollision(int caseid){
 		// collision detected at normal : 0.000000, 1.000000, 0.000000
 		// collision point : 2.309401, 4.000000, 1.000000
 	}
-	else if (caseid == 3){// case 3, collide at a corner of Box A:
-		// box A first rotates 45 degree around axis z
-		// box A moves(-2.0f, 0.0f, 1.0f) from origin,(-2.0f,0.0f,1.0f) is the centre position of A in world space
-		// box A size(2.829f, 2.829f, 2.0f)
+	else if (caseid == 3) {// case 3, collide at a corner of Box A:
+						   // box A first rotates 45 degree around axis z
+						   // box A moves(-2.0f, 0.0f, 1.0f) from origin,(-2.0f,0.0f,1.0f) is the centre position of A in world space
+						   // box A size(2.829f, 2.829f, 2.0f)
 		GamePhysics::Mat4 AM_rot = GamePhysics::Quat(GamePhysics::Vec3(0.0f, 0.0f, 1.0f), (M_PI / 4.0f)).getRotMat();
 		GamePhysics::Mat4 AM_tra; AM_tra.initTranslation(-2.0f, 0.0f, 1.0f);
 		GamePhysics::Mat4 AM_sca; AM_sca.initScaling(2.829f, 2.829f, 2.0f);
 		// get the object 2 world matrix of A
 		GamePhysics::Mat4 AM = AM_sca * AM_rot * AM_tra; // pay attention to the order! 
-		// order, since we are working with the DirectX, we use left-handed matrixes!
+														 // order, since we are working with the DirectX, we use left-handed matrixes!
 
-		// box B first rotates 90 degree around axis z
-		// box B then moves (1.0f,0.5f,0.0f) from origin, (1.0f,0.5f,0.0f) is also the centre position of B in world space
-		// box B size(9.0f, 2.0f, 4.0f)
+														 // box B first rotates 90 degree around axis z
+														 // box B then moves (1.0f,0.5f,0.0f) from origin, (1.0f,0.5f,0.0f) is also the centre position of B in world space
+														 // box B size(9.0f, 2.0f, 4.0f)
 		GamePhysics::Mat4 BM_rot = GamePhysics::Quat(GamePhysics::Vec3(0.0f, 0.0f, 1.0f), (M_PI / 2.0f)).getRotMat();
 		GamePhysics::Mat4 BM_tra; BM_tra.initTranslation(1.0f, 0.5f, 0.0f);
 		GamePhysics::Mat4 BM_sca; BM_sca.initScaling(9.0f, 2.0f, 4.0f);
 		GamePhysics::Mat4 BM = BM_sca * BM_rot * BM_tra; // pay attention to the order! 
 
-		// check for collision
+														 // check for collision
 		CollisionInfo simpletest = checkCollisionSAT(AM, BM);// should find out a collision here
 
 		if (!simpletest.isValid)

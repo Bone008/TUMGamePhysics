@@ -31,7 +31,6 @@
     <ClInclude Include="Simulator.h" />
     <ClInclude Include="TemplateSimulator.h" />
     <ClInclude Include="util\matrixbase.h" />
-    <ClInclude Include="util\quaternion.h" />
     <ClInclude Include="util\timer.h" />
     <ClInclude Include="util\vectorbase.h" />
     <ClInclude Include="point.h" />
@@ -42,6 +41,9 @@
     <ClInclude Include="RigidBodySystemSimulator.h" />
     <ClInclude Include="RigidBodySystem.h" />
     <ClInclude Include="RigidBody.h" />
+    <ClInclude Include="util\quaternion.h">
+      <Filter>util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="effect.fx" />
