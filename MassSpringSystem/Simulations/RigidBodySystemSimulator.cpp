@@ -9,6 +9,8 @@ RigidBodySystemSimulator::RigidBodySystemSimulator()
 	m_mouse			= Point2D();
 	m_trackmouse	= Point2D();
 	m_oldtrackmouse = Point2D();
+
+	initWalls();
 }
 
 // Functions
@@ -86,6 +88,24 @@ void RigidBodySystemSimulator::buildTower(Vec3 position, Vec3 size, Vec3 boxSize
 		addRigidBody(position + Vec3(-boxSize.x / 2 + boxSize.z / 2, height, 0), Quat(Vec3(0, 1, 0), M_PI / 2), boxSize, boxMass);
 		height += boxSize.y;
 	}
+}
+
+void RigidBodySystemSimulator::initWalls()
+{
+	//init each side with 'fixed' position
+	
+	//left
+	m_walls.push_back(RigidBody(Vec3(-.5, 0, 0), Quat(0, 0, 0, 1), Vec3(.001, 1, 1), 0));
+	//right
+	m_walls.push_back(RigidBody(Vec3(.5, 0, 0), Quat(0, 0, 0, 1), Vec3(.001, 1, 1), 0));
+	//back
+	m_walls.push_back(RigidBody(Vec3(0, 0, .5), Quat(Vec3(0, 1, 0), M_PI / 2), Vec3(.001, 1, 1), 0));
+	//front
+	m_walls.push_back(RigidBody(Vec3(0, 0, -.5), Quat(Vec3(0, 1, 0), M_PI / 2), Vec3(.001, 1, 1), 0));
+	//top
+	m_walls.push_back(RigidBody(Vec3(0, .5, 0), Quat(Vec3(0, 0, 1), M_PI / 2), Vec3(.001, 1, 1), 0));
+	//bottom
+	m_walls.push_back(RigidBody(Vec3(0, -.5, 0), Quat(Vec3(0, 0, 1), M_PI / 2), Vec3(.001, 1, 1), 0));
 }
 
 void RigidBodySystemSimulator::externalForcesCalculations(float timeElapsed)

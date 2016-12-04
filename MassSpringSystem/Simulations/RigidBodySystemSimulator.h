@@ -45,6 +45,7 @@ private:
 	RigidBodySystem* m_pRigidBodySystem; // probably not needed
 
 	std::vector<RigidBody> m_rigidBodies; 	//Rigid bodies
+	std::vector<RigidBody> m_walls; 		//the rigid bodies of the walls
 	
 
 	// UI Attributes
@@ -55,6 +56,6 @@ private:
 	Point2D m_oldtrackmouse;
 
 	void buildTower(Vec3 position, Vec3 size, Vec3 boxSize, float boxMass);
-
+	void initWalls();
 	};
 #endif
