@@ -16,8 +16,6 @@ public:
 	RigidBody() : RigidBody(Vec3(0, 0, 0), Quat(0, 0, 0, 1), Vec3(1, 1, 1), 1.0f) {}
 	RigidBody(Vec3 position, Quat orientation, Vec3 size, float mass);
 
-	bool isFixed;			//used for walls etc
-
 	Vec3 m_position;        //x
 	Quat m_orientation;     //r
 	Vec3 m_linearVelocity;  //v

@@ -4,6 +4,7 @@
 
 #include "RigidBodySystem.h"
 #include "RigidBody.h"
+#include "util\collisionDetect.h"
 
 #define TESTCASEUSEDTORUNTEST 2
 
@@ -39,6 +40,7 @@ public:
 	void addRigidBody(Vec3 position, Quat orientation, Vec3 size, int mass);
 	void setOrientationOf(int i,Quat orientation);
 	void setVelocityOf(int i, Vec3 velocity);
+	void calculateCollision();
 
 private:
 	// Attributes
@@ -47,6 +49,7 @@ private:
 	std::vector<RigidBody> m_rigidBodies; 	//Rigid bodies
 	std::vector<RigidBody> m_walls; 		//the rigid bodies of the walls
 	
+	CollisionInfo collisionInfo;			//for collision detection
 
 	// UI Attributes
 	Vec3 m_externalForce;
@@ -57,5 +60,7 @@ private:
 
 	void buildTower(Vec3 position, Vec3 size, Vec3 boxSize, float boxMass);
 	void initWalls();
+
+
 	};
 #endif

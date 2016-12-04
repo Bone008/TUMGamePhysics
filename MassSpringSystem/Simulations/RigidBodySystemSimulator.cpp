@@ -92,8 +92,7 @@ void RigidBodySystemSimulator::buildTower(Vec3 position, Vec3 size, Vec3 boxSize
 
 void RigidBodySystemSimulator::initWalls()
 {
-	//init each side with 'fixed' position
-	
+	//init each side
 	//left
 	m_walls.push_back(RigidBody(Vec3(-.5, 0, 0), Quat(0, 0, 0, 1), Vec3(.001, 1, 1), 0));
 	//right
@@ -198,4 +197,27 @@ void RigidBodySystemSimulator::setOrientationOf(int i, Quat orientation)
 void RigidBodySystemSimulator::setVelocityOf(int i, Vec3 velocity)
 {
 	m_rigidBodies[i].m_linearVelocity = velocity;
+}
+
+void RigidBodySystemSimulator::calculateCollision()
+{
+	CollisionInfo localCollisionInfo;
+	for (RigidBody& a : m_rigidBodies) {
+		//check with other objects
+		for (RigidBody& b : m_rigidBodies) {
+			localCollisionInfo = checkCollisionSAT(a.m_objToWorldMatrix, b.m_objToWorldMatrix);
+			if (localCollisionInfo.isValid) {
+				collisionInfo = localCollisionInfo;
+				//TODO Handle collision between 2 objects
+			}
+		}
+		//check with walls
+		for (RigidBody& w : m_walls) {
+			localCollisionInfo = checkCollisionSAT(a.m_objToWorldMatrix, w.m_objToWorldMatrix);
+			if (localCollisionInfo.isValid) {
+				collisionInfo = localCollisionInfo;
+				//TODO Handle collision between object and wall
+			}
+		}
+	}
 }
