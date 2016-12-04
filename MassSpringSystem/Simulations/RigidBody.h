@@ -2,9 +2,8 @@
 #include "Simulator.h"
 
 #include "util\matrixbase.h"
-#include "point.h"
-#include "spring.h"
 #include "util\quaternion.h"
+#include "util\vectorbase.h"
 
 /*	Simple Rigid body class for creation and handling 
 	of 3D Rigid bodies in form of cubes.
@@ -39,6 +38,10 @@ public:
 	Vec3 m_externalForces; // F
 	Vec3 m_externalTorque; // q
 
+	double m_impulseForce;			// J
+	//TODO update those values on collision
+	Vec3 m_surfaceNormal;			// n
+	Vec3 m_centerToCollisionPoint;	//x
 
 	// reset the external force accumulators (F and q)
 	void resetExternalForces();
@@ -49,6 +52,7 @@ public:
 	void integrateTimestep(float timeStep);
 	void draw(DrawingUtilitiesClass * DUC) const;
 
-	Vec3 getVectorToCenter();
 
+	//less complicated version
+	Vec3 getCenterToPointVector(Vec3 pointOfAct);
 };

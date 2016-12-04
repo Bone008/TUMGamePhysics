@@ -75,8 +75,6 @@ void RigidBody::draw(DrawingUtilitiesClass * DUC) const
 	DUC->drawRigidBody(m_objToWorldMatrix);
 }
 
-//this the x vector, as described in the lecture, pointing from the object center to the point of act
-Vec3 RigidBody::getCenterToPoint(Vec3 pointOfAct)
-{
+Vec3 RigidBody::getCenterToPointVector(Vec3 pointOfAct) {
 	return pointOfAct - m_position;
 }
