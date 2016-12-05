@@ -20,7 +20,7 @@
 #define COLOUR_WALL Vec3(.9, .9, .9)
 
 // Wall coordinates
-#define WALL_OFFSET 2
+#define WALL_OFFSET 1
 
 class RigidBodySystemSimulator:public Simulator{
 public:
@@ -52,7 +52,7 @@ public:
 
 private:
 	// Attributes
-	RigidBodySystem* m_pRigidBodySystem; // probably not needed
+	RigidBodySystem m_pRigidBodySystem; // probably not needed
 
 	std::vector<RigidBody> m_rigidBodies; 	//Rigid bodies
 	std::vector<RigidBody> m_walls; 		//the rigid bodies of the walls

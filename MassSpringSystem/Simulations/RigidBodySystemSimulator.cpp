@@ -231,6 +231,7 @@ void RigidBodySystemSimulator::calculateCollision()
 				collisionInfo = localCollisionInfo;
 				//TODO Handle collision between object and wall
 				a.m_position = Vec3(0, 0, 0);
+				
 			}
 		}
 	}

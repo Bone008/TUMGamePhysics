@@ -43,7 +43,7 @@ public:
 	double m_impulseForce;			// J
 	//TODO update those values on collision
 	Vec3 m_surfaceNormal;			// n
-	Vec3 m_centerToCollisionPoint;	//x
+	Vec3 m_centerToCollisionPoint;	// x
 
 	// reset the external force accumulators (F and q)
 	void resetExternalForces();
@@ -54,6 +54,7 @@ public:
 	void integrateTimestep(float timeStep);
 	void draw(DrawingUtilitiesClass * DUC, Vec3 color) const;
 
+	//TODO world to local position convertor
 
 	//less complicated version
 	Vec3 getCenterToPointVector(Vec3 pointOfAct);
