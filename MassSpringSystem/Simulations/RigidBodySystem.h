@@ -52,9 +52,9 @@ public:
 	}
 
 	inline void onCollisionTwoRigids(RigidBody a, RigidBody b) {
+		onCollisionImpulsesUpdate(a, b);
 		onCollisionLinearVelocitiesUpdate(a, b);
 		onCollisionAngularMomentumUpdate(a, b);
-		onCollisionImpulsesUpdate(a, b);
 	}
 };
 #endif
