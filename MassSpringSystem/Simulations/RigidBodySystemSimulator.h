@@ -19,8 +19,8 @@
 // The wall color
 #define COLOUR_WALL Vec3(.9, .9, .9)
 
-// Wall coordinates
-#define WALL_OFFSET 1
+// Wall coordinates and camera eye location
+#define WALL_OFFSET 2
 
 class RigidBodySystemSimulator:public Simulator{
 public:

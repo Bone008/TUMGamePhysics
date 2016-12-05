@@ -349,7 +349,7 @@ int main(int argc, char* argv[])
 	// Init Drawing Class
 	g_pDUC = new DrawingUtilitiesClass();
     // Init camera
- 	XMFLOAT3 eye(0.0f, 0.0f, -7.0f);
+	XMFLOAT3 eye(0.0f, 0.0f, -4*WALL_OFFSET);
 	XMFLOAT3 lookAt(0.0f, 0.0f, 0.0f);
 	g_pDUC->g_camera.SetViewParams(XMLoadFloat3(&eye), XMLoadFloat3(&lookAt));
 	g_pDUC-> g_camera.SetButtonMasks(MOUSE_MIDDLE_BUTTON, MOUSE_WHEEL, MOUSE_RIGHT_BUTTON);
