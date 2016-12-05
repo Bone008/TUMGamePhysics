@@ -11,7 +11,7 @@ RigidBody::RigidBody(Vec3 position, Quat orientation, Vec3 size, float mass) :
 	Mat4 inertiaTensor;
 	inertiaTensor.value[0][0] = m_mass / 12.0 * (h*h + d*d);
 	inertiaTensor.value[1][1] = m_mass / 12.0 * (w*w + d*d);
-	inertiaTensor.value[2][2] = m_mass / 12.0 * (h*h + h*h);
+	inertiaTensor.value[2][2] = m_mass / 12.0 * (w*w + h*h);
 	inertiaTensor.value[3][3] = 1;
 
 	m_inertiaTensorInv = inertiaTensor.inverse();
