@@ -88,6 +88,7 @@ class ntlMatrix4x4
 		inline void initScaling(Scalar scale);
 		inline void initScaling(Scalar x, Scalar y, Scalar z);
 
+		inline bool isEqualTo(const ntlMatrix4x4<Scalar> &m);
 
 		inline Vec3 transformVectorNormal(Vec3 v);
 		inline Vec3 transformVector(Vec3 v);
@@ -736,6 +737,19 @@ ntlMatrix4x4<Scalar>::initScaling(Scalar x, Scalar y, Scalar z)
 	value[0][0] = x;
 	value[1][1] = y;
 	value[2][2] = z;
+}
+
+//Matrix compare function
+template<class Scalar>
+inline bool ntlMatrix4x4<Scalar>::isEqualTo(const ntlMatrix4x4<Scalar> &m)
+{
+	for (auto i = 0; i < 4; i++) {
+		for (auto j = 0; j < 4; j++) {
+			if (value[i][j] != m.value[i][j])
+				return false;
+		}
+	}
+	return true;
 }
 // I will Think About cleaner way
 template<class Scalar>

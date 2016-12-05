@@ -69,9 +69,9 @@ void RigidBody::integrateTimestep(float timeStep)
 	updateObjToWorldMatrix();
 }
 
-void RigidBody::draw(DrawingUtilitiesClass * DUC) const
+void RigidBody::draw(DrawingUtilitiesClass * DUC, Vec3 color) const
 {
-	DUC->setUpLighting(Vec3(0, 0, 0), 0.4*Vec3(1, 1, 1), 2000.0, Vec3(0.5, 0.5, 0.5));
+	DUC->setUpLighting(Vec3(0, 0, 0), 0.4*Vec3(1, 1, 1), 2000.0, color);
 	DUC->drawRigidBody(m_objToWorldMatrix);
 }
 

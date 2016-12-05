@@ -92,19 +92,20 @@ void RigidBodySystemSimulator::buildTower(Vec3 position, Vec3 size, Vec3 boxSize
 
 void RigidBodySystemSimulator::initWalls()
 {
+	Vec3 size = Vec3(.001, 2 * WALL_OFFSET, 2 * WALL_OFFSET);
 	//init each side
 	//left
-	m_walls.push_back(RigidBody(Vec3(-.5, 0, 0), Quat(0, 0, 0, 1), Vec3(.001, 1, 1), 0));
+	m_walls.push_back(RigidBody(Vec3(-WALL_OFFSET, 0, 0), Quat(0, 0, 0, 1), size, 0));
 	//right
-	m_walls.push_back(RigidBody(Vec3(.5, 0, 0), Quat(0, 0, 0, 1), Vec3(.001, 1, 1), 0));
+	m_walls.push_back(RigidBody(Vec3(WALL_OFFSET, 0, 0), Quat(0, 0, 0, 1), size, 0));
 	//back
-	m_walls.push_back(RigidBody(Vec3(0, 0, .5), Quat(Vec3(0, 1, 0), M_PI / 2), Vec3(.001, 1, 1), 0));
+	m_walls.push_back(RigidBody(Vec3(0, 0, WALL_OFFSET), Quat(Vec3(0, 1, 0), M_PI / 2), size, 0));
 	//front
-	m_walls.push_back(RigidBody(Vec3(0, 0, -.5), Quat(Vec3(0, 1, 0), M_PI / 2), Vec3(.001, 1, 1), 0));
+	//m_walls.push_back(RigidBody(Vec3(0, 0, -WALL_OFFSET), Quat(Vec3(0, 1, 0), M_PI / 2), size, 0));
 	//top
-	m_walls.push_back(RigidBody(Vec3(0, .5, 0), Quat(Vec3(0, 0, 1), M_PI / 2), Vec3(.001, 1, 1), 0));
+	m_walls.push_back(RigidBody(Vec3(0, WALL_OFFSET, 0), Quat(Vec3(0, 0, 1), M_PI / 2), size, 0));
 	//bottom
-	m_walls.push_back(RigidBody(Vec3(0, -.5, 0), Quat(Vec3(0, 0, 1), M_PI / 2), Vec3(.001, 1, 1), 0));
+	m_walls.push_back(RigidBody(Vec3(0, -WALL_OFFSET, 0), Quat(Vec3(0, 0, 1), M_PI / 2), size, 0));
 }
 
 void RigidBodySystemSimulator::externalForcesCalculations(float timeElapsed)
@@ -126,6 +127,8 @@ void RigidBodySystemSimulator::externalForcesCalculations(float timeElapsed)
 
 void RigidBodySystemSimulator::simulateTimestep(float timeStep)
 {
+	calculateCollision();
+
 	for (RigidBody& rb : m_rigidBodies)
 		rb.integrateTimestep(timeStep);
 }
@@ -148,7 +151,12 @@ void RigidBodySystemSimulator::onMouse(int x, int y)
 void RigidBodySystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext)
 {
 	for (const RigidBody& rb : m_rigidBodies)
-		rb.draw(DUC);
+		rb.draw(DUC, COLOUR_RIGIDBODY);
+
+	//draw the walls
+	for (const RigidBody& w : m_walls)
+		w.draw(DUC, COLOUR_WALL);
+
 }
 
 
@@ -205,10 +213,15 @@ void RigidBodySystemSimulator::calculateCollision()
 	for (RigidBody& a : m_rigidBodies) {
 		//check with other objects
 		for (RigidBody& b : m_rigidBodies) {
+			//avoid duplicates
+			/*if(a.m_objToWorldMatrix.isEqualTo(b.m_objToWorldMatrix))
+				continue;*/
+
 			localCollisionInfo = checkCollisionSAT(a.m_objToWorldMatrix, b.m_objToWorldMatrix);
 			if (localCollisionInfo.isValid) {
 				collisionInfo = localCollisionInfo;
 				//TODO Handle collision between 2 objects
+
 			}
 		}
 		//check with walls
@@ -217,6 +230,7 @@ void RigidBodySystemSimulator::calculateCollision()
 			if (localCollisionInfo.isValid) {
 				collisionInfo = localCollisionInfo;
 				//TODO Handle collision between object and wall
+				a.m_position = Vec3(0, 0, 0);
 			}
 		}
 	}

@@ -14,6 +14,14 @@
 #define DOUBLE_BODY_SIMULATION 2
 #define COMPLEX_BODY_SIMULATION 3
 
+// The rigidbody color
+#define COLOUR_RIGIDBODY Vec3(0.5, 0.5, 0.5)
+// The wall color
+#define COLOUR_WALL Vec3(.9, .9, .9)
+
+// Wall coordinates
+#define WALL_OFFSET 2
+
 class RigidBodySystemSimulator:public Simulator{
 public:
 	// Construtors

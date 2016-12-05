@@ -5,14 +5,16 @@
 #include "util\quaternion.h"
 #include "util\vectorbase.h"
 
+
 /*	Simple Rigid body class for creation and handling 
 	of 3D Rigid bodies in form of cubes.
 */
 class RigidBody {
+
 private:
 	void updateObjToWorldMatrix();
 
-public:
+public:	
 	RigidBody() : RigidBody(Vec3(0, 0, 0), Quat(0, 0, 0, 1), Vec3(1, 1, 1), 1.0f) {}
 	RigidBody(Vec3 position, Quat orientation, Vec3 size, float mass);
 
@@ -50,7 +52,7 @@ public:
 	void applyExternalForce(Vec3 force, Vec3 forcePosition);
 
 	void integrateTimestep(float timeStep);
-	void draw(DrawingUtilitiesClass * DUC) const;
+	void draw(DrawingUtilitiesClass * DUC, Vec3 color) const;
 
 
 	//less complicated version
