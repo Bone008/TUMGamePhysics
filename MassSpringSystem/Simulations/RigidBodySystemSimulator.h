@@ -36,6 +36,7 @@ public:
 	void externalForcesCalculations(float timeElapsed);
 	void simulateTimestep(float timeStep);
 	void onClick(int x, int y);
+	void onLeftMouseRelease();
 	void onMouse(int x, int y);
 
 	// ExtraFunctions
@@ -66,7 +67,7 @@ private:
 	Point2D m_trackmouse;
 	Point2D m_oldtrackmouse;
 
-	bool testbool = true;
+	bool onMouseDown;
 
 	void buildTower(Vec3 position, Vec3 size, Vec3 boxSize, float boxMass);
 	void initWalls();

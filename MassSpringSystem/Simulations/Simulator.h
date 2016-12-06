@@ -67,6 +67,12 @@ public:
 	virtual void onClick(int x, int y) = 0;
 
 	/*
+	this function is used to detect when the left mouse button
+	is released or when it isn't pressed
+	*/
+	virtual void onLeftMouseRelease() = 0;
+
+	/*
 	this function is used to receive the input from the mouse
 	input x,y: the click position in pixels
 	*/

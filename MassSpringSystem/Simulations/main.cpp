@@ -203,6 +203,9 @@ void CALLBACK OnMouse( bool bLeftButtonDown, bool bRightButtonDown, bool bMiddle
 	{
 		g_pSimulator->onClick(xPos,yPos);
 	}
+	else if (!bLeftButtonDown)
+		g_pSimulator->onLeftMouseRelease();
+
 	g_pSimulator->onMouse(xPos, yPos);
 }
 

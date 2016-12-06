@@ -11,7 +11,6 @@ RigidBodySystemSimulator::RigidBodySystemSimulator()
 	m_oldtrackmouse = Point2D();
 
 	initWalls();
-	testbool = true;
 }
 
 // Functions
@@ -144,10 +143,18 @@ void RigidBodySystemSimulator::applyForceOnBody(int i, Vec3 loc, Vec3 force)
 
 void RigidBodySystemSimulator::onClick(int x, int y)
 {
+	onMouseDown = true;
+}
+
+//Handle the mouse press
+void RigidBodySystemSimulator::onLeftMouseRelease()
+{
+	onMouseDown = false;
 }
 
 void RigidBodySystemSimulator::onMouse(int x, int y)
 {
+
 }
 
 
@@ -234,14 +241,14 @@ void RigidBodySystemSimulator::calculateCollision()
 				collisionInfo = localCollisionInfo;
 				//TODO Handle collision between object and wall
 				
-				/*TODO remove this simple test
+				//TODO remove this simple test
 				a.m_orientation = -a.m_orientation;
-				a.m_linearVelocity = -a.m_linearVelocity;*/
+				a.m_linearVelocity = -a.m_linearVelocity;
 				
 				//TODO Check this. I am making something wrong here :(
-				a.m_surfaceNormal = collisionInfo.normalWorld;
+				/*a.m_surfaceNormal = collisionInfo.normalWorld;
 				a.updateX(collisionInfo.collisionPointWorld);
-				m_pRigidBodySystem.onCollisionWithWall(a);
+				m_pRigidBodySystem.onCollisionWithWall(a);*/
 			}
 		}
 	}
