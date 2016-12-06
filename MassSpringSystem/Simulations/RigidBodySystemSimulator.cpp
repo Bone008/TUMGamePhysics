@@ -11,6 +11,7 @@ RigidBodySystemSimulator::RigidBodySystemSimulator()
 	m_oldtrackmouse = Point2D();
 
 	initWalls();
+	testbool = true;
 }
 
 // Functions
@@ -111,7 +112,7 @@ void RigidBodySystemSimulator::initWalls()
 void RigidBodySystemSimulator::externalForcesCalculations(float timeElapsed)
 {
 	// TODO per frame calls to RigidBody.resetExternalForces() and RigidBody.applyExternalForce(...) will go here
-
+	
 	// some testing of applying torque
 	if (m_iTestCase == SINGLE_BODY_SIMULATION)
 	{
@@ -121,6 +122,8 @@ void RigidBodySystemSimulator::externalForcesCalculations(float timeElapsed)
 			rb.resetExternalForces();
 			rb.applyExternalForce(rb.m_objToWorldMatrix.transformVectorNormal(m_externalForce), rb.m_objToWorldMatrix.transformVector(m_externalForceLocation));
 			rb.m_externalForces = Vec3();
+				
+			
 		}
 	}
 }
@@ -226,12 +229,19 @@ void RigidBodySystemSimulator::calculateCollision()
 		}
 		//check with walls
 		for (RigidBody& w : m_walls) {
-			localCollisionInfo = checkCollisionSAT(a.m_objToWorldMatrix, w.m_objToWorldMatrix);
+			localCollisionInfo = checkCollisionSAT(w.m_objToWorldMatrix, a.m_objToWorldMatrix);
 			if (localCollisionInfo.isValid) {
 				collisionInfo = localCollisionInfo;
 				//TODO Handle collision between object and wall
-				a.m_position = Vec3(0, 0, 0);
 				
+				/*TODO remove this simple test
+				a.m_orientation = -a.m_orientation;
+				a.m_linearVelocity = -a.m_linearVelocity;*/
+				
+				//TODO Check this. I am making something wrong here :(
+				a.m_surfaceNormal = collisionInfo.normalWorld;
+				a.updateX(collisionInfo.collisionPointWorld);
+				m_pRigidBodySystem.onCollisionWithWall(a);
 			}
 		}
 	}

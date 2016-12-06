@@ -20,7 +20,7 @@
 #define COLOUR_WALL Vec3(.9, .9, .9)
 
 // Wall coordinates and camera eye location
-#define WALL_OFFSET 2
+#define WALL_OFFSET .8
 
 class RigidBodySystemSimulator:public Simulator{
 public:
@@ -65,6 +65,8 @@ private:
 	Point2D m_mouse;
 	Point2D m_trackmouse;
 	Point2D m_oldtrackmouse;
+
+	bool testbool = true;
 
 	void buildTower(Vec3 position, Vec3 size, Vec3 boxSize, float boxMass);
 	void initWalls();
