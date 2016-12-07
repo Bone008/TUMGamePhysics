@@ -11,9 +11,10 @@ RigidBodySystemSimulator::RigidBodySystemSimulator()
 	m_mouseOldLocalCoordinate	= Vec3();
 	m_oldtrackmouse				= Vec3();
 
-	//init the rigid body vector of walls
-	initWalls();
-	
+	wallOffset = 0;
+
+	onMouseDown = false;
+
 }
 
 // Functions
@@ -25,20 +26,36 @@ const char * RigidBodySystemSimulator::getTestCasesStr()
 void RigidBodySystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 {
 	this->DUC = DUC;
-
+	resetWalls();
 	switch (m_iTestCase)
 	{
 		case ONE_STEP_SIMULATION: // no ui needed
+			//draw custom walls and custom camera for each setup
+			wallOffset = 2.0f;
+			initWalls();
+			changeCameraPosition();
 			break;
 
 		case SINGLE_BODY_SIMULATION:
 			TwAddVarRW(DUC->g_pTweakBar, "External force", TW_TYPE_DIR3D, &m_externalForce, "");
 			TwAddVarRW(DUC->g_pTweakBar, "External force loc", TW_TYPE_DIR3D, &m_externalForceLocation, "");
+			//draw custom walls and custom camera for each setup
+			wallOffset = 4.0f;
+			initWalls();
+			changeCameraPosition();
+
 			break;
 		case DOUBLE_BODY_SIMULATION:
 		case COMPLEX_BODY_SIMULATION:
+			TwAddVarRW(DUC->g_pTweakBar, "External force", TW_TYPE_DIR3D, &m_externalForce, "");
+			TwAddVarRW(DUC->g_pTweakBar, "External force loc", TW_TYPE_DIR3D, &m_externalForceLocation, "");
+			//draw custom walls and custom camera for each setup
+			wallOffset = 6.0f;
+			initWalls();
+			changeCameraPosition();
 			break;
 	}
+	
 }
 
 
@@ -51,8 +68,8 @@ void RigidBodySystemSimulator::reset()
 void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
 {
 	reset();
-
 	m_iTestCase = testCase;
+	
 	switch (m_iTestCase)
 	{
 		case ONE_STEP_SIMULATION:
@@ -62,19 +79,29 @@ void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
 
 		case SINGLE_BODY_SIMULATION:
 			addRigidBody(Vec3(0, 0, 0), Vec3(1, 0.6, 0.5), 2);
+			cout << getNumberOfRigidBodies() << endl;
 			break;
 
 		case DOUBLE_BODY_SIMULATION:
+			addRigidBody(Vec3(1, 2, 0), Vec3(1, .7, .2), 2);
+			applyForceOnBody(0, Vec3(0.3, 0.5, 0.25), Vec3(1, 1, 0));
+			addRigidBody(Vec3(-2, -1, 0), Vec3(1, .5, 0.5), 2);
+			applyForceOnBody(1, Vec3(0.3, 0.5, 0.25), Vec3(1, 1, 0));
 			break;
 
 		case COMPLEX_BODY_SIMULATION:
-			Vec3 boxSize = Vec3(0.2f, 0.05f, 0.05f);
-			float boxMass = 1.0f;
+			/*
+				//isn't efficient with external forces
 
-			buildTower(Vec3(-0.5f, -0.5f, -0.5f), Vec3(0.2f, 1.0f, 0.2f), boxSize, boxMass);
-			buildTower(Vec3(-0.5f, -0.5f, +0.5f), Vec3(0.2f, 1.0f, 0.2f), boxSize, boxMass);
-			buildTower(Vec3(+0.5f, -0.5f, -0.5f), Vec3(0.2f, 1.0f, 0.2f), boxSize, boxMass);
-			buildTower(Vec3(+0.5f, -0.5f, +0.5f), Vec3(0.2f, 1.0f, 0.2f), boxSize, boxMass);
+				Vec3 boxSize = Vec3(0.2f, 0.05f, 0.05f);
+				float boxMass = 1.0f;
+
+				buildTower(Vec3(-0.5f, -0.5f, -0.5f), Vec3(0.2f, 1.0f, 0.2f), boxSize, boxMass);
+				buildTower(Vec3(-0.5f, -0.5f, +0.5f), Vec3(0.2f, 1.0f, 0.2f), boxSize, boxMass);
+				buildTower(Vec3(+0.5f, -0.5f, -0.5f), Vec3(0.2f, 1.0f, 0.2f), boxSize, boxMass);
+				buildTower(Vec3(+0.5f, -0.5f, +0.5f), Vec3(0.2f, 1.0f, 0.2f), boxSize, boxMass);
+			*/
+			
 			break;
 	}
 	
@@ -95,20 +122,20 @@ void RigidBodySystemSimulator::buildTower(Vec3 position, Vec3 size, Vec3 boxSize
 
 void RigidBodySystemSimulator::initWalls()
 {
-	Vec3 size = Vec3(.001, 2 * WALL_OFFSET, 2 * WALL_OFFSET);
+	Vec3 size = Vec3(.001, 2 * wallOffset, 2 * wallOffset);
 	//init each side
 	//left
-	m_walls.push_back(RigidBody(Vec3(-WALL_OFFSET, 0, 0), Quat(0, 0, 0, 1), size, 0));
+	m_walls.push_back(RigidBody(Vec3(-wallOffset, 0, 0), Quat(0, 0, 0, 1), size, 0));
 	//right
-	m_walls.push_back(RigidBody(Vec3(WALL_OFFSET, 0, 0), Quat(0, 0, 0, 1), size, 0));
+	m_walls.push_back(RigidBody(Vec3(wallOffset, 0, 0), Quat(0, 0, 0, 1), size, 0));
 	//back
-	m_walls.push_back(RigidBody(Vec3(0, 0, WALL_OFFSET), Quat(Vec3(0, 1, 0), M_PI / 2), size, 0));
+	m_walls.push_back(RigidBody(Vec3(0, 0, wallOffset), Quat(Vec3(0, 1, 0), M_PI / 2), size, 0));
 	//front
-	//m_walls.push_back(RigidBody(Vec3(0, 0, -WALL_OFFSET), Quat(Vec3(0, 1, 0), M_PI / 2), size, 0));
+	//m_walls.push_back(RigidBody(Vec3(0, 0, -wallOffset), Quat(Vec3(0, 1, 0), M_PI / 2), size, 0));
 	//top
-	m_walls.push_back(RigidBody(Vec3(0, WALL_OFFSET, 0), Quat(Vec3(0, 0, 1), M_PI / 2), size, 0));
+	m_walls.push_back(RigidBody(Vec3(0, wallOffset, 0), Quat(Vec3(0, 0, 1), M_PI / 2), size, 0));
 	//bottom
-	m_walls.push_back(RigidBody(Vec3(0, -WALL_OFFSET, 0), Quat(Vec3(0, 0, 1), M_PI / 2), size, 0));
+	m_walls.push_back(RigidBody(Vec3(0, -wallOffset, 0), Quat(Vec3(0, 0, 1), M_PI / 2), size, 0));
 }
 
 void RigidBodySystemSimulator::externalForcesCalculations(float timeElapsed)
@@ -268,6 +295,12 @@ void RigidBodySystemSimulator::calculateCollision()
 				collisionInfo = localCollisionInfo;
 				//TODO Handle collision between 2 objects
 
+				//TODO remove this simple test
+				a.m_orientation = -a.m_orientation;
+				a.m_linearVelocity = -a.m_linearVelocity;
+				b.m_orientation = -b.m_orientation;
+				b.m_linearVelocity = -b.m_linearVelocity;
+
 			}
 		}
 		//check with walls
@@ -306,10 +339,24 @@ Vec3 RigidBodySystemSimulator::toLocalCoordinate(Vec3 globalScreenPosition)
 	return Vec3(globalScreenPosition.x - m_screenWidth/2, m_screenHeight - globalScreenPosition.y - m_screenHeight/2, globalScreenPosition.z);
 }
 
+//TODO Reset the mouse input force
 void RigidBodySystemSimulator::applyForceOnEachBody(Vec3 force)
 {
 	for (auto i = 0; i < getNumberOfRigidBodies(); i++)
 		applyForceOnBody(i, getPositionOfRigidBody(i), force);
+
+}
+
+void RigidBodySystemSimulator::changeCameraPosition()
+{
+	XMFLOAT3 eye(.0f,.0f, -4*wallOffset);
+	XMFLOAT3 lookAt(0.0f, 0.0f, 0.0f);
+	DUC->g_camera.SetViewParams(XMLoadFloat3(&eye), XMLoadFloat3(&lookAt));
+}
+
+void RigidBodySystemSimulator::resetWalls()
+{
+	m_walls.clear();
 }
 
 

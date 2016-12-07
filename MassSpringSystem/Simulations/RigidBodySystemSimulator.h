@@ -23,10 +23,6 @@
 // The mouse line colour
 #define COLOUR_MOUSE_VECTOR Vec3(1,0,0)
 
-
-// Wall coordinates and camera eye location
-#define WALL_OFFSET 4
-
 // Mouse local Coordinate subtractor. Hardcoded just to look real
 #define MOUSE_VECTOR_LENGTH_SUBTRACTOR 210
 
@@ -60,6 +56,8 @@ public:
 	void calculateCollision();
 	Vec3 toLocalCoordinate(Vec3 globalScreenPosition);
 	void applyForceOnEachBody(Vec3 force); //apply force to the center of each rigid body
+	
+
 private:
 	// Attributes
 	RigidBodySystem* m_pRigidBodySystem;	// probably not needed
@@ -72,6 +70,7 @@ private:
 	// UI Attributes
 	Vec3 m_externalForce;
 	Vec3 m_externalForceLocation;
+
 	Vec3 m_mouse;
 	Vec3 m_mouseLocalCoordinate;				//our local coordinate system is with screen center at 0,0,0	
 	Vec3 m_mouseOldLocalCoordinate;				//our old local coordinate system is with screen center at 0,0,0	
@@ -79,9 +78,13 @@ private:
 
 	bool onMouseDown;
 
-	void buildTower(Vec3 position, Vec3 size, Vec3 boxSize, float boxMass);
-	void initWalls();
+	// Wall coordinates and camera eye location
+	float wallOffset;
 
+	void buildTower(Vec3 position, Vec3 size, Vec3 boxSize, float boxMass);
+	void initWalls();				//usses the wallOffset variable
+	void changeCameraPosition();	//usses the wallOffset variable
+	void resetWalls();
 
 	};
 #endif
