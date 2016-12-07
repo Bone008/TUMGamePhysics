@@ -22,6 +22,9 @@ class Simulator{
 public:
 	// Attributes
 	int m_iTestCase;
+	//the real screen dimension
+	int m_screenWidth;
+	int m_screenHeight;
 	DrawingUtilitiesClass * DUC;
 	// Functions
 	

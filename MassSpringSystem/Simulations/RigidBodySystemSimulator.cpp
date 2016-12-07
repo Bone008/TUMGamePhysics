@@ -4,13 +4,16 @@
 RigidBodySystemSimulator::RigidBodySystemSimulator()
 {
 	//UI attributes
-	m_externalForce = Vec3(1, 0, 0);
-	m_externalForceLocation = Vec3(0, 0, 0.5);
-	m_mouse			= Point2D();
-	m_trackmouse	= Point2D();
-	m_oldtrackmouse = Point2D();
+	m_externalForce				= Vec3(1, 0, 0);
+	m_externalForceLocation		= Vec3(0, 0, 0.5);
+	m_mouse						= Vec3();
+	m_mouseLocalCoordinate		= Vec3();
+	m_mouseOldLocalCoordinate	= Vec3();
+	m_oldtrackmouse				= Vec3();
 
+	//init the rigid body vector of walls
 	initWalls();
+	
 }
 
 // Functions
@@ -143,6 +146,27 @@ void RigidBodySystemSimulator::applyForceOnBody(int i, Vec3 loc, Vec3 force)
 
 void RigidBodySystemSimulator::onClick(int x, int y)
 {
+	//if it is the first time just update the mouse vector
+	if (!onMouseDown) {
+		//update the mouse position
+		m_mouse = Vec3(x, y, 0);
+	}else{
+		m_oldtrackmouse = m_mouse;
+		//update the mouse position
+		m_mouse = Vec3(x, y, 0);
+		//update the local mouse position with center on the screen at 0,0,0
+		m_mouseLocalCoordinate = toLocalCoordinate(m_mouse);
+		//update the old local mouse position with center on the screen at 0,0,0
+		m_mouseOldLocalCoordinate = toLocalCoordinate(m_oldtrackmouse);
+
+		//it is substract by 10 to be more realistic and not that expensive
+		Vec3 mouseForce = (m_mouseLocalCoordinate- m_mouseOldLocalCoordinate)/10;
+
+		//apply it to all bodies
+		applyForceOnEachBody(mouseForce);
+	}
+
+	//update the boolean
 	onMouseDown = true;
 }
 
@@ -150,19 +174,31 @@ void RigidBodySystemSimulator::onClick(int x, int y)
 void RigidBodySystemSimulator::onLeftMouseRelease()
 {
 	onMouseDown = false;
+
+	//reset mouse positions
+	m_mouse						= Vec3();
+	m_oldtrackmouse				= Vec3();
+	m_mouseOldLocalCoordinate	= Vec3();
+	m_mouseLocalCoordinate		= Vec3();
 }
 
 void RigidBodySystemSimulator::onMouse(int x, int y)
 {
-
 }
 
 
 void RigidBodySystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext)
 {
-	for (const RigidBody& rb : m_rigidBodies)
+	for (const RigidBody& rb : m_rigidBodies) {
 		rb.draw(DUC, COLOUR_RIGIDBODY);
-
+		//draw the mouse spring
+		if (onMouseDown) {
+			DUC->beginLine();
+			DUC->drawLine(rb.m_position, COLOUR_MOUSE_VECTOR, (m_mouseLocalCoordinate / MOUSE_VECTOR_LENGTH_SUBTRACTOR), COLOUR_MOUSE_VECTOR);
+			DUC->endLine();
+		}
+	}
+		
 	//draw the walls
 	for (const RigidBody& w : m_walls)
 		w.draw(DUC, COLOUR_WALL);
@@ -248,8 +284,30 @@ void RigidBodySystemSimulator::calculateCollision()
 				//TODO Check this. I am making something wrong here :(
 				/*a.m_surfaceNormal = collisionInfo.normalWorld;
 				a.updateX(collisionInfo.collisionPointWorld);
-				m_pRigidBodySystem.onCollisionWithWall(a);*/
+				m_pRigidBodySystem->onCollisionWithWall(a);*/
 			}
 		}
 	}
+}
+
+/*
+As we have the screen of the center at [0,0] then we have to change the 'x' and 'y' coordinates of the mouse:
+	'x' start from left to right and it global pixel positions are between [0,maxWidth]
+	and it should be between [-maxWidth/2, +maxWidth/2] thus the center is at 0
+
+	'y' start from the top (0) and it global pixel positions are between [0,maxHeight] 
+	where maxHeight points the bottom of the screen. We need it to be 
+	between [+maxHeight,-maxHeight] where 0 is the center.
+
+Here we make those changes of the 'x' and 'y' component of the mouse
+*/
+Vec3 RigidBodySystemSimulator::toLocalCoordinate(Vec3 globalScreenPosition)
+{
+	return Vec3(globalScreenPosition.x - m_screenWidth/2, m_screenHeight - globalScreenPosition.y - m_screenHeight/2, globalScreenPosition.z);
+}
+
+void RigidBodySystemSimulator::applyForceOnEachBody(Vec3 force)
+{
+	for (auto i = 0; i < getNumberOfRigidBodies(); i++)
+		applyForceOnBody(i, getPositionOfRigidBody(i), force);
 }

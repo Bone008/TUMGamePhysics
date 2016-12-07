@@ -18,7 +18,7 @@ RigidBody::RigidBody(Vec3 position, Quat orientation, Vec3 size, float mass) :
 
 	//TODO remove this test value
 	m_bounciness = 1;
-
+	
 	updateObjToWorldMatrix();
 }
 

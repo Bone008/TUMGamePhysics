@@ -5,6 +5,7 @@
 #include "RigidBodySystem.h"
 #include "RigidBody.h"
 #include "util\collisionDetect.h"
+#include "spring.h"
 
 #define TESTCASEUSEDTORUNTEST 2
 
@@ -14,13 +15,20 @@
 #define DOUBLE_BODY_SIMULATION 2
 #define COMPLEX_BODY_SIMULATION 3
 
-// The rigidbody color
+//*************Colours*****************
+// The rigidbody colour
 #define COLOUR_RIGIDBODY Vec3(0.5, 0.5, 0.5)
-// The wall color
+// The wall colour
 #define COLOUR_WALL Vec3(.9, .9, .9)
+// The mouse line colour
+#define COLOUR_MOUSE_VECTOR Vec3(1,0,0)
+
 
 // Wall coordinates and camera eye location
-#define WALL_OFFSET .8
+#define WALL_OFFSET 4
+
+// Mouse local Coordinate subtractor. Hardcoded just to look real
+#define MOUSE_VECTOR_LENGTH_SUBTRACTOR 210
 
 class RigidBodySystemSimulator:public Simulator{
 public:
@@ -50,10 +58,11 @@ public:
 	void setOrientationOf(int i,Quat orientation);
 	void setVelocityOf(int i, Vec3 velocity);
 	void calculateCollision();
-
+	Vec3 toLocalCoordinate(Vec3 globalScreenPosition);
+	void applyForceOnEachBody(Vec3 force); //apply force to the center of each rigid body
 private:
 	// Attributes
-	RigidBodySystem m_pRigidBodySystem; // probably not needed
+	RigidBodySystem* m_pRigidBodySystem;	// probably not needed
 
 	std::vector<RigidBody> m_rigidBodies; 	//Rigid bodies
 	std::vector<RigidBody> m_walls; 		//the rigid bodies of the walls
@@ -63,9 +72,10 @@ private:
 	// UI Attributes
 	Vec3 m_externalForce;
 	Vec3 m_externalForceLocation;
-	Point2D m_mouse;
-	Point2D m_trackmouse;
-	Point2D m_oldtrackmouse;
+	Vec3 m_mouse;
+	Vec3 m_mouseLocalCoordinate;				//our local coordinate system is with screen center at 0,0,0	
+	Vec3 m_mouseOldLocalCoordinate;				//our old local coordinate system is with screen center at 0,0,0	
+	Vec3 m_oldtrackmouse;
 
 	bool onMouseDown;
 

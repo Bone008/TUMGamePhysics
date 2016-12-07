@@ -230,6 +230,14 @@ LRESULT CALLBACK MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
 		return 0;
     }
 
+	//get the current resolution
+	RECT rect;
+	if (GetWindowRect(hWnd, &rect))
+	{
+		//for some unknown reason the width of the windows don't match the width of the drawing area
+		g_pSimulator->m_screenWidth = (rect.right - rect.left) - 39;
+		g_pSimulator->m_screenHeight = rect.bottom - rect.top;
+	}
 	return 0;
 }
 
