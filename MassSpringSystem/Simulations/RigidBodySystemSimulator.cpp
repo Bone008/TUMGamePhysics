@@ -311,3 +311,5 @@ void RigidBodySystemSimulator::applyForceOnEachBody(Vec3 force)
 	for (auto i = 0; i < getNumberOfRigidBodies(); i++)
 		applyForceOnBody(i, getPositionOfRigidBody(i), force);
 }
+
+

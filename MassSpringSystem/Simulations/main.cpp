@@ -49,6 +49,7 @@ int g_iTestCase = 0;
 int g_iPreTestCase = -1;
 bool  g_bSimulateByStep = false;
 bool firstTime = true;
+bool g_mouseInteraction = false;
 // Video recorder
 FFmpeg* g_pFFmpegVideoRecorder = nullptr;
 
@@ -62,6 +63,7 @@ void initTweakBar(){
 	TwAddButton(g_pDUC->g_pTweakBar, "Reset Scene", [](void * s){ g_iPreTestCase = -1; }, nullptr, "");
 	TwAddButton(g_pDUC->g_pTweakBar, "Reset Camera", [](void * s){g_pDUC->g_camera.Reset();}, nullptr,"");
 	// Run mode, step by step, control by space key
+	TwAddVarRW(g_pDUC->g_pTweakBar, "Mouse Interaction", TW_TYPE_BOOLCPP, &g_mouseInteraction, "");
 	TwAddVarRW(g_pDUC->g_pTweakBar, "RunStep", TW_TYPE_BOOLCPP, &g_bSimulateByStep, "");
 	TwAddVarRW(g_pDUC->g_pTweakBar, "Draw Simulation",  TW_TYPE_BOOLCPP, &g_bDraw, "");
 	TwAddVarRW(g_pDUC->g_pTweakBar, "Timestep", TW_TYPE_FLOAT, &g_fTimestep, "step=0.0001 min=0.0001");
@@ -199,14 +201,17 @@ void CALLBACK OnMouse( bool bLeftButtonDown, bool bRightButtonDown, bool bMiddle
                        bool bSideButton1Down, bool bSideButton2Down, int nMouseWheelDelta,
                        int xPos, int yPos, void* pUserContext )
 {
-	if (bLeftButtonDown)
-	{
-		g_pSimulator->onClick(xPos,yPos);
-	}
-	else if (!bLeftButtonDown)
-		g_pSimulator->onLeftMouseRelease();
+	if (g_mouseInteraction) {
+		if (bLeftButtonDown)
+		{
+			g_pSimulator->onClick(xPos, yPos);
+		}
+		else if (!bLeftButtonDown)
+			g_pSimulator->onLeftMouseRelease();
 
-	g_pSimulator->onMouse(xPos, yPos);
+		g_pSimulator->onMouse(xPos, yPos);
+	}
+	
 }
 
 
