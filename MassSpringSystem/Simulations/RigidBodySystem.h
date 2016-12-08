@@ -5,61 +5,36 @@
 
 class RigidBodySystem {
 public:
-	//according to lecture 5. Should be called second/third
-	inline void onCollisionLinearVelocitiesUpdate(RigidBody a, RigidBody b) {
-		a.m_angularVelocity += (a.m_impulseForce*a.m_surfaceNormal) / a.m_mass;
-		b.m_angularVelocity -= (b.m_impulseForce*b.m_surfaceNormal) / b.m_mass;
+	inline void onCollision(RigidBody &a, RigidBody &b, bool bIsFixed)
+	{
+		// calculate impulse
+		double c = a.m_bounciness; // ? a or b
+		Vec3 n = a.m_surfaceNormal;
+		Vec3 vRel = a.m_linearVelocity - (bIsFixed ? Vec3() : b.m_linearVelocity);
+		Vec3 bInertiaPosN = bIsFixed ? Vec3() : cross(b.m_inertiaTensorInv * cross(b.m_position, n), b.m_position);
+		double bMassInv = bIsFixed ? 0 : (1 / b.m_mass);
+
+		// TODO somehow make readable? nominee for ugliest formula alive
+		double J = dot(-(1 + c) * vRel, n) / (1 / a.m_mass + bMassInv + dot(
+			cross(a.m_inertiaTensorInv * cross(a.m_position, n), a.m_position)
+			+ bInertiaPosN
+			, n));
+
+		assert(J >= 0); // TODO remove
+
+		// "precompute"
+		Vec3 impulseNormal = J * n;
+
+		// linear velocity and angular momentum for a
+		a.m_linearVelocity += impulseNormal / a.m_mass;
+		a.m_angularMomentum += cross(a.m_position, impulseNormal);
+
+		// same for b
+		if (!bIsFixed) {
+			b.m_angularMomentum -= cross(b.m_position, impulseNormal);
+			b.m_linearVelocity -= impulseNormal / b.m_mass;
+		}
 	}
 
-	
-	//according to lecture 5. Should be called second/third
-	inline void onCollisionAngularMomentumUpdate(RigidBody a, RigidBody b) {
-		a.m_angularMomentum += cross(a.m_position, (a.m_impulseForce*a.m_surfaceNormal));
-		b.m_angularMomentum -= cross(b.m_position, (b.m_impulseForce*b.m_surfaceNormal));
-	}
-	
-	//according according to what the prof showed us. Should be called first
-	inline void onCollisionImpulsesUpdate(RigidBody a, RigidBody b) {
-		a.m_impulseForce = dot((-(1 + a.m_bounciness)*a.m_angularVelocity), a.m_surfaceNormal) /
-								((1 / a.m_mass) + (1 / b.m_mass));
-
-		b.m_impulseForce = dot((-(1 + b.m_bounciness)*b.m_angularVelocity), b.m_surfaceNormal) /
-								((1 / a.m_mass) + (1 / b.m_mass));					
-	}
-
-	//according to what the prof showed us. Should be called first
-	inline void onCollisionWithWallImpulsesUpdate(RigidBody b) {
-		b.m_impulseForce = dot((-(1 + b.m_bounciness)*b.m_angularVelocity), b.m_surfaceNormal) /
-			(1 / b.m_mass);
-	}
-	//according to lecture 5. Should be called first
-	inline void onCollisionWithWallImpulsesUpdateVersion2(RigidBody b) {
-		b.m_impulseForce = dot((-(1 + b.m_bounciness)*b.m_angularVelocity), b.m_surfaceNormal) /
-			(1 / b.m_mass + dot(cross(b.m_inertiaTensorInv*(cross(b.m_position,b.m_surfaceNormal)),b.m_position)
-								, b.m_surfaceNormal));
-	}
-	//according to lecture 5. Should be called second/third
-	inline void onCollisionWithWallLinearVelocitiesUpdate(RigidBody b) {
-		b.m_linearVelocity -= (b.m_impulseForce*b.m_surfaceNormal) / b.m_mass;
-	}
-
-
-	//according to lecture 5. Should be called second/third
-	inline void onCollisionWithWallAngularMomentumUpdate(RigidBody b) {
-		b.m_angularMomentum -= cross(b.m_centerToCollisionPoint, (b.m_impulseForce*b.m_surfaceNormal));
-	}
-
-	inline void onCollisionWithWall(RigidBody b) {
-		onCollisionWithWallImpulsesUpdate(b);
-		onCollisionWithWallLinearVelocitiesUpdate(b);
-		onCollisionWithWallAngularMomentumUpdate(b);
-		
-	}
-
-	inline void onCollisionTwoRigids(RigidBody a, RigidBody b) {
-		onCollisionImpulsesUpdate(a, b);
-		onCollisionLinearVelocitiesUpdate(a, b);
-		onCollisionAngularMomentumUpdate(a, b);
-	}
 };
 #endif

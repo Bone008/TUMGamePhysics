@@ -84,7 +84,7 @@ void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
 
 		case DOUBLE_BODY_SIMULATION:
 			addRigidBody(Vec3(1, 2, 0), Vec3(1, .7, .2), 2);
-			applyForceOnBody(0, Vec3(0.3, 0.5, 0.25), Vec3(1, 1, 0));
+			applyForceOnBody(0, Vec3(0.3, 0.5, 0.25), Vec3(-1, -1, 0));
 			addRigidBody(Vec3(-2, -1, 0), Vec3(1, .5, 0.5), 2);
 			applyForceOnBody(1, Vec3(0.3, 0.5, 0.25), Vec3(1, 1, 0));
 			break;
@@ -284,40 +284,55 @@ void RigidBodySystemSimulator::calculateCollision()
 {
 	CollisionInfo localCollisionInfo;
 	for (RigidBody& a : m_rigidBodies) {
-		//check with other objects
+		// TODO both loops have almost the same body. somehow unite?
+		//check with other rigid bodies
 		for (RigidBody& b : m_rigidBodies) {
 			//avoid duplicates
-			/*if(a.m_objToWorldMatrix.isEqualTo(b.m_objToWorldMatrix))
-				continue;*/
+			if (&a == &b)
+				continue;
 
 			localCollisionInfo = checkCollisionSAT(a.m_objToWorldMatrix, b.m_objToWorldMatrix);
 			if (localCollisionInfo.isValid) {
-				collisionInfo = localCollisionInfo;
-				//TODO Handle collision between 2 objects
+				// vRel
+				Vec3 vRel = a.m_linearVelocity - b.m_linearVelocity;
 
-				//TODO remove this simple test
-				a.m_orientation = -a.m_orientation;
-				a.m_linearVelocity = -a.m_linearVelocity;
-				b.m_orientation = -b.m_orientation;
-				b.m_linearVelocity = -b.m_linearVelocity;
+				// vRel * n
+				double separationIndicator = dot(vRel, localCollisionInfo.normalWorld);
 
+				// ignore separating bodies
+				if (separationIndicator > 0) {
+					continue;
+				}
+
+				// store surface normal
+				// TODO ackchyually only one copy of this needs to be stored
+				a.m_surfaceNormal = localCollisionInfo.normalWorld;
+				b.m_surfaceNormal = localCollisionInfo.normalWorld;
+
+				// handle collision
+				m_pRigidBodySystem->onCollision(a, b, false);
 			}
 		}
+
 		//check with walls
 		for (RigidBody& w : m_walls) {
 			localCollisionInfo = checkCollisionSAT(w.m_objToWorldMatrix, a.m_objToWorldMatrix);
 			if (localCollisionInfo.isValid) {
-				collisionInfo = localCollisionInfo;
-				//TODO Handle collision between object and wall
-				
-				//TODO remove this simple test
-				a.m_orientation = -a.m_orientation;
-				a.m_linearVelocity = -a.m_linearVelocity;
-				
-				//TODO Check this. I am making something wrong here :(
-				/*a.m_surfaceNormal = collisionInfo.normalWorld;
-				a.updateX(collisionInfo.collisionPointWorld);
-				m_pRigidBodySystem->onCollisionWithWall(a);*/
+				// as walls are not moving, vRel is just velocity of a
+				// vRel * n
+				double separationIndicator = dot(a.m_linearVelocity, localCollisionInfo.normalWorld);
+
+				// ignore separating bodies
+				if (separationIndicator > 0) {
+					continue;
+				}
+
+				// store surface normal
+				a.m_surfaceNormal = localCollisionInfo.normalWorld;
+				w.m_surfaceNormal = localCollisionInfo.normalWorld;
+
+				// handle collision
+				m_pRigidBodySystem->onCollision(a, w, true);
 			}
 		}
 	}

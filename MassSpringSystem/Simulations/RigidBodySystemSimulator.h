@@ -65,8 +65,6 @@ private:
 	std::vector<RigidBody> m_rigidBodies; 	//Rigid bodies
 	std::vector<RigidBody> m_walls; 		//the rigid bodies of the walls
 	
-	CollisionInfo collisionInfo;			//for collision detection
-
 	// UI Attributes
 	Vec3 m_externalForce;
 	Vec3 m_externalForceLocation;
