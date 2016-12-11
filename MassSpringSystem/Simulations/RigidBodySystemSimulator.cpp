@@ -316,7 +316,7 @@ void RigidBodySystemSimulator::calculateCollision()
 
 		//check with walls
 		for (RigidBody& w : m_walls) {
-			localCollisionInfo = checkCollisionSAT(w.m_objToWorldMatrix, a.m_objToWorldMatrix);
+			localCollisionInfo = checkCollisionSAT(a.m_objToWorldMatrix, w.m_objToWorldMatrix);
 			if (localCollisionInfo.isValid) {
 				// as walls are not moving, vRel is just velocity of a
 				// vRel * n

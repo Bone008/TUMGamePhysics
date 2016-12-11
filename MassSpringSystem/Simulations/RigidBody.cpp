@@ -17,7 +17,7 @@ RigidBody::RigidBody(Vec3 position, Quat orientation, Vec3 size, float mass) :
 	m_inertiaTensorInv = inertiaTensor.inverse();
 
 	//TODO remove this test value
-	m_bounciness = 1;
+	m_bounciness = 0;
 	
 	updateObjToWorldMatrix();
 }
