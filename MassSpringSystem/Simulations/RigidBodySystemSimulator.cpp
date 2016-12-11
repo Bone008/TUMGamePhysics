@@ -90,6 +90,16 @@ void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
 			break;
 
 		case COMPLEX_BODY_SIMULATION:
+			// add 7 beautiful blocks in a row
+			for (int i = -3; i <= 3; i++) {
+				addRigidBody(Vec3(i , 0, 0), Vec3(0.2, 2.0, 0.5), 1);
+			}
+
+			// destroy them
+			addRigidBody(Vec3(5, 1, -5), Vec3(2, 1, 1), 1);
+			int rIndex = m_rigidBodies.size() - 1;
+			applyForceOnBody(rIndex, getPositionOfRigidBody(rIndex), Vec3(-200, 0, 200));
+
 			/*
 				//isn't efficient with external forces
 
