@@ -320,7 +320,7 @@ void RigidBodySystemSimulator::calculateCollision()
 				b.m_surfaceNormal = localCollisionInfo.normalWorld;
 
 				// handle collision
-				m_pRigidBodySystem->onCollision(a, b, false);
+				m_pRigidBodySystem->onCollision(a, b, localCollisionInfo.collisionPointWorld, false);
 			}
 		}
 
@@ -342,7 +342,7 @@ void RigidBodySystemSimulator::calculateCollision()
 				w.m_surfaceNormal = localCollisionInfo.normalWorld;
 
 				// handle collision
-				m_pRigidBodySystem->onCollision(a, w, true);
+				m_pRigidBodySystem->onCollision(a, w, localCollisionInfo.collisionPointWorld, true);
 			}
 		}
 	}

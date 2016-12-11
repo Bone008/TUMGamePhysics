@@ -5,7 +5,7 @@
 
 class RigidBodySystem {
 public:
-	inline void onCollision(RigidBody &a, RigidBody &b, bool bIsFixed)
+	inline void onCollision(RigidBody &a, RigidBody &b, Vec3 collisionPoint, bool bIsFixed)
 	{
 		// calculate impulse
 		double c = a.m_bounciness; // ? a or b
@@ -27,11 +27,11 @@ public:
 
 		// linear velocity and angular momentum for a
 		a.m_linearVelocity += impulseNormal / a.m_mass;
-		a.m_angularMomentum += cross(a.m_position, impulseNormal);
+		a.m_angularMomentum += cross(a.m_position, impulseNormal); // TODO is a.m_position correct? i got better results when using the collisionPoint here
 
 		// same for b
 		if (!bIsFixed) {
-			b.m_angularMomentum -= cross(b.m_position, impulseNormal);
+			b.m_angularMomentum -= cross(b.m_position, impulseNormal); // TODO is b.m_position correct? i got better results when using the collisionPoint here
 			b.m_linearVelocity -= impulseNormal / b.m_mass;
 		}
 	}
