@@ -39,11 +39,11 @@
       <Filter>util</Filter>
     </ClInclude>
     <ClInclude Include="RigidBodySystemSimulator.h" />
-    <ClInclude Include="RigidBodySystem.h" />
     <ClInclude Include="RigidBody.h" />
     <ClInclude Include="util\quaternion.h">
       <Filter>util</Filter>
     </ClInclude>
+    <ClInclude Include="RigidBodyCollisionSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="effect.fx" />

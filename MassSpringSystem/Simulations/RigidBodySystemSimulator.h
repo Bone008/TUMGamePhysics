@@ -3,7 +3,7 @@
 #include "Simulator.h"
 
 #include "util\collisionDetect.h"
-#include "RigidBodySystem.h"
+#include "RigidBodyCollisionSystem.h"
 #include "RigidBody.h"
 #include "spring.h"
 
@@ -60,7 +60,7 @@ public:
 
 private:
 	// Attributes
-	RigidBodySystem* m_pRigidBodySystem;	// probably not needed
+	RigidBodyCollisionSystem* m_collisionSystem;	// probably not needed
 
 	std::vector<RigidBody> m_rigidBodies; 	//Rigid bodies
 	std::vector<RigidBody> m_walls; 		//the rigid bodies of the walls

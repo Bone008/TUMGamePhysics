@@ -3,7 +3,7 @@
 
 #include "RigidBody.h"
 
-class RigidBodySystem {
+class RigidBodyCollisionSystem {
 public:
 	inline void testCollision(RigidBody& a, RigidBody& b, bool bIsFixed)
 	{

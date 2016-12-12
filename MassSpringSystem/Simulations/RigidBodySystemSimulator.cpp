@@ -334,7 +334,7 @@ void RigidBodySystemSimulator::calculateCollision()
 
 			RigidBody& b = m_rigidBodies[j];
 
-			m_pRigidBodySystem->testCollision(a, b, false);
+			m_collisionSystem->testCollision(a, b, false);
 
 			//localCollisionInfo = checkCollisionSAT(a.m_objToWorldMatrix, b.m_objToWorldMatrix);
 			//if (localCollisionInfo.isValid) {
@@ -365,12 +365,12 @@ void RigidBodySystemSimulator::calculateCollision()
 			//	b.m_surfaceNormal = localCollisionInfo.normalWorld;
 
 			//	// handle collision
-			//	m_pRigidBodySystem->onCollision(a, b, localCollisionInfo.collisionPointWorld, false);
+			//	m_collisionSystem->onCollision(a, b, localCollisionInfo.collisionPointWorld, false);
 		}
 
 		//check with walls
 		for (RigidBody& w : m_walls) {
-			m_pRigidBodySystem->testCollision(a, w, true);
+			m_collisionSystem->testCollision(a, w, true);
 			//localCollisionInfo = checkCollisionSAT(a.m_objToWorldMatrix, w.m_objToWorldMatrix);
 			//if (localCollisionInfo.isValid) {
 
@@ -388,7 +388,7 @@ void RigidBodySystemSimulator::calculateCollision()
 				//w.m_surfaceNormal = localCollisionInfo.normalWorld;
 
 				//// handle collision
-				//m_pRigidBodySystem->onCollision(a, w, localCollisionInfo.collisionPointWorld, true);
+				//m_collisionSystem->onCollision(a, w, localCollisionInfo.collisionPointWorld, true);
 			//}
 		}
 	}

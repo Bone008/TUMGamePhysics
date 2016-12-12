@@ -237,7 +237,7 @@
     <ClInclude Include="MassSpringSystemSimulator.h" />
     <ClInclude Include="point.h" />
     <ClInclude Include="RigidBody.h" />
-    <ClInclude Include="RigidBodySystem.h" />
+    <ClInclude Include="RigidBodyCollisionSystem.h" />
     <ClInclude Include="RigidBodySystemSimulator.h" />
     <ClInclude Include="Simulator.h" />
     <ClInclude Include="spring.h" />
