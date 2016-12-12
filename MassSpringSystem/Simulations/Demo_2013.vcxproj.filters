@@ -11,6 +11,8 @@
     <ClCompile Include="MassSpringSystemSimulator.cpp" />
     <ClCompile Include="point.cpp" />
     <ClCompile Include="spring.cpp" />
+    <ClCompile Include="RigidBodySystemSimulator.cpp" />
+    <ClCompile Include="RigidBody.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="util">
@@ -29,11 +31,19 @@
     <ClInclude Include="Simulator.h" />
     <ClInclude Include="TemplateSimulator.h" />
     <ClInclude Include="util\matrixbase.h" />
-    <ClInclude Include="util\quaternion.h" />
     <ClInclude Include="util\timer.h" />
     <ClInclude Include="util\vectorbase.h" />
     <ClInclude Include="point.h" />
     <ClInclude Include="spring.h" />
+    <ClInclude Include="util\collisionDetect.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="RigidBodySystemSimulator.h" />
+    <ClInclude Include="RigidBody.h" />
+    <ClInclude Include="util\quaternion.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="RigidBodyCollisionSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="effect.fx" />

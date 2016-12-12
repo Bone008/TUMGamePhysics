@@ -333,7 +333,10 @@ void MassSpringSystemSimulator::onClick(int x, int y)
 		}
 	} 
 }
-
+void MassSpringSystemSimulator::onLeftMouseRelease()
+{
+}
+ 
 void MassSpringSystemSimulator::onMouse(int x, int y)
 {
 }

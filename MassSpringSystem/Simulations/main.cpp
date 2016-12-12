@@ -21,8 +21,8 @@ using namespace GamePhysics;
 //#define ADAPTIVESTEP
 
 //#define TEMPLATE_DEMO
-#define MASS_SPRING_SYSTEM
-//#define RIGID_BODY_SYSTEM
+//#define MASS_SPRING_SYSTEM
+#define RIGID_BODY_SYSTEM
 //#define SPH_SYSTEM
 
 #ifdef TEMPLATE_DEMO
@@ -32,7 +32,7 @@ using namespace GamePhysics;
 #include "MassSpringSystemSimulator.h"
 #endif
 #ifdef RIGID_BODY_SYSTEM
-//#include "RigidBodySystemSimulator.h"
+#include "RigidBodySystemSimulator.h"
 #endif
 #ifdef SPH_SYSTEM
 //#include "SPHSystemSimulator.h"
@@ -49,6 +49,7 @@ int g_iTestCase = 0;
 int g_iPreTestCase = -1;
 bool  g_bSimulateByStep = false;
 bool firstTime = true;
+bool g_mouseInteraction = false;
 // Video recorder
 FFmpeg* g_pFFmpegVideoRecorder = nullptr;
 
@@ -62,6 +63,7 @@ void initTweakBar(){
 	TwAddButton(g_pDUC->g_pTweakBar, "Reset Scene", [](void * s){ g_iPreTestCase = -1; }, nullptr, "");
 	TwAddButton(g_pDUC->g_pTweakBar, "Reset Camera", [](void * s){g_pDUC->g_camera.Reset();}, nullptr,"");
 	// Run mode, step by step, control by space key
+	TwAddVarRW(g_pDUC->g_pTweakBar, "Mouse Interaction", TW_TYPE_BOOLCPP, &g_mouseInteraction, "");
 	TwAddVarRW(g_pDUC->g_pTweakBar, "RunStep", TW_TYPE_BOOLCPP, &g_bSimulateByStep, "");
 	TwAddVarRW(g_pDUC->g_pTweakBar, "Draw Simulation",  TW_TYPE_BOOLCPP, &g_bDraw, "");
 	TwAddVarRW(g_pDUC->g_pTweakBar, "Timestep", TW_TYPE_FLOAT, &g_fTimestep, "step=0.0001 min=0.0001");
@@ -199,11 +201,17 @@ void CALLBACK OnMouse( bool bLeftButtonDown, bool bRightButtonDown, bool bMiddle
                        bool bSideButton1Down, bool bSideButton2Down, int nMouseWheelDelta,
                        int xPos, int yPos, void* pUserContext )
 {
-	if (bLeftButtonDown)
-	{
-		g_pSimulator->onClick(xPos,yPos);
+	if (g_mouseInteraction) {
+		if (bLeftButtonDown)
+		{
+			g_pSimulator->onClick(xPos, yPos);
+		}
+		else if (!bLeftButtonDown)
+			g_pSimulator->onLeftMouseRelease();
+
+		g_pSimulator->onMouse(xPos, yPos);
 	}
-	g_pSimulator->onMouse(xPos, yPos);
+	
 }
 
 
@@ -227,6 +235,14 @@ LRESULT CALLBACK MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
 		return 0;
     }
 
+	//get the current resolution
+	RECT rect;
+	if (GetWindowRect(hWnd, &rect))
+	{
+		//for some unknown reason the width of the windows don't match the width of the drawing area
+		g_pSimulator->m_screenWidth = (rect.right - rect.left) - 39;
+		g_pSimulator->m_screenHeight = rect.bottom - rect.top;
+	}
 	return 0;
 }
 
@@ -299,10 +315,10 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 	pd3dImmediateContext->ClearDepthStencilView( pDSV, D3D11_CLEAR_DEPTH, 1.0f, 0 );
 
     // Draw floor
-    g_pDUC->DrawFloor(pd3dImmediateContext);
+    //g_pDUC->DrawFloor(pd3dImmediateContext);
 
     // Draw axis box
-     g_pDUC->DrawBoundingBox(pd3dImmediateContext);
+    //g_pDUC->DrawBoundingBox(pd3dImmediateContext);
 
 	// Draw Simulator
 	if(g_bDraw)g_pSimulator->drawFrame(pd3dImmediateContext);
@@ -349,7 +365,7 @@ int main(int argc, char* argv[])
 	// Init Drawing Class
 	g_pDUC = new DrawingUtilitiesClass();
     // Init camera
- 	XMFLOAT3 eye(0.0f, 0.0f, -2.0f);
+	XMFLOAT3 eye(0.0f, 0.0f, -2.0f);
 	XMFLOAT3 lookAt(0.0f, 0.0f, 0.0f);
 	g_pDUC->g_camera.SetViewParams(XMLoadFloat3(&eye), XMLoadFloat3(&lookAt));
 	g_pDUC-> g_camera.SetButtonMasks(MOUSE_MIDDLE_BUTTON, MOUSE_WHEEL, MOUSE_RIGHT_BUTTON);
@@ -362,7 +378,7 @@ int main(int argc, char* argv[])
 	g_pSimulator= new MassSpringSystemSimulator();
 #endif
 #ifdef RIGID_BODY_SYSTEM
-	//g_pSimulator= new RigidBodySystemSimulator();
+	g_pSimulator= new RigidBodySystemSimulator();
 #endif
 #ifdef SPH_SYSTEM
 	//g_pSimulator= new SPHSystemSimulator();

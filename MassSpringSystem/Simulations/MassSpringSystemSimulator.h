@@ -39,6 +39,7 @@ public:
 	void externalForcesCalculations(float timeElapsed);
 	void simulateTimestep(float timeStep);
 	void onClick(int x, int y);
+	void onLeftMouseRelease();
 	void onMouse(int x, int y);
 
 	// Specific Functions
