@@ -2,9 +2,9 @@
 #define RIGIDBODYSYSTEMSIMULATOR_h
 #include "Simulator.h"
 
+#include "util\collisionDetect.h"
 #include "RigidBodySystem.h"
 #include "RigidBody.h"
-#include "util\collisionDetect.h"
 #include "spring.h"
 
 #define TESTCASEUSEDTORUNTEST 2

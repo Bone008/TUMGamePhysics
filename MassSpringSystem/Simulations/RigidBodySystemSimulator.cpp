@@ -83,10 +83,14 @@ void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
 			break;
 
 		case DOUBLE_BODY_SIMULATION:
-			addRigidBody(Vec3(1, 2, 0), Vec3(1, .7, .2), 2);
-			applyForceOnBody(0, Vec3(0.3, 0.5, 0.25), Vec3(-1, -1, 0));
-			addRigidBody(Vec3(-2, -1, 0), Vec3(1, .5, 0.5), 2);
-			applyForceOnBody(1, Vec3(0.3, 0.5, 0.25), Vec3(1, 1, 0));
+			addRigidBody(Vec3(1, 0, 0), Vec3(1, .7, .8), 2);
+			addRigidBody(Vec3(-2, 0.25, 0.2), Vec3(1, .5, 0.5), 2);
+
+			/*applyForceOnBody(0, Vec3(0.3, 0.5, 0.25), Vec3(-1, -1, 0));
+			applyForceOnBody(1, Vec3(0.3, 0.5, 0.25), Vec3(1, 1, 0));*/
+
+			setVelocityOf(0, Vec3(-1, 0, 0));
+			setVelocityOf(1, Vec3(0.5, 0, 0));
 			break;
 
 		case COMPLEX_BODY_SIMULATION:
@@ -98,7 +102,8 @@ void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
 			// destroy them
 			addRigidBody(Vec3(5, 1, -5), Vec3(2, 1, 1), 1);
 			int rIndex = m_rigidBodies.size() - 1;
-			applyForceOnBody(rIndex, getPositionOfRigidBody(rIndex), Vec3(-200, 0, 200));
+			//applyForceOnBody(rIndex, getPositionOfRigidBody(rIndex), Vec3(-200, 0, 200));
+			setVelocityOf(rIndex, Vec3(-50, 0, 50));
 
 			/*
 				//isn't efficient with external forces
@@ -132,26 +137,48 @@ void RigidBodySystemSimulator::buildTower(Vec3 position, Vec3 size, Vec3 boxSize
 
 void RigidBodySystemSimulator::initWalls()
 {
-	Vec3 size = Vec3(.001, 2 * wallOffset, 2 * wallOffset);
+	double thickness = 10;
+	Vec3 size = Vec3(thickness*2, 2 * wallOffset, 2 * wallOffset);
 	//init each side
 	//left
-	m_walls.push_back(RigidBody(Vec3(-wallOffset, 0, 0), Quat(0, 0, 0, 1), size, 0));
+	m_walls.push_back(RigidBody(Vec3(-wallOffset - thickness, 0, 0), Quat(0, 0, 0, 1), size, 0));
 	//right
-	m_walls.push_back(RigidBody(Vec3(wallOffset, 0, 0), Quat(0, 0, 0, 1), size, 0));
+	m_walls.push_back(RigidBody(Vec3(wallOffset + thickness, 0, 0), Quat(0, 0, 0, 1), size, 0));
 	//back
-	m_walls.push_back(RigidBody(Vec3(0, 0, wallOffset), Quat(Vec3(0, 1, 0), M_PI / 2), size, 0));
+	m_walls.push_back(RigidBody(Vec3(0, 0, wallOffset + thickness), Quat(Vec3(0, 1, 0), M_PI / 2), size, 0));
 	//front
 	//m_walls.push_back(RigidBody(Vec3(0, 0, -wallOffset), Quat(Vec3(0, 1, 0), M_PI / 2), size, 0));
 	//top
-	m_walls.push_back(RigidBody(Vec3(0, wallOffset, 0), Quat(Vec3(0, 0, 1), M_PI / 2), size, 0));
+	m_walls.push_back(RigidBody(Vec3(0, wallOffset + thickness, 0), Quat(Vec3(0, 0, 1), M_PI / 2), size, 0));
 	//bottom
-	m_walls.push_back(RigidBody(Vec3(0, -wallOffset, 0), Quat(Vec3(0, 0, 1), M_PI / 2), size, 0));
+	m_walls.push_back(RigidBody(Vec3(0, -wallOffset - thickness, 0), Quat(Vec3(0, 0, 1), M_PI / 2), size, 0));
 }
 
 void RigidBodySystemSimulator::externalForcesCalculations(float timeElapsed)
 {
 	// TODO per frame calls to RigidBody.resetExternalForces() and RigidBody.applyExternalForce(...) will go here
-	
+
+	if (m_iTestCase != ONE_STEP_SIMULATION)
+	{
+		for (RigidBody& rb : m_rigidBodies)
+		{
+			rb.resetExternalForces();
+		}
+	}
+
+
+	if (onMouseDown)
+	{
+		//it is substract by 10 to be more realistic and not that expensive
+		Vec3 mouseForce = (m_mouseLocalCoordinate - m_mouseOldLocalCoordinate) * 10;
+
+		//apply it to all bodies
+		applyForceOnEachBody(mouseForce);
+
+		cout << mouseForce << endl;
+	}
+
+
 	// some testing of applying torque
 	if (m_iTestCase == SINGLE_BODY_SIMULATION)
 	{
@@ -196,11 +223,11 @@ void RigidBodySystemSimulator::onClick(int x, int y)
 		//update the old local mouse position with center on the screen at 0,0,0
 		m_mouseOldLocalCoordinate = toLocalCoordinate(m_oldtrackmouse);
 
-		//it is substract by 10 to be more realistic and not that expensive
-		Vec3 mouseForce = (m_mouseLocalCoordinate- m_mouseOldLocalCoordinate)/10;
+		////it is substract by 10 to be more realistic and not that expensive
+		//Vec3 mouseForce = (m_mouseLocalCoordinate- m_mouseOldLocalCoordinate)/10;
 
-		//apply it to all bodies
-		applyForceOnEachBody(mouseForce);
+		////apply it to all bodies
+		//applyForceOnEachBody(mouseForce);
 	}
 
 	//update the boolean
@@ -227,7 +254,13 @@ void RigidBodySystemSimulator::onMouse(int x, int y)
 void RigidBodySystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext)
 {
 	for (const RigidBody& rb : m_rigidBodies) {
-		rb.draw(DUC, COLOUR_RIGIDBODY);
+		srand((int) (&rb));
+
+		double r = (rand() % 255) / 255.0;
+		double g = (rand() % 255) / 255.0;
+		double b = (rand() % 255) / 255.0;
+		rb.draw(DUC, Vec3(r, g, b));
+
 		//draw the mouse spring
 		if (onMouseDown) {
 			DUC->beginLine();
@@ -293,57 +326,70 @@ void RigidBodySystemSimulator::setVelocityOf(int i, Vec3 velocity)
 void RigidBodySystemSimulator::calculateCollision()
 {
 	CollisionInfo localCollisionInfo;
-	for (RigidBody& a : m_rigidBodies) {
-		// TODO both loops have almost the same body. somehow unite?
+	for(int i=0; i<m_rigidBodies.size(); i++) {
+		RigidBody& a = m_rigidBodies[i];
 		//check with other rigid bodies
-		for (RigidBody& b : m_rigidBodies) {
-			//avoid duplicates
-			if (&a == &b)
-				continue;
+		for (int j = 0; j < m_rigidBodies.size(); j++) {
+			if (i == j) continue;
 
-			localCollisionInfo = checkCollisionSAT(a.m_objToWorldMatrix, b.m_objToWorldMatrix);
-			if (localCollisionInfo.isValid) {
-				// vRel
-				Vec3 vRel = a.m_linearVelocity - b.m_linearVelocity;
+			RigidBody& b = m_rigidBodies[j];
 
-				// vRel * n
-				double separationIndicator = dot(vRel, localCollisionInfo.normalWorld);
+			m_pRigidBodySystem->testCollision(a, b, false);
 
-				// ignore separating bodies
-				if (separationIndicator > 0) {
-					continue;
-				}
+			//localCollisionInfo = checkCollisionSAT(a.m_objToWorldMatrix, b.m_objToWorldMatrix);
+			//if (localCollisionInfo.isValid) {
+			//	cout << "Collision!";
 
-				// store surface normal
-				// TODO ackchyually only one copy of this needs to be stored
-				a.m_surfaceNormal = localCollisionInfo.normalWorld;
-				b.m_surfaceNormal = localCollisionInfo.normalWorld;
+			//	// collision point in object space of A and B
+			//	Vec3 collisionPointA = localCollisionInfo.collisionPointWorld - a.m_position;
+			//	Vec3 collisionPointB = localCollisionInfo.collisionPointWorld - b.m_position;
+			//	// relative velocity
+			//	Vec3 va = a.m_linearVelocity + cross(a.m_angularVelocity, collisionPointA);
+			//	Vec3 vb = b.m_linearVelocity + cross(b.m_angularVelocity, collisionPointB);
+			//	Vec3 vRel = va - vb;
 
-				// handle collision
-				m_pRigidBodySystem->onCollision(a, b, localCollisionInfo.collisionPointWorld, false);
-			}
+			//	// vRel * n
+			//	double separationIndicator = dot(vRel, localCollisionInfo.normalWorld);
+
+			//	// ignore separating bodies
+			//	if (separationIndicator > 0) {
+			//		cout << " ignored" << endl;
+			//		continue;
+			//	}
+
+			//	cout << " ignored" << endl;
+
+			//	// store surface normal
+			//	// TODO ackchyually only one copy of this needs to be stored
+			//	a.m_surfaceNormal = localCollisionInfo.normalWorld;
+			//	b.m_surfaceNormal = localCollisionInfo.normalWorld;
+
+			//	// handle collision
+			//	m_pRigidBodySystem->onCollision(a, b, localCollisionInfo.collisionPointWorld, false);
 		}
 
 		//check with walls
 		for (RigidBody& w : m_walls) {
-			localCollisionInfo = checkCollisionSAT(a.m_objToWorldMatrix, w.m_objToWorldMatrix);
-			if (localCollisionInfo.isValid) {
-				// as walls are not moving, vRel is just velocity of a
-				// vRel * n
-				double separationIndicator = dot(a.m_linearVelocity, localCollisionInfo.normalWorld);
+			m_pRigidBodySystem->testCollision(a, w, true);
+			//localCollisionInfo = checkCollisionSAT(a.m_objToWorldMatrix, w.m_objToWorldMatrix);
+			//if (localCollisionInfo.isValid) {
 
-				// ignore separating bodies
-				if (separationIndicator > 0) {
-					continue;
-				}
+				//// as walls are not moving, vRel is just velocity of a
+				//// vRel * n
+				//double separationIndicator = dot(a.m_linearVelocity, localCollisionInfo.normalWorld);
 
-				// store surface normal
-				a.m_surfaceNormal = localCollisionInfo.normalWorld;
-				w.m_surfaceNormal = localCollisionInfo.normalWorld;
+				//// ignore separating bodies
+				//if (separationIndicator > 0) {
+				//	continue;
+				//}
 
-				// handle collision
-				m_pRigidBodySystem->onCollision(a, w, localCollisionInfo.collisionPointWorld, true);
-			}
+				//// store surface normal
+				//a.m_surfaceNormal = localCollisionInfo.normalWorld;
+				//w.m_surfaceNormal = localCollisionInfo.normalWorld;
+
+				//// handle collision
+				//m_pRigidBodySystem->onCollision(a, w, localCollisionInfo.collisionPointWorld, true);
+			//}
 		}
 	}
 }

@@ -40,12 +40,6 @@ public:
 	Vec3 m_externalForces; // F
 	Vec3 m_externalTorque; // q
 
-	double m_impulseForce;			// J
-	//TODO update those values on collision
-	Vec3 m_surfaceNormal;			// n
-	//maybe wont be needed
-	Vec3 m_centerToCollisionPoint;	// x
-
 	// reset the external force accumulators (F and q)
 	void resetExternalForces();
 	// add an external force to the accumulators (F and q)
@@ -58,7 +52,4 @@ public:
 	//less complicated version. //maybe wont be needed
 	Vec3 getCenterToPointVector(Vec3 pointOfAct);
 
-	//on collision update the 'x' value of this class
-	//maybe wont be needed
-	void updateX(Vec3 collisionPointWorld);
 };

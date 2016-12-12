@@ -17,7 +17,7 @@ RigidBody::RigidBody(Vec3 position, Quat orientation, Vec3 size, float mass) :
 	m_inertiaTensorInv = inertiaTensor.inverse();
 
 	//TODO remove this test value
-	m_bounciness = 0;
+	m_bounciness = 0.5;
 	
 	updateObjToWorldMatrix();
 }
@@ -80,10 +80,4 @@ void RigidBody::draw(DrawingUtilitiesClass * DUC, Vec3 color) const
 
 Vec3 RigidBody::getCenterToPointVector(Vec3 pointOfAct) {
 	return pointOfAct - m_position;
-}
-
-void RigidBody::updateX(Vec3 collisionPointWorld)
-{
-	//this->m_centerToCollisionPoint = this->m_objToWorldMatrix.transformVector(collisionPointWorld) - m_position;
-	m_centerToCollisionPoint = collisionPointWorld - m_position;
 }
