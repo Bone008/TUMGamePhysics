@@ -227,6 +227,7 @@
     <ClCompile Include="point.cpp" />
     <ClCompile Include="RigidBody.cpp" />
     <ClCompile Include="RigidBodySystemSimulator.cpp" />
+    <ClCompile Include="SphereSystem.cpp" />
     <ClCompile Include="SphereSystemSimulator.cpp" />
     <ClCompile Include="spring.cpp" />
     <ClCompile Include="TemplateSimulator.cpp" />
@@ -241,6 +242,7 @@
     <ClInclude Include="RigidBodyCollisionSystem.h" />
     <ClInclude Include="RigidBodySystemSimulator.h" />
     <ClInclude Include="Simulator.h" />
+    <ClInclude Include="SphereSystem.h" />
     <ClInclude Include="SphereSystemSimulator.h" />
     <ClInclude Include="spring.h" />
     <ClInclude Include="TemplateSimulator.h" />

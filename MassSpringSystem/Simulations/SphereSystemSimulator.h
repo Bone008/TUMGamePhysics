@@ -1,10 +1,15 @@
 #ifndef SPHSYSTEMSIMULATOR_h
 #define SPHSYSTEMSIMULATOR_h
 #include "Simulator.h"
-//#include "spheresystem.h", add your sphere system header file
+#include "SphereSystem.h"
 
 #define NAIVEACC 0
 #define GRIDACC 1
+
+// testcases
+#define TEST_NAIVE     0
+#define TEST_ACCEL	   1
+#define TEST_PERF_COMP 2
 
 class SphereSystemSimulator:public Simulator{
 public:
@@ -21,6 +26,9 @@ public:
 	void onClick(int x, int y);
 	void onMouse(int x, int y);
 	void onLeftMouseRelease();
+
+	void addSphereSystem(Vec3 color);
+	void addSphere(Vec3 pos, Vec3 vel);
 
 protected:
 	// Attributes
@@ -39,6 +47,8 @@ protected:
 	
 	int   m_iAccelerator; // switch between NAIVEACC and GRIDACC, (optionally, KDTREEACC, 2)
 	
+	std::vector<SphereSystem> m_sphereSystems;
+
 	//SphereSystem * m_pSphereSystem; // add your own sphere system member!
 	// for Demo 3 only:
 	// you will need multiple SphereSystem objects to do comparisons in Demo 3

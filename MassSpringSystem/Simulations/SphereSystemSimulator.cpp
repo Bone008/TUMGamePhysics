@@ -12,15 +12,44 @@ std::function<float(float)> SphereSystemSimulator::m_Kernels[5] = {
 
 SphereSystemSimulator::SphereSystemSimulator()
 {
+	// TODO test value
+	m_fRadius = 0.1f;
+
+	// TODO test values
+	addSphereSystem(Vec3(0.86f, 0.44f, 0.31f));
+	addSphereSystem(Vec3(0.44f, 0.86f, 0.31f));
+
+	addSphere(Vec3(-0.2f, 0, 0), Vec3());
+	addSphere(Vec3(0.2f, 0, 0), Vec3());
 }
 
 const char * SphereSystemSimulator::getTestCasesStr()
 {
-	return nullptr;
+	return "Naive,Accelerated,Performance comparison";
 }
 
 void SphereSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 {
+	this->DUC = DUC;
+
+	// add separator
+	TwAddSeparator(DUC->g_pTweakBar, "john", "");
+
+	// for every SphereSystem: add checkbox to disable rendering
+	std::string title = "Draw Sys ";
+	for (int i = 0; i < m_sphereSystems.size(); i++) {
+		TwAddVarRW(DUC->g_pTweakBar, (title + std::to_string(i)).c_str(), TW_TYPE_BOOLCPP, &(m_sphereSystems[i].render), "");
+	}
+	
+	switch (m_iTestCase)
+	{
+	case TEST_NAIVE:
+		break;
+	case TEST_ACCEL:
+		break;
+	case TEST_PERF_COMP:
+		break;
+	}
 }
 
 void SphereSystemSimulator::reset()
@@ -29,10 +58,25 @@ void SphereSystemSimulator::reset()
 
 void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext)
 {
+	// draw all SphereSystems
+	for (SphereSystem& s : m_sphereSystems) {
+		s.draw(DUC);
+	}
 }
 
 void SphereSystemSimulator::notifyCaseChanged(int testCase)
 {
+	m_iTestCase = testCase;
+
+	switch (m_iTestCase)
+	{
+	case TEST_NAIVE:
+		break;
+	case TEST_ACCEL:
+		break;
+	case TEST_PERF_COMP:
+		break;
+	}
 }
 
 void SphereSystemSimulator::externalForcesCalculations(float timeElapsed)
@@ -41,6 +85,10 @@ void SphereSystemSimulator::externalForcesCalculations(float timeElapsed)
 
 void SphereSystemSimulator::simulateTimestep(float timeStep)
 {
+	// simulate for all SphereSystems
+	for (SphereSystem& s : m_sphereSystems) {
+		s.simulateTimestep(timeStep);
+	}
 }
 
 void SphereSystemSimulator::onClick(int x, int y)
@@ -53,4 +101,19 @@ void SphereSystemSimulator::onMouse(int x, int y)
 
 void SphereSystemSimulator::onLeftMouseRelease()
 {
+}
+
+void SphereSystemSimulator::addSphereSystem(Vec3 color)
+{
+	SphereSystem sSys = SphereSystem(color, m_fRadius);
+	m_sphereSystems.push_back(sSys);
+}
+
+void SphereSystemSimulator::addSphere(Vec3 pos, Vec3 vel)
+{
+	// all sphere system should have the same spheres
+	for (SphereSystem& s : m_sphereSystems) {
+		s.addSphere(pos, vel);
+	}
+	m_iNumSpheres++;
 }

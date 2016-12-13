@@ -14,6 +14,7 @@
     <ClCompile Include="RigidBodySystemSimulator.cpp" />
     <ClCompile Include="RigidBody.cpp" />
     <ClCompile Include="SphereSystemSimulator.cpp" />
+    <ClCompile Include="SphereSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="util">
@@ -49,6 +50,7 @@
       <Filter>util</Filter>
     </ClInclude>
     <ClInclude Include="SphereSystemSimulator.h" />
+    <ClInclude Include="SphereSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="effect.fx" />
