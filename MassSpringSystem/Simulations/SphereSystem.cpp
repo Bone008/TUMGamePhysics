@@ -8,6 +8,74 @@ void SphereSystem::addSphere(Vec3 pos, Vec3 vel)
 	m_spheres.push_back(s);
 }
 
+void SphereSystem::handleCollision()
+{
+	// TODO apply collision detection methods above to walls, too?
+	{
+		// collision with bbox
+		const Vec3 distMin = m_spheres[i].pos - m_fRadius + BBOX_SIZE;
+		if (distMin.x < 0)
+			collisionResponseWall(m_spheres[i], distMin.x, Vec3(1, 0, 0));
+		if (distMin.y < 0)
+			collisionResponseWall(m_spheres[i], distMin.y, Vec3(0, 1, 0));
+		if (distMin.z < 0)
+			collisionResponseWall(m_spheres[i], distMin.z, Vec3(0, 0, 1));
+
+		const Vec3 distMax = -m_spheres[i].pos - m_fRadius + BBOX_SIZE;
+		if (distMax.x < 0)
+			collisionResponseWall(m_spheres[i], distMax.x, Vec3(-1, 0, 0));
+		if (distMax.y < 0)
+			collisionResponseWall(m_spheres[i], distMax.y, Vec3(0, -1, 0));
+		if (distMax.z < 0)
+			collisionResponseWall(m_spheres[i], distMax.z, Vec3(0, 0, -1));
+	}
+
+	switch (m_collDetMethod)
+	{
+	case NAIVEACC:
+		// brute force testing
+		for (int i = 0; i < m_spheres.size(); i++) {			
+			// collision with other spheres
+			for (int u = i + 1; u < m_spheres.size(); u++) {
+				const double sqDist = m_spheres[i].pos.squaredDistanceTo(m_spheres[u].pos);
+				const double diameter = 2 * m_fRadius;
+				
+				// |d2-d1| < 2r --> collision
+				if (sqDist < diameter * diameter) {
+					collisionResponse(m_spheres[i], m_spheres[u]);
+				}
+			}
+		}
+		break;
+
+	case GRIDACC:
+		break;
+
+	case KDACC:
+		break;
+	}
+}
+
+void SphereSystem::collisionResponse(Sphere & a, Sphere & b)
+{
+	const double sqDist = a.pos.squaredDistanceTo(b.pos);
+
+	const double lambda = 1.0f; // TODO
+	const double f = lambda * (1 - (sqrt(sqDist) / (2 * m_fRadius)));
+
+	const Vec3 n = a.pos - b.pos;
+	a.vel += f * n; // TODO / mass
+	b.vel -= f * n; // TODO / mass
+}
+
+void SphereSystem::collisionResponseWall(Sphere & a, double dist, Vec3 direction)
+{
+	const double lambda = 1.0f; // TODO
+
+	const double f = lambda * (1 - (dist / (2 * m_fRadius)));
+	a.vel -= direction * dist * f; // TODO / mass
+}
+
 void SphereSystem::draw(DrawingUtilitiesClass * DUC)
 {
 	if (render) {
@@ -23,4 +91,8 @@ void SphereSystem::draw(DrawingUtilitiesClass * DUC)
 
 void SphereSystem::simulateTimestep(float timeStep)
 {
+	for (Sphere& s : m_spheres) {
+		// integrate position
+		s.pos += timeStep * s.vel;
+	}
 }

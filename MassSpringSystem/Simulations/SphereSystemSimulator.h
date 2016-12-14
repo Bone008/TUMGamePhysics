@@ -1,10 +1,8 @@
 #ifndef SPHSYSTEMSIMULATOR_h
 #define SPHSYSTEMSIMULATOR_h
+
 #include "Simulator.h"
 #include "SphereSystem.h"
-
-#define NAIVEACC 0
-#define GRIDACC 1
 
 // testcases
 #define TEST_NAIVE     0
@@ -27,7 +25,7 @@ public:
 	void onMouse(int x, int y);
 	void onLeftMouseRelease();
 
-	void addSphereSystem(Vec3 color);
+	void addSphereSystem(int collisionDetectionMethod, Vec3 color);
 	void addSphere(Vec3 pos, Vec3 vel);
 
 protected:

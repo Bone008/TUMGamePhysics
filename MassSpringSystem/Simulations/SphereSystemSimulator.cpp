@@ -13,14 +13,14 @@ std::function<float(float)> SphereSystemSimulator::m_Kernels[5] = {
 SphereSystemSimulator::SphereSystemSimulator()
 {
 	// TODO test value
-	m_fRadius = 0.1f;
+	m_fRadius = 0.6f;
 
 	// TODO test values
-	addSphereSystem(Vec3(0.86f, 0.44f, 0.31f));
-	addSphereSystem(Vec3(0.44f, 0.86f, 0.31f));
+	addSphereSystem(NAIVEACC, Vec3(0.86f, 0.44f, 0.31f));
+	addSphereSystem(GRIDACC, Vec3(0.44f, 0.86f, 0.31f));
 
-	addSphere(Vec3(-0.2f, 0, 0), Vec3());
-	addSphere(Vec3(0.2f, 0, 0), Vec3());
+	addSphere(Vec3(-2, 0.3f, 0), Vec3(2, 0, 0));
+	addSphere(Vec3(2, 0, 0), Vec3(-2, 0, 0));
 }
 
 const char * SphereSystemSimulator::getTestCasesStr()
@@ -58,8 +58,28 @@ void SphereSystemSimulator::reset()
 
 void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext)
 {
+	// draw walls
+	const Vec3 wallColor = Vec3(1, 1, 1);
+	DUC->beginLine();
+	DUC->drawLine(BBOX_SIZE * Vec3(-1, -1, -1), wallColor, BBOX_SIZE * Vec3(-1, -1, +1), wallColor);
+	DUC->drawLine(BBOX_SIZE * Vec3(+1, -1, -1), wallColor, BBOX_SIZE * Vec3(+1, -1, +1), wallColor);
+	DUC->drawLine(BBOX_SIZE * Vec3(-1, +1, -1), wallColor, BBOX_SIZE * Vec3(-1, +1, +1), wallColor);
+	DUC->drawLine(BBOX_SIZE * Vec3(+1, +1, -1), wallColor, BBOX_SIZE * Vec3(+1, +1, +1), wallColor);
+	
+	DUC->drawLine(BBOX_SIZE * Vec3(-1, -1, -1), wallColor, BBOX_SIZE * Vec3(+1, -1, -1), wallColor);
+	DUC->drawLine(BBOX_SIZE * Vec3(-1, +1, -1), wallColor, BBOX_SIZE * Vec3(+1, +1, -1), wallColor);
+	DUC->drawLine(BBOX_SIZE * Vec3(-1, -1, -1), wallColor, BBOX_SIZE * Vec3(-1, +1, -1), wallColor);
+	DUC->drawLine(BBOX_SIZE * Vec3(+1, -1, -1), wallColor, BBOX_SIZE * Vec3(+1, +1, -1), wallColor);
+	
+	DUC->drawLine(BBOX_SIZE * Vec3(-1, -1, +1), wallColor, BBOX_SIZE * Vec3(+1, -1, +1), wallColor);
+	DUC->drawLine(BBOX_SIZE * Vec3(-1, +1, +1), wallColor, BBOX_SIZE * Vec3(+1, +1, +1), wallColor);
+	DUC->drawLine(BBOX_SIZE * Vec3(-1, -1, +1), wallColor, BBOX_SIZE * Vec3(-1, +1, +1), wallColor);
+	DUC->drawLine(BBOX_SIZE * Vec3(+1, -1, +1), wallColor, BBOX_SIZE * Vec3(+1, +1, +1), wallColor);
+	DUC->endLine();
+
 	// draw all SphereSystems
 	for (SphereSystem& s : m_sphereSystems) {
+		s.handleCollision();
 		s.draw(DUC);
 	}
 }
@@ -103,9 +123,9 @@ void SphereSystemSimulator::onLeftMouseRelease()
 {
 }
 
-void SphereSystemSimulator::addSphereSystem(Vec3 color)
+void SphereSystemSimulator::addSphereSystem(int collisionDetectionMethod, Vec3 color)
 {
-	SphereSystem sSys = SphereSystem(color, m_fRadius);
+	SphereSystem sSys = SphereSystem(collisionDetectionMethod, color, m_fRadius);
 	m_sphereSystems.push_back(sSys);
 }
 
