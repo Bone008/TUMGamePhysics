@@ -12,22 +12,24 @@ void SphereSystem::handleCollision()
 {
 	// TODO apply collision detection methods above to walls, too?
 	{
-		// collision with bbox
-		const Vec3 distMin = m_spheres[i].pos - m_fRadius + BBOX_SIZE;
-		if (distMin.x < 0)
-			collisionResponseWall(m_spheres[i], distMin.x, Vec3(1, 0, 0));
-		if (distMin.y < 0)
-			collisionResponseWall(m_spheres[i], distMin.y, Vec3(0, 1, 0));
-		if (distMin.z < 0)
-			collisionResponseWall(m_spheres[i], distMin.z, Vec3(0, 0, 1));
+		for (Sphere& s : m_spheres) {
+			// collision with bbox
+			const Vec3 distMin = s.pos - m_fRadius + BBOX_SIZE;
+			if (distMin.x < 0)
+				collisionResponseWall(s, distMin.x, Vec3(1, 0, 0));
+			if (distMin.y < 0)
+				collisionResponseWall(s, distMin.y, Vec3(0, 1, 0));
+			if (distMin.z < 0)
+				collisionResponseWall(s, distMin.z, Vec3(0, 0, 1));
 
-		const Vec3 distMax = -m_spheres[i].pos - m_fRadius + BBOX_SIZE;
-		if (distMax.x < 0)
-			collisionResponseWall(m_spheres[i], distMax.x, Vec3(-1, 0, 0));
-		if (distMax.y < 0)
-			collisionResponseWall(m_spheres[i], distMax.y, Vec3(0, -1, 0));
-		if (distMax.z < 0)
-			collisionResponseWall(m_spheres[i], distMax.z, Vec3(0, 0, -1));
+			const Vec3 distMax = -s.pos - m_fRadius + BBOX_SIZE;
+			if (distMax.x < 0)
+				collisionResponseWall(s, distMax.x, Vec3(-1, 0, 0));
+			if (distMax.y < 0)
+				collisionResponseWall(s, distMax.y, Vec3(0, -1, 0));
+			if (distMax.z < 0)
+				collisionResponseWall(s, distMax.z, Vec3(0, 0, -1));
+		}
 	}
 
 	switch (m_collDetMethod)
