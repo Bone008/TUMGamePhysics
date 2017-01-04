@@ -79,7 +79,6 @@ void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext
 
 	// draw all SphereSystems
 	for (SphereSystem& s : m_sphereSystems) {
-		s.handleCollision();
 		s.draw(DUC);
 	}
 }
@@ -107,7 +106,8 @@ void SphereSystemSimulator::simulateTimestep(float timeStep)
 {
 	// simulate for all SphereSystems
 	for (SphereSystem& s : m_sphereSystems) {
-		s.simulateTimestep(timeStep);
+		s.advanceMidPoint(timeStep);
+		s.handleCollision();
 	}
 }
 
@@ -125,7 +125,7 @@ void SphereSystemSimulator::onLeftMouseRelease()
 
 void SphereSystemSimulator::addSphereSystem(int collisionDetectionMethod, Vec3 color)
 {
-	SphereSystem sSys = SphereSystem(collisionDetectionMethod, color, m_fRadius);
+	SphereSystem sSys = SphereSystem(collisionDetectionMethod, color, m_fRadius, m_fMass, m_fDamping, Vec3(0, -2, 0)); // TODO gravity
 	m_sphereSystems.push_back(sSys);
 }
 

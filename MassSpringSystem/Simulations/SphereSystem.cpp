@@ -91,10 +91,86 @@ void SphereSystem::draw(DrawingUtilitiesClass * DUC)
 	}
 }
 
-void SphereSystem::simulateTimestep(float timeStep)
+void SphereSystem::advanceMidPoint(float dt)
 {
-	for (Sphere& s : m_spheres) {
-		// integrate position
-		s.pos += timeStep * s.vel;
+	std::vector<Sphere> ori_points = m_spheres;// save x_old, v_old
+
+	std::vector<Vec3> forces = ComputeForces();// force = a( x_old, v_old), force_old
+	UpdatePositions(dt / 2.0f); // x = x_tmp, using v_old
+	UpdateVelocities(dt / 2.0f, forces); // v = v_tmp, using force_old
+
+	forces = ComputeForces();// force = a ( x_tmp, v_tmp )
+
+	for (size_t i = 0; i < m_spheres.size(); i++)//restore x_old
+	{
+		m_spheres[i].pos = ori_points[i].pos;
+	}
+	UpdatePositions(dt);// x = x ( vtmp )
+	for (size_t i = 0; i < m_spheres.size(); i++)//restore v_old
+	{
+		m_spheres[i].vel = ori_points[i].vel;
+	}
+	UpdateVelocities(dt, forces);// v = v( a (xtmp, vtmp) )
+}
+
+std::vector<Vec3> SphereSystem::ComputeForces()
+{
+	// Gravity forces
+
+	std::vector<Vec3> forces(m_spheres.size(), m_gravity * m_mass);
+
+	for (size_t i = 0; i<m_spheres.size(); i++)
+	{
+		// repulsion force here 
+		/*
+		int p1 = m_springs[i].point1;
+		int p2 = m_springs[i].point2;
+		Vec3 pos1 = m_spheres[p1].pos;
+		Vec3 pos2 = m_spheres[p2].pos;
+
+		Vec3 d = pos1 - pos2;
+		float l = norm(d);
+		float L = m_springs[i].initialLength;
+		float k = m_stiffness;
+
+		Vec3 f = d * (-k * (l - L) / l);
+
+		forces[p1] += f;
+		forces[p2] -= f;
+		*/
+	}
+
+	// Damping forces
+	for (size_t i = 0; i<m_spheres.size(); i++)
+	{
+		Vec3 vel = m_spheres[i].vel;
+
+		forces[i] += vel * -m_damping;
+	}
+	return forces;
+}
+
+void SphereSystem::UpdatePositions(float dt)
+{
+	for (size_t i = 0; i<m_spheres.size(); i++)
+	{
+		Vec3 pos = m_spheres[i].pos;
+		Vec3 vel = m_spheres[i].vel;
+
+		pos += vel * dt;
+		m_spheres[i].pos = pos;
+	}
+}
+
+void SphereSystem::UpdateVelocities(float dt, const std::vector<Vec3>& forces)
+{
+	for (size_t i = 0; i<m_spheres.size(); i++)
+	{
+		Vec3 vel = m_spheres[i].vel;
+		float m = m_mass;
+
+		vel += forces[i] * (dt / m);
+
+		m_spheres[i].vel = vel;
 	}
 }
