@@ -47,6 +47,8 @@ protected:
 	
 	std::vector<SphereSystem> m_sphereSystems;
 
+	void changeCameraPosition();    //usses the BBOX_SIZE variable
+
 	//SphereSystem * m_pSphereSystem; // add your own sphere system member!
 	// for Demo 3 only:
 	// you will need multiple SphereSystem objects to do comparisons in Demo 3

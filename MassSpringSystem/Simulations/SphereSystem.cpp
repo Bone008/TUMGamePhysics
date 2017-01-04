@@ -58,6 +58,7 @@ void SphereSystem::handleCollision()
 	}
 }
 
+// TODO wrong!
 void SphereSystem::collisionResponse(Sphere & a, Sphere & b)
 {
 	const double sqDist = a.pos.squaredDistanceTo(b.pos);
@@ -66,10 +67,11 @@ void SphereSystem::collisionResponse(Sphere & a, Sphere & b)
 	const double f = lambda * (1 - (sqrt(sqDist) / (2 * m_fRadius)));
 
 	const Vec3 n = a.pos - b.pos;
-	a.vel += f * n; // TODO / mass
-	b.vel -= f * n; // TODO / mass
+	a.vel += f * n;
+	b.vel -= f * n;
 }
 
+// TODO wrong? 
 void SphereSystem::collisionResponseWall(Sphere & a, double dist, Vec3 direction)
 {
 	const double lambda = 1.0f; // TODO

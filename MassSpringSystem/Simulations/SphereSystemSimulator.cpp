@@ -40,7 +40,10 @@ void SphereSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 	for (int i = 0; i < m_sphereSystems.size(); i++) {
 		TwAddVarRW(DUC->g_pTweakBar, (title + std::to_string(i)).c_str(), TW_TYPE_BOOLCPP, &(m_sphereSystems[i].render), "");
 	}
-	
+
+	// change the camera position
+	changeCameraPosition();
+
 	switch (m_iTestCase)
 	{
 	case TEST_NAIVE:
@@ -100,6 +103,7 @@ void SphereSystemSimulator::notifyCaseChanged(int testCase)
 
 void SphereSystemSimulator::externalForcesCalculations(float timeElapsed)
 {
+	externalForce = Vec3();
 }
 
 void SphereSystemSimulator::simulateTimestep(float timeStep)
@@ -136,4 +140,12 @@ void SphereSystemSimulator::addSphere(Vec3 pos, Vec3 vel)
 		s.addSphere(pos, vel);
 	}
 	m_iNumSpheres++;
+}
+
+void SphereSystemSimulator::changeCameraPosition()
+{
+	XMFLOAT3 eye(.0f, .0f, -4 * BBOX_SIZE);
+	XMFLOAT3 lookAt(0.0f, 0.0f, 0.0f);
+	DUC->g_camera.SetViewParams(XMLoadFloat3(&eye), XMLoadFloat3(&lookAt));
+
 }
