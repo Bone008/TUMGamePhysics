@@ -8,76 +8,68 @@ void SphereSystem::addSphere(Vec3 pos, Vec3 vel)
 	m_spheres.push_back(s);
 }
 
-void SphereSystem::handleCollision()
+void SphereSystem::handleCollision(std::vector<Vec3>& forces)
 {
-	// TODO apply collision detection methods above to walls, too?
+	for (int i = 0; i < m_spheres.size(); i++)
 	{
-		for (Sphere& s : m_spheres) {
-			// collision with bbox
-			const Vec3 distMin = s.pos - m_fRadius + BBOX_SIZE;
-			if (distMin.x < 0)
-				collisionResponseWall(s, distMin.x, Vec3(1, 0, 0));
-			if (distMin.y < 0)
-				collisionResponseWall(s, distMin.y, Vec3(0, 1, 0));
-			if (distMin.z < 0)
-				collisionResponseWall(s, distMin.z, Vec3(0, 0, 1));
+		Vec3 pos = m_spheres[i].pos;
+		Vec3 vel = m_spheres[i].vel;
 
-			const Vec3 distMax = -s.pos - m_fRadius + BBOX_SIZE;
-			if (distMax.x < 0)
-				collisionResponseWall(s, distMax.x, Vec3(-1, 0, 0));
-			if (distMax.y < 0)
-				collisionResponseWall(s, distMax.y, Vec3(0, -1, 0));
-			if (distMax.z < 0)
-				collisionResponseWall(s, distMax.z, Vec3(0, 0, -1));
+		for (int f = 0; f < 6; f++)
+		{
+			float sign = (f % 2 == 0) ? -1.0f : 1.0f;
+			if (sign * pos.value[f / 2] < -(BBOX_SIZE - m_fRadius))
+			{
+				pos.value[f / 2] = sign * -(BBOX_SIZE-m_fRadius);
+				vel.value[f / 2] = 0;
+			}
 		}
-	}
 
+		m_spheres[i].pos = pos;
+		m_spheres[i].vel = vel;
+	}
+	
 	switch (m_collDetMethod)
 	{
 	case NAIVEACC:
-		// brute force testing
-		for (int i = 0; i < m_spheres.size(); i++) {			
-			// collision with other spheres
+		// brute force
+		for (int i = 0; i < m_spheres.size(); i++)
+		{
 			for (int u = i + 1; u < m_spheres.size(); u++) {
 				const double sqDist = m_spheres[i].pos.squaredDistanceTo(m_spheres[u].pos);
 				const double diameter = 2 * m_fRadius;
-				
+
 				// |d2-d1| < 2r --> collision
 				if (sqDist < diameter * diameter) {
-					collisionResponse(m_spheres[i], m_spheres[u]);
+					collisionResponse(i, u, forces);
 				}
 			}
 		}
 		break;
 
 	case GRIDACC:
+		// TODO
 		break;
 
 	case KDACC:
+		// TODO
 		break;
 	}
 }
 
 // TODO wrong!
-void SphereSystem::collisionResponse(Sphere & a, Sphere & b)
+void SphereSystem::collisionResponse(int i, int u, std::vector<Vec3>& forces)
 {
-	const double sqDist = a.pos.squaredDistanceTo(b.pos);
+	const double sqDist = m_spheres[i].pos.squaredDistanceTo(m_spheres[u].pos);
+	const double diameter = 2 * m_fRadius;
 
-	const double lambda = 1.0f; // TODO
-	const double f = lambda * (1 - (sqrt(sqDist) / (2 * m_fRadius)));
+	const double lambda = 100.0f; // TODO
+	const double f = lambda * (1 - (sqrt(sqDist) / diameter));
 
-	const Vec3 n = a.pos - b.pos;
-	a.vel += f * n;
-	b.vel -= f * n;
-}
+	const Vec3 n = m_spheres[i].pos - m_spheres[u].pos;
 
-// TODO wrong? 
-void SphereSystem::collisionResponseWall(Sphere & a, double dist, Vec3 direction)
-{
-	const double lambda = 1.0f; // TODO
-
-	const double f = lambda * (1 - (dist / (2 * m_fRadius)));
-	a.vel -= direction * dist * f; // TODO / mass
+	forces[i] += f * n;
+	forces[u] -= f * n;
 }
 
 void SphereSystem::draw(DrawingUtilitiesClass * DUC)
@@ -118,29 +110,10 @@ void SphereSystem::advanceMidPoint(float dt)
 std::vector<Vec3> SphereSystem::ComputeForces()
 {
 	// Gravity forces
-
 	std::vector<Vec3> forces(m_spheres.size(), m_gravity * m_mass);
 
-	for (size_t i = 0; i<m_spheres.size(); i++)
-	{
-		// repulsion force here 
-		/*
-		int p1 = m_springs[i].point1;
-		int p2 = m_springs[i].point2;
-		Vec3 pos1 = m_spheres[p1].pos;
-		Vec3 pos2 = m_spheres[p2].pos;
-
-		Vec3 d = pos1 - pos2;
-		float l = norm(d);
-		float L = m_springs[i].initialLength;
-		float k = m_stiffness;
-
-		Vec3 f = d * (-k * (l - L) / l);
-
-		forces[p1] += f;
-		forces[p2] -= f;
-		*/
-	}
+	// Repulsion forces
+	handleCollision(forces);
 
 	// Damping forces
 	for (size_t i = 0; i<m_spheres.size(); i++)

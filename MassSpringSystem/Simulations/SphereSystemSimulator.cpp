@@ -111,7 +111,6 @@ void SphereSystemSimulator::simulateTimestep(float timeStep)
 	// simulate for all SphereSystems
 	for (SphereSystem& s : m_sphereSystems) {
 		s.advanceMidPoint(timeStep);
-		s.handleCollision();
 	}
 }
 
