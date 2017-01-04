@@ -26,7 +26,8 @@ public:
 	void onLeftMouseRelease();
 
 	void addSphereSystem(int collisionDetectionMethod, Vec3 color);
-	void addSphere(Vec3 pos, Vec3 vel);
+	void addSphere(Vec3 pos, Vec3 vel, float mass);
+	void resetExternalForce();
 
 protected:
 	// Attributes
@@ -46,6 +47,8 @@ protected:
 	int   m_iAccelerator; // switch between NAIVEACC and GRIDACC, (optionally, KDTREEACC, 2)
 	
 	std::vector<SphereSystem> m_sphereSystems;
+
+	void changeCameraPosition();	//usses the BBOX_SIZE variable
 
 	//SphereSystem * m_pSphereSystem; // add your own sphere system member!
 	// for Demo 3 only:

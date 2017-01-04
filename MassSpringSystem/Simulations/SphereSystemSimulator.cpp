@@ -14,13 +14,14 @@ SphereSystemSimulator::SphereSystemSimulator()
 {
 	// TODO test value
 	m_fRadius = 0.6f;
+	m_fMass = 0.8f;
 
 	// TODO test values
 	addSphereSystem(NAIVEACC, Vec3(0.86f, 0.44f, 0.31f));
 	addSphereSystem(GRIDACC, Vec3(0.44f, 0.86f, 0.31f));
 
-	addSphere(Vec3(-2, 0.3f, 0), Vec3(2, 0, 0));
-	addSphere(Vec3(2, 0, 0), Vec3(-2, 0, 0));
+	addSphere(Vec3(-2, 0.3f, 0), Vec3(2, 0, 0), m_fMass);
+	addSphere(Vec3(2, 0, 0), Vec3(-2, 0, 0), m_fMass);
 }
 
 const char * SphereSystemSimulator::getTestCasesStr()
@@ -41,6 +42,9 @@ void SphereSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 		TwAddVarRW(DUC->g_pTweakBar, (title + std::to_string(i)).c_str(), TW_TYPE_BOOLCPP, &(m_sphereSystems[i].render), "");
 	}
 	
+	//change the camera position
+	changeCameraPosition();
+
 	switch (m_iTestCase)
 	{
 	case TEST_NAIVE:
@@ -101,6 +105,9 @@ void SphereSystemSimulator::notifyCaseChanged(int testCase)
 
 void SphereSystemSimulator::externalForcesCalculations(float timeElapsed)
 {
+	resetExternalForce();
+
+
 }
 
 void SphereSystemSimulator::simulateTimestep(float timeStep)
@@ -129,11 +136,24 @@ void SphereSystemSimulator::addSphereSystem(int collisionDetectionMethod, Vec3 c
 	m_sphereSystems.push_back(sSys);
 }
 
-void SphereSystemSimulator::addSphere(Vec3 pos, Vec3 vel)
+void SphereSystemSimulator::addSphere(Vec3 pos, Vec3 vel, float mass)
 {
 	// all sphere system should have the same spheres
 	for (SphereSystem& s : m_sphereSystems) {
-		s.addSphere(pos, vel);
+		s.addSphere(pos, vel,mass);
 	}
 	m_iNumSpheres++;
+}
+
+void SphereSystemSimulator::resetExternalForce()
+{
+	externalForce = Vec3();
+}
+
+void SphereSystemSimulator::changeCameraPosition()
+{
+	XMFLOAT3 eye(.0f, .0f, -4 * BBOX_SIZE);
+	XMFLOAT3 lookAt(0.0f, 0.0f, 0.0f);
+	DUC->g_camera.SetViewParams(XMLoadFloat3(&eye), XMLoadFloat3(&lookAt));
+	
 }

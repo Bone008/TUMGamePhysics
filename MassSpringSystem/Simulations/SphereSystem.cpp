@@ -1,10 +1,11 @@
 #include "SphereSystem.h"
 
-void SphereSystem::addSphere(Vec3 pos, Vec3 vel)
+void SphereSystem::addSphere(Vec3 pos, Vec3 vel, float mass)
 {
 	Sphere s;
 	s.pos = pos;
 	s.vel = vel;
+	s.mass = mass;
 	m_spheres.push_back(s);
 }
 
@@ -43,7 +44,7 @@ void SphereSystem::handleCollision()
 				const double diameter = 2 * m_fRadius;
 				
 				// |d2-d1| < 2r --> collision
-				if (sqDist < diameter * diameter) {
+				if (sqDist < diameter) {	
 					collisionResponse(m_spheres[i], m_spheres[u]);
 				}
 			}
@@ -66,8 +67,8 @@ void SphereSystem::collisionResponse(Sphere & a, Sphere & b)
 	const double f = lambda * (1 - (sqrt(sqDist) / (2 * m_fRadius)));
 
 	const Vec3 n = a.pos - b.pos;
-	a.vel += f * n; // TODO / mass
-	b.vel -= f * n; // TODO / mass
+	a.vel += f * n / a.mass; // TODO / mass
+	b.vel -= f * n / b.mass; // TODO / mass
 }
 
 void SphereSystem::collisionResponseWall(Sphere & a, double dist, Vec3 direction)
@@ -98,3 +99,4 @@ void SphereSystem::simulateTimestep(float timeStep)
 		s.pos += timeStep * s.vel;
 	}
 }
+

@@ -16,12 +16,13 @@ public:
 	{
 		Vec3 pos;
 		Vec3 vel;
+		float mass;
 	};
 
 	SphereSystem(int collisionDetectionMethod, Vec3 sphereColor, float sphereRadius) 
 		: m_collDetMethod(collisionDetectionMethod), m_sphereColor(sphereColor), m_fRadius(sphereRadius), render(true) {}
 
-	void addSphere(Vec3 pos, Vec3 vel);
+	void addSphere(Vec3 pos, Vec3 vel,float mass);
 	void handleCollision();
 	void collisionResponse(Sphere& a, Sphere& b);
 	void collisionResponseWall(Sphere& a, double dist, Vec3 direction);
