@@ -63,14 +63,14 @@ void SphereSystem::collisionResponse(int i, int u, std::vector<Vec3>& forces)
 	const double sqDist = m_spheres[i].pos.squaredDistanceTo(m_spheres[u].pos);
 	const double diameter = 2 * m_fRadius;
 
-	const double lambda = 2000000000; // TODO dafuq
+	const double lambda = 20.0f; // TODO
 	
 	const double f = lambda * (1 - (sqrt(sqDist) / diameter));
 
 	const Vec3 n = m_spheres[i].pos - m_spheres[u].pos;
 
-	forces[i] -= f * n;
-	forces[u] += f * n;
+	forces[i] += f * n;
+	forces[u] -= f * n;
 }
 
 void SphereSystem::draw(DrawingUtilitiesClass * DUC)
@@ -116,8 +116,8 @@ std::vector<Vec3> SphereSystem::ComputeForces()
 	// Repulsion forces
 	handleCollision(forces);
 
-	// Damping forces
-	for (size_t i = 0; i<m_spheres.size(); i++)
+	// Damping forces	
+	for (size_t i = 0; i < m_spheres.size(); i++)
 	{
 		Vec3 vel = m_spheres[i].vel;
 

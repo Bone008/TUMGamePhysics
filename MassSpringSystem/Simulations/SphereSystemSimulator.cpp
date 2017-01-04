@@ -14,6 +14,8 @@ SphereSystemSimulator::SphereSystemSimulator()
 {
 	// TODO test value
 	m_fRadius = 0.6f;
+	m_fMass = 1.0f;
+	m_fDamping = 0.5f;
 
 	// TODO test values
 	addSphereSystem(NAIVEACC, Vec3(0.86f, 0.44f, 0.31f));

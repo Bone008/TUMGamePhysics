@@ -24,7 +24,6 @@ public:
 	void addSphere(Vec3 pos, Vec3 vel);
 	void handleCollision(std::vector<Vec3>& forces);
 	void collisionResponse(int i, int u, std::vector<Vec3>& forces);
-	void collisionResponseWall(Sphere& a, double dist, Vec3 direction);
 	void draw(DrawingUtilitiesClass * DUC);
 	void advanceMidPoint(float timeStep);
 	std::vector<Vec3> SphereSystem::ComputeForces();
