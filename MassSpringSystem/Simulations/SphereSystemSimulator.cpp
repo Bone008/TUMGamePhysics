@@ -21,8 +21,9 @@ SphereSystemSimulator::SphereSystemSimulator()
 	addSphereSystem(NAIVEACC, Vec3(0.86f, 0.44f, 0.31f));
 	addSphereSystem(GRIDACC, Vec3(0.44f, 0.86f, 0.31f));
 
-	addSphere(0, Vec3(-2, 0.3f, 0), Vec3(2, 0, 0));
-	addSphere(1, Vec3(2, 0, 0), Vec3(-2, 0, 0));
+	//aways start the sphere index from 1!
+	addSphere(1, Vec3(-2, 0.3f, 0), Vec3(2, 0, 0));
+	addSphere(2, Vec3(2, 0, 0), Vec3(-2, 0, 0));
 
 	getScreenResolution();	//get here the resolution before the init of directX 
 	//lower the resolution in order to have smaller size of uniform grid array
@@ -125,7 +126,8 @@ void SphereSystemSimulator::simulateTimestep(float timeStep)
 		s.advanceMidPoint(timeStep);
 	}
 	//as every sphere system holds all of the spheres we can pass here just the first of it
-	uniformGrid.updateGrid(m_sphereSystems[0].getSpheres());
+	//TODO USE THIS WHEN IS READY
+	//uniformGrid.updateGrid(m_sphereSystems[0].getSpheres());
 	//test
 	//m_sphereSystems[0].printPositions();
 }

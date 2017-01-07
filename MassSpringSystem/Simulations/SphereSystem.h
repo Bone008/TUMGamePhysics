@@ -14,7 +14,7 @@ class SphereSystem {
 public:
 	struct Sphere
 	{
-		unsigned char ID; //unique for each object and used for the uniform grid collision detection and thus it should be less then UniformGridCollision.m_maxObjects
+		unsigned char ID; //unique for each object and used for the uniform grid collision detection and thus it should be less then UniformGridCollision.m_maxObjects. It should aways start from 1!
 		Vec3 pos;
 		Vec3 vel;
 	};
