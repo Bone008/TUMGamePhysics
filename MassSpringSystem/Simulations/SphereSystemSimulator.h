@@ -3,11 +3,15 @@
 
 #include "Simulator.h"
 #include "SphereSystem.h"
+#include "UniformGridCollision.h"
 
 // testcases
 #define TEST_NAIVE     0
 #define TEST_ACCEL	   1
 #define TEST_PERF_COMP 2
+
+//defines the subtractor of the used resolution(width, height and depht) for our uniform gird array 
+#define RESOLUTION_CORRECTOR 64
 
 class SphereSystemSimulator:public Simulator{
 public:
@@ -26,7 +30,7 @@ public:
 	void onLeftMouseRelease();
 
 	void addSphereSystem(int collisionDetectionMethod, Vec3 color);
-	void addSphere(Vec3 pos, Vec3 vel);
+	void addSphere(unsigned char ID,Vec3 pos, Vec3 vel);
 
 protected:
 	// Attributes
@@ -48,6 +52,7 @@ protected:
 	std::vector<SphereSystem> m_sphereSystems;
 
 	void changeCameraPosition();    //usses the BBOX_SIZE variable
+	void getScreenResolution();		//take if before the directX initialization
 
 	//SphereSystem * m_pSphereSystem; // add your own sphere system member!
 	// for Demo 3 only:
@@ -55,6 +60,7 @@ protected:
 	// m_iAccelerator should be ignored.
 	// SphereSystem * m_pSphereSystemGrid; 
 
+	UniformGridCollision uniformGrid;
 };
 
 #endif

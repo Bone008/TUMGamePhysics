@@ -1,8 +1,9 @@
 #include "SphereSystem.h"
 
-void SphereSystem::addSphere(Vec3 pos, Vec3 vel)
+void SphereSystem::addSphere(unsigned char ID, Vec3 pos, Vec3 vel)
 {
 	Sphere s;
+	s.ID = ID;
 	s.pos = pos;
 	s.vel = vel;
 	m_spheres.push_back(s);
@@ -150,3 +151,17 @@ void SphereSystem::UpdateVelocities(float dt, const std::vector<Vec3>& forces)
 		m_spheres[i].vel = vel;
 	}
 }
+
+void SphereSystem::printPositions()
+{
+	for (Sphere s : m_spheres)
+		cout << s.pos << '\t';
+	cout << endl;
+}
+
+std::vector<SphereSystem::Sphere> SphereSystem::getSpheres()
+{
+	return m_spheres;
+}
+
+

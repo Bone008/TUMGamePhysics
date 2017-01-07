@@ -21,8 +21,18 @@ SphereSystemSimulator::SphereSystemSimulator()
 	addSphereSystem(NAIVEACC, Vec3(0.86f, 0.44f, 0.31f));
 	addSphereSystem(GRIDACC, Vec3(0.44f, 0.86f, 0.31f));
 
-	addSphere(Vec3(-2, 0.3f, 0), Vec3(2, 0, 0));
-	addSphere(Vec3(2, 0, 0), Vec3(-2, 0, 0));
+	addSphere(0, Vec3(-2, 0.3f, 0), Vec3(2, 0, 0));
+	addSphere(1, Vec3(2, 0, 0), Vec3(-2, 0, 0));
+
+	getScreenResolution();	//get here the resolution before the init of directX 
+	//lower the resolution in order to have smaller size of uniform grid array
+	//this is made for the 3D in order to save memory
+	float smallerScreenWidth = BBOX_SIZE*m_screenWidth / RESOLUTION_CORRECTOR;
+	float smallerScreenHeight = BBOX_SIZE*m_screenHeight / RESOLUTION_CORRECTOR;
+	float smallerScreenDepth = BBOX_SIZE*RESOLUTION_CORRECTOR;
+	
+	//init the uniform grid class
+	uniformGrid = UniformGridCollision(2 * m_fRadius, m_sphereSystems.size(), smallerScreenWidth, smallerScreenHeight, smallerScreenDepth);
 }
 
 const char * SphereSystemSimulator::getTestCasesStr()
@@ -114,6 +124,10 @@ void SphereSystemSimulator::simulateTimestep(float timeStep)
 	for (SphereSystem& s : m_sphereSystems) {
 		s.advanceMidPoint(timeStep);
 	}
+	//as every sphere system holds all of the spheres we can pass here just the first of it
+	uniformGrid.updateGrid(m_sphereSystems[0].getSpheres());
+	//test
+	//m_sphereSystems[0].printPositions();
 }
 
 void SphereSystemSimulator::onClick(int x, int y)
@@ -134,11 +148,11 @@ void SphereSystemSimulator::addSphereSystem(int collisionDetectionMethod, Vec3 c
 	m_sphereSystems.push_back(sSys);
 }
 
-void SphereSystemSimulator::addSphere(Vec3 pos, Vec3 vel)
+void SphereSystemSimulator::addSphere(unsigned char ID, Vec3 pos, Vec3 vel)
 {
 	// all sphere system should have the same spheres
 	for (SphereSystem& s : m_sphereSystems) {
-		s.addSphere(pos, vel);
+		s.addSphere(ID, pos, vel);
 	}
 	m_iNumSpheres++;
 }
@@ -149,4 +163,19 @@ void SphereSystemSimulator::changeCameraPosition()
 	XMFLOAT3 lookAt(0.0f, 0.0f, 0.0f);
 	DUC->g_camera.SetViewParams(XMLoadFloat3(&eye), XMLoadFloat3(&lookAt));
 
+}
+
+// taken from http://stackoverflow.com/questions/8690619/how-to-get-screen-resolution-in-c
+void SphereSystemSimulator::getScreenResolution()
+{
+	RECT desktop;
+	// Get a handle to the desktop window
+	const HWND hDesktop = GetDesktopWindow();
+	// Get the size of screen to the variable desktop
+	GetWindowRect(hDesktop, &desktop);
+	// The top left corner will have coordinates (0,0)
+	// and the bottom right corner will have coordinates
+	// (horizontal, vertical)
+	m_screenWidth = desktop.right;
+	m_screenHeight = desktop.bottom;
 }
