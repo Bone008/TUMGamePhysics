@@ -127,7 +127,10 @@ void SphereSystemSimulator::simulateTimestep(float timeStep)
 	}
 	//as every sphere system holds all of the spheres we can pass here just the first of it
 	//TODO USE THIS WHEN IS READY
-	//uniformGrid.updateGrid(m_sphereSystems[0].getSpheres());
+	uniformGrid.updateGrid(m_sphereSystems[0].getSpheres());
+
+	//get the colliding object. TODO maybe move this to the shpereSystem class
+	this->getUniformGridCollidingObjects();
 	//test
 	//m_sphereSystems[0].printPositions();
 }
@@ -180,4 +183,9 @@ void SphereSystemSimulator::getScreenResolution()
 	// (horizontal, vertical)
 	m_screenWidth = desktop.right;
 	m_screenHeight = desktop.bottom;
+}
+
+void SphereSystemSimulator::getUniformGridCollidingObjects()
+{
+	this->m_collidingPairs = uniformGrid.getCollidingPairs();
 }
