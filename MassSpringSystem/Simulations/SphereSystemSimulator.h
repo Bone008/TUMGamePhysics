@@ -28,12 +28,11 @@ public:
 	void addSphereSystem(int collisionDetectionMethod, Vec3 color);
 	void addSphere(Vec3 pos, Vec3 vel);
 
+	Vec3 toLocalCoordinate(Vec3 globalScreenPosition);
+
 protected:
 	// Attributes
 	Vec3 externalForce;
-	Point2D m_mouse;
-	Point2D m_trackmouse;
-	Point2D m_oldtrackmouse;
 
 	// UI stuff
 	float m_fMass;
@@ -54,6 +53,13 @@ protected:
 	boolean m_camRotDependentGravity;
 
 	void changeCameraPosition();    //usses the BBOX_SIZE variable
+
+	Vec3 m_mouse;
+	Vec3 m_mouseLocalCoordinate;                //our local coordinate system is with screen center at 0,0,0    
+	Vec3 m_mouseOldLocalCoordinate;                //our old local coordinate system is with screen center at 0,0,0    
+	Vec3 m_oldtrackmouse;
+
+	bool onMouseDown;
 
 };
 

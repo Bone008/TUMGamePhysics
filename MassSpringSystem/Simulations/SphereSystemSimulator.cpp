@@ -26,6 +26,8 @@ SphereSystemSimulator::SphereSystemSimulator()
 	m_iKernel = 1; // linear kernel, default from formula
 
 	m_camRotDependentGravity = false;
+
+	onMouseDown = false;
 }
 
 const char * SphereSystemSimulator::getTestCasesStr()
@@ -115,7 +117,7 @@ void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext
 
 	// draw all SphereSystems
 	for (SphereSystem& s : m_sphereSystems) {
-		s.draw(DUC);
+		s.draw(DUC, onMouseDown, m_mouseLocalCoordinate);
 	}
 }
 
@@ -162,12 +164,33 @@ void SphereSystemSimulator::simulateTimestep(float timeStep)
 {
 	// simulate for all SphereSystems
 	for (SphereSystem& s : m_sphereSystems) {
-		s.advanceLeapfrog(timeStep, DUC);
+
+		//it is substract by 10 to be more realistic and not that expensive
+		Vec3 mouseForce = (m_mouseLocalCoordinate - m_mouseOldLocalCoordinate) * 10;
+
+		s.advanceLeapfrog(timeStep, DUC, onMouseDown, mouseForce);
 	}
 }
 
 void SphereSystemSimulator::onClick(int x, int y)
 {
+	//if it is the first time just update the mouse vector
+	if (!onMouseDown) {
+		//update the mouse position
+		m_mouse = Vec3(x, y, 0);
+	}
+	else {
+		m_oldtrackmouse = m_mouse;
+		//update the mouse position
+		m_mouse = Vec3(x, y, 0);
+		//update the local mouse position with center on the screen at 0,0,0
+		m_mouseLocalCoordinate = toLocalCoordinate(m_mouse);
+		//update the old local mouse position with center on the screen at 0,0,0
+		m_mouseOldLocalCoordinate = toLocalCoordinate(m_oldtrackmouse);
+	}
+
+	//update the boolean
+	onMouseDown = true;
 }
 
 void SphereSystemSimulator::onMouse(int x, int y)
@@ -176,6 +199,13 @@ void SphereSystemSimulator::onMouse(int x, int y)
 
 void SphereSystemSimulator::onLeftMouseRelease()
 {
+	onMouseDown = false;
+
+	//reset mouse positions
+	m_mouse = Vec3();
+	m_oldtrackmouse = Vec3();
+	m_mouseOldLocalCoordinate = Vec3();
+	m_mouseLocalCoordinate = Vec3();
 }
 
 void SphereSystemSimulator::addSphereSystem(int collisionDetectionMethod, Vec3 color)
@@ -193,6 +223,23 @@ void SphereSystemSimulator::addSphere(Vec3 pos, Vec3 vel)
 		s.addSphere(pos, vel);
 	}
 }
+
+/*
+As we have the screen of the center at [0,0] then we have to change the 'x' and 'y' coordinates of the mouse:
+'x' start from left to right and it global pixel positions are between [0,maxWidth]
+and it should be between [-maxWidth/2, +maxWidth/2] thus the center is at 0
+
+'y' start from the top (0) and it global pixel positions are between [0,maxHeight]
+where maxHeight points the bottom of the screen. We need it to be
+between [+maxHeight,-maxHeight] where 0 is the center.
+
+Here we make those changes of the 'x' and 'y' component of the mouse
+*/
+Vec3 SphereSystemSimulator::toLocalCoordinate(Vec3 globalScreenPosition)
+{
+	return Vec3(globalScreenPosition.x - m_screenWidth / 2, m_screenHeight - globalScreenPosition.y - m_screenHeight / 2, globalScreenPosition.z);
+}
+
 
 void SphereSystemSimulator::changeCameraPosition()
 {

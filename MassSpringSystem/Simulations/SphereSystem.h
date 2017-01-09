@@ -12,6 +12,11 @@
 #define GRIDACC 1
 #define KDACC 2
 
+// The mouse line colour
+#define COLOUR_MOUSE_VECTOR Vec3(1,0,0)
+
+// Mouse local Coordinate subtractor. Hardcoded just to look real
+#define MOUSE_VECTOR_LENGTH_SUBTRACTOR 210
 
 class SphereSystem {
 public:
@@ -23,14 +28,14 @@ public:
 	}
 
 	void addSphere(Vec3 pos, Vec3 vel);
-	void advanceLeapfrog(float timeStep, DrawingUtilitiesClass* DUC);
+	void advanceLeapfrog(float timeStep, DrawingUtilitiesClass* DUC, boolean onMouseDown, Vec3 mouseForce);
 	void handleCollisions();
 	void collisionResponse(Sphere& sphere1, Sphere& sphere2);
 	void ComputeForces(DrawingUtilitiesClass* DUC);
 	void UpdateVelocities(float dt);
 	void UpdatePositions(float dt);
 
-	void draw(DrawingUtilitiesClass * DUC);
+	void draw(DrawingUtilitiesClass * DUC, boolean onMouseDown, Vec3 mouseLocalCoordinate);
 	bool render;
 
 private:

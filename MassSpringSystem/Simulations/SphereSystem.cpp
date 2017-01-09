@@ -9,7 +9,7 @@ void SphereSystem::addSphere(Vec3 pos, Vec3 vel)
 }
 
 
-void SphereSystem::advanceLeapfrog(float dt, DrawingUtilitiesClass* DUC)
+void SphereSystem::advanceLeapfrog(float dt, DrawingUtilitiesClass* DUC, boolean onMouseDown, Vec3 mouseForce)
 {
 
 	// disabled midpoint integration because it was messing with velocities changed
@@ -42,6 +42,19 @@ void SphereSystem::advanceLeapfrog(float dt, DrawingUtilitiesClass* DUC)
 	ComputeForces(DUC);
 	UpdateVelocities(dt);
 	UpdatePositions(dt);
+	
+	// update velocites from mouse interaction
+	if (onMouseDown) {
+		for (size_t i = 0; i < m_spheres.size(); i++)
+		{
+			Vec3 vel = m_spheres[i].vel;
+			float m = m_mass;
+
+			vel += mouseForce * (dt / m);
+
+			m_spheres[i].vel = vel;
+		}
+	}
 }
 
 
@@ -184,7 +197,7 @@ void SphereSystem::UpdateVelocities(float dt)
 
 
 
-void SphereSystem::draw(DrawingUtilitiesClass * DUC)
+void SphereSystem::draw(DrawingUtilitiesClass * DUC, boolean onMouseDown, Vec3 mouseLocalCoordinate)
 {
 	if (render) {
 		// set up lighting, all spheres of one system have the same color
@@ -193,6 +206,13 @@ void SphereSystem::draw(DrawingUtilitiesClass * DUC)
 		// draw every sphere
 		for (const Sphere& s : m_spheres) {
 			DUC->drawSphere(s.pos, Vec3(m_fRadius, m_fRadius, m_fRadius));
+
+			//draw the mouse spring
+			if (onMouseDown) {
+				DUC->beginLine();
+				DUC->drawLine(s.pos, COLOUR_MOUSE_VECTOR, (mouseLocalCoordinate / MOUSE_VECTOR_LENGTH_SUBTRACTOR), COLOUR_MOUSE_VECTOR);
+				DUC->endLine();
+			}
 		}
 	}
 }
