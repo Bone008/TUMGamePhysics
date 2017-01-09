@@ -30,6 +30,7 @@ public:
 	std::vector<Vec3> SphereSystem::ComputeForces();
 	void UpdatePositions(float dt);
 	void UpdateVelocities(float dt, const std::vector<Vec3>& forces);
+	void UpdateVelocities(float dt, Vec3 force);
 	void printPositions();
 	bool render;
 	std::vector<SphereSystem::Sphere> getSpheres();
