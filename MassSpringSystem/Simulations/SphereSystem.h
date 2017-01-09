@@ -15,10 +15,11 @@
 
 class SphereSystem {
 public:
-	SphereSystem(int collisionDetectionMethod, Vec3 sphereColor, float sphereRadius, float sphereMass, float damping, Vec3 gravity, int gridCells, int cellCapacity) 
+	SphereSystem(int collisionDetectionMethod, Vec3 sphereColor, float sphereRadius, float sphereMass, float damping, Vec3 gravity, int gridCells, int cellCapacity, std::function<float(float)> kernel)
 		: m_collDetMethod(collisionDetectionMethod), m_sphereColor(sphereColor), m_fRadius(sphereRadius),
 		  m_mass(sphereMass), m_damping(damping), m_gravity(gravity), render(true),
-		  m_uniformGrid(BBOX_SIZE, gridCells, cellCapacity, sphereRadius) {
+		  m_uniformGrid(BBOX_SIZE, gridCells, cellCapacity, sphereRadius),
+		  m_kernel(kernel) {
 	}
 
 	void addSphere(Vec3 pos, Vec3 vel);
@@ -42,6 +43,8 @@ private:
 
 	std::vector<Sphere> m_spheres;
 	UniformGrid m_uniformGrid;
+
+	std::function<float(float)> m_kernel;
 
 };
 

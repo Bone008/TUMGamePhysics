@@ -22,6 +22,8 @@ SphereSystemSimulator::SphereSystemSimulator()
 
 	m_iGridCells = 4;
 	m_iGridCapacity = 50;
+
+	m_iKernel = 1; // linear kernel, default from formula
 }
 
 const char * SphereSystemSimulator::getTestCasesStr()
@@ -60,6 +62,13 @@ void SphereSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 	for (int i = 0; i < m_sphereSystems.size(); i++) {
 		TwAddVarRW(DUC->g_pTweakBar, (title + std::to_string(i)).c_str(), TW_TYPE_BOOLCPP, &(m_sphereSystems[i].render), "");
 	}
+
+	TwAddSeparator(DUC->g_pTweakBar, "despair", "");
+
+	// set kernels as enum for selection field
+	TwEnumVal kernelEnum[] = { {0, "Constant"}, {1, "Linear"}, {2, "Quadratic"}, {3, "Weak Electric Charge"}, {4, "Electric Charge"} };
+	TwType kernelType = TwDefineEnum("Ingeborg", kernelEnum, 5);
+	TwAddVarRW(DUC->g_pTweakBar, "Kernel", kernelType, &m_iKernel, "");
 
 	// change the camera position
 	changeCameraPosition();
@@ -169,7 +178,7 @@ void SphereSystemSimulator::onLeftMouseRelease()
 void SphereSystemSimulator::addSphereSystem(int collisionDetectionMethod, Vec3 color)
 {
 	// push_back, but with more magic and less copy
-	m_sphereSystems.emplace_back(collisionDetectionMethod, color, m_fRadius, m_fMass, m_fDamping, m_gravity, m_iGridCells, m_iGridCapacity);
+	m_sphereSystems.emplace_back(collisionDetectionMethod, color, m_fRadius, m_fMass, m_fDamping, m_gravity, m_iGridCells, m_iGridCapacity, m_Kernels[m_iKernel]);
 	
 	//m_sphereSystems.push_back(SphereSystem(collisionDetectionMethod, color, m_fRadius, m_fMass, m_fDamping, m_gravity));
 }

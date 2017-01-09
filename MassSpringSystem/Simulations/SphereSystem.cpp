@@ -127,7 +127,7 @@ void SphereSystem::collisionResponse(Sphere& sphere1, Sphere& sphere2)
 
 	const double lambda = 250.0f; // TODO tweak
 	
-	const double f = lambda * (1 - (sqrt(sqDist) / diameter));
+	const double f = lambda * m_kernel(sqrt(sqDist) / diameter);
 
 	//std::cout << "collision! " << i << "," << u << " - " << (1 - (sqrt(sqDist) / diameter)) << std::endl;
 
