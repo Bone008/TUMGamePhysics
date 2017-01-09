@@ -69,7 +69,7 @@ void UniformGrid::updateGrid(const std::vector<Sphere>& spheres)
 }
 
 
-const std::vector<SpherePair>& UniformGrid::computeCollisionPairs()
+const std::unordered_set<std::pair<Sphere*, Sphere*>>& UniformGrid::computeCollisionPairs()
 {
 	m_collidingPairs.clear();
 
@@ -87,11 +87,11 @@ const std::vector<SpherePair>& UniformGrid::computeCollisionPairs()
 					for (int j = i + 1; j < occupied; j++)
 					{
 						// i feel dirty on the inside
-						Sphere& a = const_cast<Sphere&>(*cell[i]);
-						Sphere& b = const_cast<Sphere&>(*cell[j]);
+						Sphere* a = const_cast<Sphere*>(cell[i]);
+						Sphere* b = const_cast<Sphere*>(cell[j]);
 
-						SpherePair pair(a, b);
-						m_collidingPairs.push_back(pair);
+						std::pair<Sphere*, Sphere*> pair(a, b);
+						m_collidingPairs.insert(pair);
 					}
 				}
 			}

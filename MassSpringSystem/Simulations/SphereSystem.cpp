@@ -84,7 +84,7 @@ void SphereSystem::handleCollisions()
 
 				// |d2-d1| < 2r --> collision
 				if (sqDist < diameter * diameter) {
-					cout << "[naiv] response to pair " << &m_spheres[i] << ", " << &m_spheres[u] << endl;
+					//cout << "[naiv] response to pair " << &m_spheres[i] << ", " << &m_spheres[u] << endl;
 					collisionResponse(m_spheres[i], m_spheres[u]);
 				}
 			}
@@ -95,17 +95,17 @@ void SphereSystem::handleCollisions()
 	case GRIDACC:
 	{
 		m_uniformGrid.updateGrid(m_spheres);
-		const std::vector<SpherePair>& possiblyCollidingPairs = m_uniformGrid.computeCollisionPairs();
+		const std::unordered_set<std::pair<Sphere*, Sphere*>>& possiblyCollidingPairs = m_uniformGrid.computeCollisionPairs();
 
 		for (auto& pair : possiblyCollidingPairs)
 		{
-			const double sqDist = pair.a.pos.squaredDistanceTo(pair.b.pos);
+			const double sqDist = pair.first->pos.squaredDistanceTo(pair.second->pos);
 			const double diameter = 2 * m_fRadius;
 
 			// |d2-d1| < 2r --> collision
 			if (sqDist < diameter * diameter) {
-				cout << "[grid] response to pair " << &pair.a << ", " << &pair.b << endl;
-				collisionResponse(pair.a, pair.b);
+				//cout << "[grid] response to pair " << pair.first << ", " << pair.second << endl;
+				collisionResponse(*pair.first, *pair.second);
 			}
 		}
 		break;

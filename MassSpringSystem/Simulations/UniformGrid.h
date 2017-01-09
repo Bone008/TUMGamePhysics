@@ -2,23 +2,30 @@
 #define UNIFORMGRID_h
 
 #include <vector>
+#include <unordered_set>
 #include "Sphere.h"
 
 #define GRID_RESOLUTION 
 
-struct SpherePair {
-	Sphere& a;
-	Sphere& b;
-
-	SpherePair(Sphere& a, Sphere& b) : a(a), b(b) {}
+// absolutely bonkers c++ way of providing a custom hash function for unordered_set
+namespace std {
+	template <>
+	class hash<std::pair<Sphere*, Sphere*>> {
+	public:
+		size_t operator()(const std::pair<Sphere*, Sphere*>& pair) const
+		{
+			return hash<void*>()(pair.first) ^ hash<void*>()(pair.second);
+		}
+	};
 };
+
 
 class UniformGrid {
 public:
 	UniformGrid(float boxSize, int cellsPerDimension, int maxSpheresPerCell, float sphereRadius);
 
 	void updateGrid(const std::vector<Sphere>& spheres);
-	const std::vector<SpherePair>& computeCollisionPairs();
+	const std::unordered_set<std::pair<Sphere*, Sphere*>>& computeCollisionPairs();
 
 private:
 	float m_sphereRadius;
@@ -29,7 +36,7 @@ private:
 	const Sphere** m_grid; // stores pointers to spheres in each cell; array of size m_maxSpheresPerCell * m_cellsPerDimension^3
 	int* m_occupiedCounts; // stores amount of occupied slots per cell; array of size m_cellsPerDimension^3
 
-	std::vector<SpherePair> m_collidingPairs;
+	std::unordered_set<std::pair<Sphere*, Sphere*>> m_collidingPairs;
 
 	void clearCells();
 	void addToCell(int x, int y, int z, const Sphere* sphere);
