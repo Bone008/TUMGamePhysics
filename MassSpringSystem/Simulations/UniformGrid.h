@@ -33,15 +33,17 @@ private:
 	int m_cellsPerDimension;
 	int m_maxSpheresPerCell;
 
-	const Sphere** m_grid; // stores pointers to spheres in each cell; array of size m_maxSpheresPerCell * m_cellsPerDimension^3
-	int* m_occupiedCounts; // stores amount of occupied slots per cell; array of size m_cellsPerDimension^3
+	// stores pointers to spheres in each cell; constant size of m_maxSpheresPerCell * m_cellsPerDimension^3
+	std::vector<const Sphere*> m_gridV;
+	// stores amount of occupied slots per cell; array of size m_cellsPerDimension^3
+	std::vector<int> m_occupiedCountsV;
 
 	std::unordered_set<std::pair<Sphere*, Sphere*>> m_collidingPairs;
 
 	void clearCells();
 	void addToCell(int x, int y, int z, const Sphere* sphere);
-	const Sphere** getCellByIndex(int x, int y, int z);
-	int* getOccupiedByIndex(int x, int y, int z);
+	std::vector<const Sphere*>::iterator getCellByIndex(int x, int y, int z);
+	std::vector<int>::iterator getOccupiedByIndex(int x, int y, int z);
 };
 
 #endif

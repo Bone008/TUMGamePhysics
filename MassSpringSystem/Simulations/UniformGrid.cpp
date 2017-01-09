@@ -1,23 +1,24 @@
 #include "UniformGrid.h"
 
-UniformGrid::UniformGrid(float boxSize, int cellsPerDimension, int maxSpheresPerCell, float sphereRadius)
-	: m_boxHalfSize(boxSize), m_cellsPerDimension(cellsPerDimension), m_maxSpheresPerCell(maxSpheresPerCell), m_sphereRadius(sphereRadius)
+UniformGrid::UniformGrid(float boxSize, int cellsPerDim, int maxSpheresPerCell, float sphereRadius)
+	: m_boxHalfSize(boxSize), m_cellsPerDimension(cellsPerDim), m_maxSpheresPerCell(maxSpheresPerCell), m_sphereRadius(sphereRadius),
+	m_gridV(maxSpheresPerCell * cellsPerDim * cellsPerDim * cellsPerDim, nullptr),
+	m_occupiedCountsV(cellsPerDim * cellsPerDim * cellsPerDim, 0)
 {
-	int totalCells = cellsPerDimension * cellsPerDimension * cellsPerDimension;
-	m_grid = new const Sphere*[maxSpheresPerCell * totalCells];
-	m_occupiedCounts = new int[totalCells];
-
 	std::cout << "sphere diameter = " << (2 * sphereRadius) << "; grid size = " << (2.0 * m_boxHalfSize / m_cellsPerDimension) << std::endl;
-	std::cout << "grid memory use = " << (maxSpheresPerCell * totalCells * sizeof(Sphere*)) << " bytes" << std::endl;
+	std::cout << "grid memory use = " << (m_gridV.size() * sizeof(Sphere*)) << " bytes" << std::endl;
 }
 
 void UniformGrid::clearCells()
 {
-	std::fill(m_grid, m_grid + (m_maxSpheresPerCell * m_cellsPerDimension * m_cellsPerDimension * m_cellsPerDimension), nullptr);
-	std::fill(m_occupiedCounts, m_occupiedCounts + (m_cellsPerDimension * m_cellsPerDimension * m_cellsPerDimension), 0);
+	// we could zero out the pointers as well, but for performance reasons we don't as it is unnecessary
+	//std::fill(m_gridV.begin(), m_gridV.end(), nullptr);
+	
+	// mark all cells as unoccupied
+	std::fill(m_occupiedCountsV.begin(), m_occupiedCountsV.end(), 0);
 }
 
-void UniformGrid::addToCell(int x, int y, int z, const Sphere * sphere)
+void UniformGrid::addToCell(int x, int y, int z, const Sphere* sphere)
 {
 	if (x < 0 || x >= m_cellsPerDimension || y < 0 || y >= m_cellsPerDimension || z < 0 || z >= m_cellsPerDimension)
 	{
@@ -25,8 +26,8 @@ void UniformGrid::addToCell(int x, int y, int z, const Sphere * sphere)
 		return;
 	}
 
-	const Sphere** cell = getCellByIndex(x, y, z);
-	int* occupied = getOccupiedByIndex(x, y, z);
+	std::vector<const Sphere*>::iterator cell = getCellByIndex(x, y, z);
+	std::vector<int>::iterator occupied = getOccupiedByIndex(x, y, z);
 
 	if (*occupied >= m_maxSpheresPerCell)
 	{
@@ -86,7 +87,7 @@ const std::unordered_set<std::pair<Sphere*, Sphere*>>& UniformGrid::computeColli
 		{
 			for (int z = 0; z < m_cellsPerDimension; z++)
 			{
-				const Sphere** cell = getCellByIndex(x, y, z);
+				std::vector<const Sphere*>::iterator cell = getCellByIndex(x, y, z);
 				int occupied = *getOccupiedByIndex(x, y, z);
 
 				for (int i = 0; i < occupied; i++)
@@ -97,8 +98,7 @@ const std::unordered_set<std::pair<Sphere*, Sphere*>>& UniformGrid::computeColli
 						Sphere* a = const_cast<Sphere*>(cell[i]);
 						Sphere* b = const_cast<Sphere*>(cell[j]);
 
-						std::pair<Sphere*, Sphere*> pair(a, b);
-						m_collidingPairs.insert(pair);
+						m_collidingPairs.emplace(a, b);
 						addAttempts++;
 					}
 				}
@@ -112,15 +112,15 @@ const std::unordered_set<std::pair<Sphere*, Sphere*>>& UniformGrid::computeColli
 }
 
 
-const Sphere** UniformGrid::getCellByIndex(int x, int y, int z)
+std::vector<const Sphere*>::iterator UniformGrid::getCellByIndex(int x, int y, int z)
 {
 	int c = m_maxSpheresPerCell;
 	int n = m_cellsPerDimension;
-	return m_grid + (c * (z + n*y + n*n*x));
+	return m_gridV.begin() + (c * (z + n*y + n*n*x));
 }
 
-int* UniformGrid::getOccupiedByIndex(int x, int y, int z)
+std::vector<int>::iterator UniformGrid::getOccupiedByIndex(int x, int y, int z)
 {
 	int n = m_cellsPerDimension;
-	return m_occupiedCounts + (z + n*y + n*n*x);
+	return m_occupiedCountsV.begin() + (z + n*y + n*n*x);
 }
