@@ -231,6 +231,7 @@
     <ClCompile Include="SphereSystemSimulator.cpp" />
     <ClCompile Include="spring.cpp" />
     <ClCompile Include="TemplateSimulator.cpp" />
+    <ClCompile Include="UniformGrid.cpp" />
     <ClCompile Include="util\FFmpeg.cpp" />
     <ClCompile Include="util\util.cpp" />
   </ItemGroup>
@@ -242,10 +243,12 @@
     <ClInclude Include="RigidBodyCollisionSystem.h" />
     <ClInclude Include="RigidBodySystemSimulator.h" />
     <ClInclude Include="Simulator.h" />
+    <ClInclude Include="Sphere.h" />
     <ClInclude Include="SphereSystem.h" />
     <ClInclude Include="SphereSystemSimulator.h" />
     <ClInclude Include="spring.h" />
     <ClInclude Include="TemplateSimulator.h" />
+    <ClInclude Include="UniformGrid.h" />
     <ClInclude Include="util\collisionDetect.h" />
     <ClInclude Include="util\FFmpeg.h" />
     <ClInclude Include="util\matrixbase.h" />
