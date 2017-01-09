@@ -152,19 +152,6 @@ void SphereSystem::UpdateVelocities(float dt, const std::vector<Vec3>& forces)
 	}
 }
 
-void SphereSystem::UpdateVelocities(float dt, Vec3 force)
-{
-	for (size_t i = 0; i<m_spheres.size(); i++)
-	{
-		Vec3 vel = m_spheres[i].vel;
-		float m = m_mass;
-
-		vel += force * (dt / m);
-
-		m_spheres[i].vel = vel;
-	}
-}
-
 void SphereSystem::printPositions()
 {
 	for (Sphere s : m_spheres)

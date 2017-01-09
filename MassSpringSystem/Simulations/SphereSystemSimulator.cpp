@@ -34,8 +34,6 @@ SphereSystemSimulator::SphereSystemSimulator()
 	
 	//init the uniform grid class
 	uniformGrid = UniformGridCollision(2 * m_fRadius, m_sphereSystems.size(), smallerScreenWidth, smallerScreenHeight, smallerScreenDepth);
-
-	onMouseDown = false;
 }
 
 const char * SphereSystemSimulator::getTestCasesStr()
@@ -98,15 +96,6 @@ void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext
 	// draw all SphereSystems
 	for (SphereSystem& s : m_sphereSystems) {
 		s.draw(DUC);
-
-		for (SphereSystem::Sphere& sp : s.getSpheres()) {
-			//draw the mouse spring
-			if (onMouseDown) {
-				DUC->beginLine();
-				DUC->drawLine(sp.pos, COLOUR_MOUSE_VECTOR, (m_mouseLocalCoordinate / MOUSE_VECTOR_LENGTH_SUBTRACTOR), COLOUR_MOUSE_VECTOR);
-				DUC->endLine();
-			}
-		}
 	}
 }
 
@@ -135,18 +124,10 @@ void SphereSystemSimulator::simulateTimestep(float timeStep)
 	// simulate for all SphereSystems
 	for (SphereSystem& s : m_sphereSystems) {
 		s.advanceMidPoint(timeStep);
-		//apply the mouse force
-		if (onMouseDown) {
-			//it is substract by 10 to be more realistic and not that expensive
-			Vec3 mouseForce = (m_mouseLocalCoordinate - m_mouseOldLocalCoordinate) * 10;
-			//apply it to each sphere
-			s.UpdateVelocities(timeStep, mouseForce);
-		}
-			
 	}
 	//as every sphere system holds all of the spheres we can pass here just the first of it
 	//TODO USE THIS WHEN IS READY
-	//uniformGrid.updateGrid(m_sphereSystems[0].getSpheres());
+	uniformGrid.updateGrid(m_sphereSystems[0].getSpheres());
 
 	//get the colliding object. TODO maybe move this to the shpereSystem class
 	this->getUniformGridCollidingObjects();
@@ -156,23 +137,6 @@ void SphereSystemSimulator::simulateTimestep(float timeStep)
 
 void SphereSystemSimulator::onClick(int x, int y)
 {
-	//if it is the first time just update the mouse vector
-	if (!onMouseDown) {
-		//update the mouse position
-		m_mouse = Vec3(x, y, 0);
-	}
-	else {
-		m_oldtrackmouse = m_mouse;
-		//update the mouse position
-		m_mouse = Vec3(x, y, 0);
-		//update the local mouse position with center on the screen at 0,0,0
-		m_mouseLocalCoordinate = toLocalCoordinate(m_mouse);
-		//update the old local mouse position with center on the screen at 0,0,0
-		m_mouseOldLocalCoordinate = toLocalCoordinate(m_oldtrackmouse);
-	}
-
-	//update the boolean
-	onMouseDown = true;
 }
 
 void SphereSystemSimulator::onMouse(int x, int y)
@@ -181,13 +145,6 @@ void SphereSystemSimulator::onMouse(int x, int y)
 
 void SphereSystemSimulator::onLeftMouseRelease()
 {
-	onMouseDown = false;
-
-	//reset mouse positions
-	m_mouse = Vec3();
-	m_oldtrackmouse = Vec3();
-	m_mouseOldLocalCoordinate = Vec3();
-	m_mouseLocalCoordinate = Vec3();
 }
 
 void SphereSystemSimulator::addSphereSystem(int collisionDetectionMethod, Vec3 color)
@@ -203,21 +160,6 @@ void SphereSystemSimulator::addSphere(unsigned char ID, Vec3 pos, Vec3 vel)
 		s.addSphere(ID, pos, vel);
 	}
 	m_iNumSpheres++;
-}
-/*
-As we have the screen of the center at [0,0] then we have to change the 'x' and 'y' coordinates of the mouse:
-'x' start from left to right and it global pixel positions are between [0,maxWidth]
-and it should be between [-maxWidth/2, +maxWidth/2] thus the center is at 0
-
-'y' start from the top (0) and it global pixel positions are between [0,maxHeight]
-where maxHeight points the bottom of the screen. We need it to be
-between [+maxHeight,-maxHeight] where 0 is the center.
-
-Here we make those changes of the 'x' and 'y' component of the mouse
-*/
-Vec3 SphereSystemSimulator::toLocalCoordinate(Vec3 globalScreenPosition)
-{
-	return Vec3(globalScreenPosition.x - m_screenWidth / 2, m_screenHeight - globalScreenPosition.y - m_screenHeight / 2, globalScreenPosition.z);
 }
 
 void SphereSystemSimulator::changeCameraPosition()
