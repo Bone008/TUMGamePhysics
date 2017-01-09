@@ -2,6 +2,7 @@
 #define SPHERE_h
 
 #include "util\vectorbase.h"
+#include "DrawingUtilitiesClass.h"
 
 struct Sphere
 {
