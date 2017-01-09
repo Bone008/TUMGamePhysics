@@ -15,18 +15,18 @@
 
 class SphereSystem {
 public:
-	SphereSystem(int collisionDetectionMethod, Vec3 sphereColor, float sphereRadius, float sphereMass, float damping, Vec3 gravity, int gridCells, int cellCapacity, std::function<float(float)> kernel)
+	SphereSystem(int collisionDetectionMethod, Vec3 sphereColor, float sphereRadius, float sphereMass, float damping, Vec3 gravity, int gridCells, int cellCapacity, std::function<float(float)> kernel, boolean camRotDependentGravity)
 		: m_collDetMethod(collisionDetectionMethod), m_sphereColor(sphereColor), m_fRadius(sphereRadius),
 		  m_mass(sphereMass), m_damping(damping), m_gravity(gravity), render(true),
 		  m_uniformGrid(BBOX_SIZE, gridCells, cellCapacity, sphereRadius),
-		  m_kernel(kernel) {
+		  m_kernel(kernel), m_camRotDependentGravity(camRotDependentGravity){
 	}
 
 	void addSphere(Vec3 pos, Vec3 vel);
-	void advanceMidPoint(float timeStep);
+	void advanceLeapfrog(float timeStep, DrawingUtilitiesClass* DUC);
 	void handleCollisions();
 	void collisionResponse(Sphere& sphere1, Sphere& sphere2);
-	void ComputeForces();
+	void ComputeForces(DrawingUtilitiesClass* DUC);
 	void UpdateVelocities(float dt);
 	void UpdatePositions(float dt);
 
@@ -45,6 +45,8 @@ private:
 	UniformGrid m_uniformGrid;
 
 	std::function<float(float)> m_kernel;
+
+	boolean m_camRotDependentGravity;
 
 };
 

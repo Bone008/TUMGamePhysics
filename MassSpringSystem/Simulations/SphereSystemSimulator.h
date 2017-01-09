@@ -51,6 +51,8 @@ protected:
 	
 	std::vector<SphereSystem> m_sphereSystems;
 
+	boolean m_camRotDependentGravity;
+
 	void changeCameraPosition();    //usses the BBOX_SIZE variable
 
 };

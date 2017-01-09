@@ -9,7 +9,7 @@ void SphereSystem::addSphere(Vec3 pos, Vec3 vel)
 }
 
 
-void SphereSystem::advanceMidPoint(float dt)
+void SphereSystem::advanceLeapfrog(float dt, DrawingUtilitiesClass* DUC)
 {
 
 	// disabled midpoint integration because it was messing with velocities changed
@@ -39,7 +39,7 @@ void SphereSystem::advanceMidPoint(float dt)
 
 
 	// use leap-frog because it's more simple
-	ComputeForces();
+	ComputeForces(DUC);
 	UpdateVelocities(dt);
 	UpdatePositions(dt);
 }
@@ -139,7 +139,7 @@ void SphereSystem::collisionResponse(Sphere& sphere1, Sphere& sphere2)
 }
 
 
-void SphereSystem::ComputeForces()
+void SphereSystem::ComputeForces(DrawingUtilitiesClass* DUC)
 {
 	// reset forces
 	for (Sphere& sphere : m_spheres)
@@ -151,7 +151,14 @@ void SphereSystem::ComputeForces()
 	handleCollisions();
 
 	// Gravity & Damping forces
-	const Vec3 gravityForce = m_gravity * m_mass;
+	Vec3 gravityForce = m_gravity * m_mass;
+	if (m_camRotDependentGravity)
+	{
+		// direction of gravity will be the bottom of the screen
+		Mat4 viewMatrix(DUC->g_camera.GetViewMatrix());
+		gravityForce = viewMatrix * gravityForce;
+	}
+		
 	for (Sphere& sphere : m_spheres)
 	{
 		sphere.computedForce += gravityForce;
