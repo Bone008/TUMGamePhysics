@@ -5,17 +5,23 @@
 #include "Sphere.h"
 #include "UniformGrid.h"
 
-#define BBOX_SIZE 6.0f
+#define BBOX_SIZE 6.0
+#define UNIFORM_GRID_CELLS 6
+#define UNIFORM_GRID_CELL_CAPACITY 20
 
 // method of collision calculation
 #define NAIVEACC 0
 #define GRIDACC 1
 #define KDACC 2
 
+
 class SphereSystem {
 public:
 	SphereSystem(int collisionDetectionMethod, Vec3 sphereColor, float sphereRadius, float sphereMass, float damping, Vec3 gravity) 
-		: m_collDetMethod(collisionDetectionMethod), m_sphereColor(sphereColor), m_fRadius(sphereRadius), m_mass(sphereMass), m_damping(damping), m_gravity(gravity), render(true) {}
+		: m_collDetMethod(collisionDetectionMethod), m_sphereColor(sphereColor), m_fRadius(sphereRadius),
+		  m_mass(sphereMass), m_damping(damping), m_gravity(gravity), render(true),
+		  m_uniformGrid(BBOX_SIZE, UNIFORM_GRID_CELLS, UNIFORM_GRID_CELL_CAPACITY, sphereRadius) {
+	}
 
 	void addSphere(Vec3 pos, Vec3 vel);
 	void advanceMidPoint(float timeStep);

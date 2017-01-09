@@ -105,7 +105,7 @@ void SphereSystemSimulator::notifyCaseChanged(int testCase)
 	reset();
 
 	addSphereSystem(NAIVEACC, Vec3(0.86f, 0.44f, 0.31f));
-	//addSphereSystem(GRIDACC, Vec3(0.44f, 0.86f, 0.31f));
+	addSphereSystem(GRIDACC, Vec3(0.44f, 0.86f, 0.31f));
 
 	switch (m_iTestCase)
 	{
@@ -154,8 +154,10 @@ void SphereSystemSimulator::onLeftMouseRelease()
 
 void SphereSystemSimulator::addSphereSystem(int collisionDetectionMethod, Vec3 color)
 {
-	SphereSystem sSys(collisionDetectionMethod, color, m_fRadius, m_fMass, m_fDamping, m_gravity);
-	m_sphereSystems.push_back(sSys);
+	// push_back, but with more magic and less copy
+	m_sphereSystems.emplace_back(collisionDetectionMethod, color, m_fRadius, m_fMass, m_fDamping, m_gravity);
+	
+	//m_sphereSystems.push_back(SphereSystem(collisionDetectionMethod, color, m_fRadius, m_fMass, m_fDamping, m_gravity));
 }
 
 void SphereSystemSimulator::addSphere(Vec3 pos, Vec3 vel)

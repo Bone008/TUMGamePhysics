@@ -84,6 +84,7 @@ void SphereSystem::handleCollisions()
 
 				// |d2-d1| < 2r --> collision
 				if (sqDist < diameter * diameter) {
+					cout << "[naiv] response to pair " << &m_spheres[i] << ", " << &m_spheres[u] << endl;
 					collisionResponse(m_spheres[i], m_spheres[u]);
 				}
 			}
@@ -103,6 +104,7 @@ void SphereSystem::handleCollisions()
 
 			// |d2-d1| < 2r --> collision
 			if (sqDist < diameter * diameter) {
+				cout << "[grid] response to pair " << &pair.a << ", " << &pair.b << endl;
 				collisionResponse(pair.a, pair.b);
 			}
 		}
