@@ -13,6 +13,9 @@
     <ClCompile Include="spring.cpp" />
     <ClCompile Include="RigidBodySystemSimulator.cpp" />
     <ClCompile Include="RigidBody.cpp" />
+    <ClCompile Include="SphereSystemSimulator.cpp" />
+    <ClCompile Include="SphereSystem.cpp" />
+    <ClCompile Include="UniformGrid.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="util">
@@ -30,9 +33,6 @@
     <ClInclude Include="MassSpringSystemSimulator.h" />
     <ClInclude Include="Simulator.h" />
     <ClInclude Include="TemplateSimulator.h" />
-    <ClInclude Include="util\matrixbase.h" />
-    <ClInclude Include="util\timer.h" />
-    <ClInclude Include="util\vectorbase.h" />
     <ClInclude Include="point.h" />
     <ClInclude Include="spring.h" />
     <ClInclude Include="util\collisionDetect.h">
@@ -44,6 +44,22 @@
       <Filter>util</Filter>
     </ClInclude>
     <ClInclude Include="RigidBodyCollisionSystem.h" />
+    <ClInclude Include="util\vector4d.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="SphereSystemSimulator.h" />
+    <ClInclude Include="SphereSystem.h" />
+    <ClInclude Include="UniformGrid.h" />
+    <ClInclude Include="Sphere.h" />
+    <ClInclude Include="util\matrixbase.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\vectorbase.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\timer.h">
+      <Filter>util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="effect.fx" />
