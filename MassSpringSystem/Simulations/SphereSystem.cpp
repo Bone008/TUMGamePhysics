@@ -31,6 +31,8 @@ void SphereSystem::handleCollision(std::vector<Vec3>& forces)
 		m_spheres[i].vel = vel;
 	}
 	
+
+
 	switch (m_collDetMethod)
 	{
 	case NAIVEACC:
@@ -50,7 +52,6 @@ void SphereSystem::handleCollision(std::vector<Vec3>& forces)
 		break;
 
 	case GRIDACC:
-		// TODO
 		break;
 
 	case KDACC:
@@ -128,7 +129,8 @@ void SphereSystem::advanceMidPoint(float dt)
 std::vector<Vec3> SphereSystem::ComputeForces()
 {
 	// Gravity forces
-	std::vector<Vec3> forces(m_spheres.size(), m_gravity * m_mass);
+	Vec3 initialForce = m_gravity * m_mass;
+	std::vector<Vec3> forces(m_spheres.size(), initialForce);
 
 	// Repulsion forces
 	handleCollision(forces);
@@ -147,11 +149,10 @@ void SphereSystem::UpdatePositions(float dt)
 {
 	for (size_t i = 0; i<m_spheres.size(); i++)
 	{
-		Vec3 pos = m_spheres[i].pos;
-		Vec3 vel = m_spheres[i].vel;
+		Vec3& pos = m_spheres[i].pos;
+		const Vec3& vel = m_spheres[i].vel;
 
 		pos += vel * dt;
-		m_spheres[i].pos = pos;
 	}
 }
 
@@ -159,11 +160,8 @@ void SphereSystem::UpdateVelocities(float dt, const std::vector<Vec3>& forces)
 {
 	for (size_t i = 0; i<m_spheres.size(); i++)
 	{
-		Vec3 vel = m_spheres[i].vel;
-		float m = m_mass;
+		Vec3& vel = m_spheres[i].vel;
 
-		vel += forces[i] * (dt / m);
-
-		m_spheres[i].vel = vel;
+		vel += forces[i] * (dt / m_mass);
 	}
 }
