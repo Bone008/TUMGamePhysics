@@ -2,6 +2,8 @@
 #define SPHERE_SYSTEM_H
 
 #include "Simulator.h"
+#include "Sphere.h"
+#include "UniformGrid.h"
 
 #define BBOX_SIZE 6.0f
 
@@ -12,24 +14,18 @@
 
 class SphereSystem {
 public:
-	struct Sphere
-	{
-		Vec3 pos;
-		Vec3 vel;
-	};
-
 	SphereSystem(int collisionDetectionMethod, Vec3 sphereColor, float sphereRadius, float sphereMass, float damping, Vec3 gravity) 
 		: m_collDetMethod(collisionDetectionMethod), m_sphereColor(sphereColor), m_fRadius(sphereRadius), m_mass(sphereMass), m_damping(damping), m_gravity(gravity), render(true) {}
 
 	void addSphere(Vec3 pos, Vec3 vel);
-	void handleCollision(std::vector<Vec3>& forces);
-	void collisionResponse(int i, int u, std::vector<Vec3>& forces);
-	void draw(DrawingUtilitiesClass * DUC);
 	void advanceMidPoint(float timeStep);
-	std::vector<Vec3> SphereSystem::ComputeForces();
+	void handleCollisions();
+	void collisionResponse(Sphere& sphere1, Sphere& sphere2);
+	void ComputeForces();
+	void UpdateVelocities(float dt);
 	void UpdatePositions(float dt);
-	void UpdateVelocities(float dt, const std::vector<Vec3>& forces);
 
+	void draw(DrawingUtilitiesClass * DUC);
 	bool render;
 
 private:
@@ -41,6 +37,7 @@ private:
 	Vec3 m_gravity;
 
 	std::vector<Sphere> m_spheres;
+	UniformGrid m_uniformGrid;
 
 };
 

@@ -15,6 +15,7 @@
     <ClCompile Include="RigidBody.cpp" />
     <ClCompile Include="SphereSystemSimulator.cpp" />
     <ClCompile Include="SphereSystem.cpp" />
+    <ClCompile Include="UniformGrid.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="util">
@@ -51,6 +52,8 @@
     </ClInclude>
     <ClInclude Include="SphereSystemSimulator.h" />
     <ClInclude Include="SphereSystem.h" />
+    <ClInclude Include="UniformGrid.h" />
+    <ClInclude Include="Sphere.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="effect.fx" />
