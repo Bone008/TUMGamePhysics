@@ -61,9 +61,6 @@ protected:
 	// SphereSystem * m_pSphereSystemGrid; 
 
 	UniformGridCollision uniformGrid;
-	//object holder for the colliding pairs from the uniform grid class
-	std::vector<UniformGridCollision::CollidingSpheresPair> m_collidingPairs;
-	void getUniformGridCollidingObjects();	//getter for the colliding object from the uniform grid class
 };
 
 #endif

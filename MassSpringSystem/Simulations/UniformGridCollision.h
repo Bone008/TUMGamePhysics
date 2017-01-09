@@ -15,8 +15,8 @@ public:
 	UniformGridCollision();
 	~UniformGridCollision();
 
-	float m_cellSpacing;				//in our case is h = 2*r
-	int m_maxObjects;					//as described in exercise3 - max objects per cell
+	float m_cellSpacing;		//in our case is h = 2*r
+	int m_maxObjects;			//as described in exercise3 - max objects per cell
 	unsigned int m_m;					//the number of cells in the grid
 	int m_screenWidth;
 	int m_screenHeight;
@@ -28,7 +28,8 @@ public:
 
 	void initGrid();
 	void updateGrid(std::vector<SphereSystem::Sphere> spheres);
-	std::vector<UniformGridCollision::CollidingSpheresPair> getCollidingPairs();
+	CollidingSpheresPair getCollidingPairs();
+	void checkCollisions(SphereSystem::Sphere s1, SphereSystem::Sphere s2);
 	unsigned int getArrayIndex(SphereSystem::Sphere s);
 	void addCollidingPair(SphereSystem::Sphere s1, SphereSystem::Sphere s2);
 };
