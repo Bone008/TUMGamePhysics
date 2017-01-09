@@ -6,6 +6,9 @@ UniformGrid::UniformGrid(float boxSize, int cellsPerDimension, int maxSpheresPer
 	int totalCells = cellsPerDimension * cellsPerDimension * cellsPerDimension;
 	m_grid = new const Sphere*[maxSpheresPerCell * totalCells];
 	m_occupiedCounts = new int[totalCells];
+
+	std::cout << "sphere diameter = " << (2 * sphereRadius) << "; grid size = " << (2.0 * m_boxHalfSize / m_cellsPerDimension) << std::endl;
+	std::cout << "grid memory use = " << (maxSpheresPerCell * totalCells * sizeof(Sphere*)) << " bytes" << std::endl;
 }
 
 void UniformGrid::clearCells()
@@ -44,6 +47,7 @@ void UniformGrid::updateGrid(const std::vector<Sphere>& spheres)
 	// so cell (0, 0, 0) is not at location (0, 0, 0) but in the corner
 	Vec3 cellsOrigin = Vec3(-m_boxHalfSize, -m_boxHalfSize, -m_boxHalfSize);
 
+	int c = 0;
 	for (const Sphere& sphere : spheres)
 	{
 		Vec3 localMin = sphere.pos - cellsOrigin - m_sphereRadius;
@@ -62,16 +66,19 @@ void UniformGrid::updateGrid(const std::vector<Sphere>& spheres)
 				for (int z = zmin; z <= zmax; z++)
 				{
 					addToCell(x, y, z, &sphere);
+					c++;
 				}
 			}
 		}
 	}
+	//std::cout << "avg. cells per sphere: " << ((float)c / spheres.size()) << std::endl;
 }
 
 
 const std::unordered_set<std::pair<Sphere*, Sphere*>>& UniformGrid::computeCollisionPairs()
 {
 	m_collidingPairs.clear();
+	int addAttempts = 0;
 
 	for (int x = 0; x < m_cellsPerDimension; x++)
 	{
@@ -92,11 +99,14 @@ const std::unordered_set<std::pair<Sphere*, Sphere*>>& UniformGrid::computeColli
 
 						std::pair<Sphere*, Sphere*> pair(a, b);
 						m_collidingPairs.insert(pair);
+						addAttempts++;
 					}
 				}
 			}
 		}
 	}
+
+	//std::cout << "pairs = " << m_collidingPairs.size() << "; attempts = " << addAttempts << std::endl;
 
 	return m_collidingPairs;
 }

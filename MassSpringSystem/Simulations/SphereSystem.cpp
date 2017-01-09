@@ -58,7 +58,7 @@ void SphereSystem::handleCollisions()
 			float sign = (f % 2 == 0) ? -1.0f : 1.0f;
 			if (sign * pos.value[f / 2] < -(BBOX_SIZE - m_fRadius))
 			{
-				pos.value[f / 2] = sign * -(BBOX_SIZE-m_fRadius);
+				pos.value[f / 2] = sign * -(BBOX_SIZE-m_fRadius - 0.001f);
 
 				if (vel.value[f / 2] * sign < 0)
 					vel.value[f / 2] *= -0.6; // bounce off walls, but lose some energy along the way
@@ -96,6 +96,8 @@ void SphereSystem::handleCollisions()
 	{
 		m_uniformGrid.updateGrid(m_spheres);
 		const std::unordered_set<std::pair<Sphere*, Sphere*>>& possiblyCollidingPairs = m_uniformGrid.computeCollisionPairs();
+
+		//cout << "pairs: " << possiblyCollidingPairs.size() << endl;
 
 		for (auto& pair : possiblyCollidingPairs)
 		{

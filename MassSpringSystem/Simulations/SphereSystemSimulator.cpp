@@ -12,12 +12,16 @@ std::function<float(float)> SphereSystemSimulator::m_Kernels[5] = {
 
 SphereSystemSimulator::SphereSystemSimulator()
 {
-	// TODO test value
 	m_fRadius = 0.6f;
 	m_fMass = 1.0f;
 	m_fDamping = 0.2f;
 	m_gravity = Vec3(0, -3, 0);
 	m_iNumSpheres = 100;
+	m_useNaive = true;
+	m_useGrid = true;
+
+	m_iGridCells = 4;
+	m_iGridCapacity = 50;
 }
 
 const char * SphereSystemSimulator::getTestCasesStr()
@@ -38,8 +42,18 @@ void SphereSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 	TwAddVarRW(DUC->g_pTweakBar, "Damping", TW_TYPE_FLOAT, &m_fDamping, "");
 	TwAddVarRW(DUC->g_pTweakBar, "Gravity", TW_TYPE_DIR3D, &m_gravity, "");
 
-	// add separator
+	if (m_useGrid)
+	{
+		TwAddVarRW(DUC->g_pTweakBar, "Grid cells", TW_TYPE_INT32, &m_iGridCells, "min=1");
+		TwAddVarRW(DUC->g_pTweakBar, "Cell capacity", TW_TYPE_INT32, &m_iGridCapacity, "min=1");
+	}
+
 	TwAddSeparator(DUC->g_pTweakBar, "siegfried", "");
+
+	TwAddVarRW(DUC->g_pTweakBar, "Compute simple", TW_TYPE_BOOLCPP, &m_useNaive, "");
+	TwAddVarRW(DUC->g_pTweakBar, "Compute uniform grid", TW_TYPE_BOOLCPP, &m_useGrid, "");
+
+	TwAddSeparator(DUC->g_pTweakBar, "bert", "");
 
 	// for every SphereSystem: add checkbox to disable rendering
 	std::string title = "Draw Sys ";
@@ -104,8 +118,8 @@ void SphereSystemSimulator::notifyCaseChanged(int testCase)
 
 	reset();
 
-	addSphereSystem(NAIVEACC, Vec3(0.86f, 0.44f, 0.31f));
-	addSphereSystem(GRIDACC, Vec3(0.44f, 0.86f, 0.31f));
+	if (m_useNaive) addSphereSystem(NAIVEACC, Vec3(0.86f, 0.44f, 0.31f));
+	if (m_useGrid)  addSphereSystem(GRIDACC, Vec3(0.44f, 0.86f, 0.31f));
 
 	switch (m_iTestCase)
 	{
@@ -155,7 +169,7 @@ void SphereSystemSimulator::onLeftMouseRelease()
 void SphereSystemSimulator::addSphereSystem(int collisionDetectionMethod, Vec3 color)
 {
 	// push_back, but with more magic and less copy
-	m_sphereSystems.emplace_back(collisionDetectionMethod, color, m_fRadius, m_fMass, m_fDamping, m_gravity);
+	m_sphereSystems.emplace_back(collisionDetectionMethod, color, m_fRadius, m_fMass, m_fDamping, m_gravity, m_iGridCells, m_iGridCapacity);
 	
 	//m_sphereSystems.push_back(SphereSystem(collisionDetectionMethod, color, m_fRadius, m_fMass, m_fDamping, m_gravity));
 }

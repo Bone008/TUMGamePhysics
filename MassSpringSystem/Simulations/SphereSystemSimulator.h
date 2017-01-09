@@ -41,21 +41,17 @@ protected:
 	float m_fDamping;
 	int   m_iNumSpheres;
 	Vec3 m_gravity;
+
+	bool m_useNaive, m_useGrid;
+	int m_iGridCells;
+	int m_iGridCapacity;
 	
 	int   m_iKernel; // index of the m_Kernels[5], more detials in SphereSystemSimulator.cpp
 	static std::function<float(float)> m_Kernels[5];
 	
-	int   m_iAccelerator; // switch between NAIVEACC and GRIDACC, (optionally, KDTREEACC, 2)
-	
 	std::vector<SphereSystem> m_sphereSystems;
 
 	void changeCameraPosition();    //usses the BBOX_SIZE variable
-
-	//SphereSystem * m_pSphereSystem; // add your own sphere system member!
-	// for Demo 3 only:
-	// you will need multiple SphereSystem objects to do comparisons in Demo 3
-	// m_iAccelerator should be ignored.
-	// SphereSystem * m_pSphereSystemGrid; 
 
 };
 
