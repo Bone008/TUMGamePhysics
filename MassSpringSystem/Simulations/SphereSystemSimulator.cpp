@@ -1,4 +1,5 @@
 ﻿#include "SphereSystemSimulator.h"
+#include "util/timer.h"
 
 std::function<float(float)> SphereSystemSimulator::m_Kernels[5] = {
 	[](float x) {return 1.0f; },              // Constant, m_iKernel = 0
@@ -129,8 +130,8 @@ void SphereSystemSimulator::notifyCaseChanged(int testCase)
 
 	reset();
 
-	if (m_useNaive) addSphereSystem(NAIVEACC, Vec3(0.86f, 0.44f, 0.31f));
-	if (m_useGrid)  addSphereSystem(GRIDACC, Vec3(0.44f, 0.86f, 0.31f));
+	if (m_useNaive || m_iTestCase == TEST_PERF_COMP) addSphereSystem(NAIVEACC, Vec3(0.86f, 0.44f, 0.31f));
+	if (m_useGrid || m_iTestCase == TEST_PERF_COMP)  addSphereSystem(GRIDACC, Vec3(0.44f, 0.86f, 0.31f));
 
 	switch (m_iTestCase)
 	{
@@ -147,7 +148,47 @@ void SphereSystemSimulator::notifyCaseChanged(int testCase)
 			addSphere(pos, vel);
 		}
 		break;
+
 	case TEST_PERF_COMP:
+		for (int i = 0; i < m_iNumSpheres; i++)
+		{
+			float r = BBOX_SIZE - 1;
+			Vec3 pos(randFloat(-r, r), randFloat(-r, r), randFloat(-r, r));
+			Vec3 vel(randFloat(-r, r), randFloat(-r, r), randFloat(-r, r));
+			addSphere(pos, vel);
+		}
+
+		const int iterations = 200;
+		std::cout << "Running performance test (";
+
+#define DBG_PERF(val) std::cout << "  "#val"=" << (val)
+		DBG_PERF(m_iNumSpheres);
+		DBG_PERF(m_fRadius);
+		DBG_PERF(m_iKernel);
+		DBG_PERF(m_iGridCells);
+		DBG_PERF(m_iGridCapacity);
+		std::cout << " ) ..." << std::endl;
+
+		MuTime timer;
+		for (SphereSystem& sys : m_sphereSystems)
+		{
+			timer.get();
+			
+			int i;
+			for (i = 0; i < iterations; i++)
+			{
+				sys.advanceLeapfrog(0.005f, DUC, false, Vec3());
+				MuTime now;
+				now.get();
+				if ((now - timer).time > 10000)
+					// timeout
+					break;
+			}
+
+			std::cout << "Performance test (" << sys.m_collDetMethod << "): " << (timer.update().time / (float)i) << " ms per timestep" << std::endl;
+		}
+
+		reset();
 		break;
 	}
 }

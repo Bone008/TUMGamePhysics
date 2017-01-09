@@ -38,8 +38,8 @@ public:
 	void draw(DrawingUtilitiesClass * DUC, boolean onMouseDown, Vec3 mouseLocalCoordinate);
 	bool render;
 
-private:
 	int m_collDetMethod;
+private:
 	Vec3 m_sphereColor;
 	float m_fRadius;
 	float m_mass;
