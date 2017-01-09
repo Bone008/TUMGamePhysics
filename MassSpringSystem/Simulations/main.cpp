@@ -56,7 +56,7 @@ FFmpeg* g_pFFmpegVideoRecorder = nullptr;
 
 void initTweakBar(){
 	g_pDUC->g_pTweakBar = TwNewBar("TweakBar");
-	TwDefine(" TweakBar color='0 128 128' alpha=128 ");
+	TwDefine(" TweakBar color='0 128 128' alpha=128 size='240 450' ");
 	TwType TW_TYPE_TESTCASE = TwDefineEnumFromString("Test Scene", g_pSimulator->getTestCasesStr());
 	TwAddVarRW(g_pDUC->g_pTweakBar, "Test Scene", TW_TYPE_TESTCASE, &g_iTestCase, "");
 	// HINT: For buttons you can directly pass the callback function as a lambda expression.

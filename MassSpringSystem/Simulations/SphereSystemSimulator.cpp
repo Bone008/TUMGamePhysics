@@ -42,19 +42,16 @@ void SphereSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 	// add separator
 	TwAddSeparator(DUC->g_pTweakBar, "john", "");
 
-	TwAddVarRW(DUC->g_pTweakBar, "Spheres", TW_TYPE_INT32, &m_iNumSpheres, "");
-	TwAddVarRW(DUC->g_pTweakBar, "Radius", TW_TYPE_FLOAT, &m_fRadius, "");
-	TwAddVarRW(DUC->g_pTweakBar, "Mass", TW_TYPE_FLOAT, &m_fMass, "");
-	TwAddVarRW(DUC->g_pTweakBar, "Damping", TW_TYPE_FLOAT, &m_fDamping, "");
+	TwAddVarRW(DUC->g_pTweakBar, "Spheres", TW_TYPE_INT32, &m_iNumSpheres, "min=0 step=5");
+	TwAddVarRW(DUC->g_pTweakBar, "Radius", TW_TYPE_FLOAT, &m_fRadius, "min=0 step=0.001");
+	TwAddVarRO(DUC->g_pTweakBar, "Mass", TW_TYPE_FLOAT, &m_fMass, "min=0");
+	TwAddVarRW(DUC->g_pTweakBar, "Damping", TW_TYPE_FLOAT, &m_fDamping, "step=0.01");
 	TwAddVarRW(DUC->g_pTweakBar, "Gravity", TW_TYPE_DIR3D, &m_gravity, "");
 	TwAddVarRW(DUC->g_pTweakBar, "->Rotation Dependent", TW_TYPE_BOOLCPP, &m_camRotDependentGravity, "");
 
-	if (m_useGrid)
-	{
-		TwAddVarRW(DUC->g_pTweakBar, "Grid cells", TW_TYPE_INT32, &m_iGridCells, "min=1");
-		TwAddVarRW(DUC->g_pTweakBar, "Cell capacity", TW_TYPE_INT32, &m_iGridCapacity, "min=1");
-	}
-
+	TwAddVarRW(DUC->g_pTweakBar, "Grid cells", TW_TYPE_INT32, &m_iGridCells, "min=1");
+	TwAddVarRW(DUC->g_pTweakBar, "Cell capacity", TW_TYPE_INT32, &m_iGridCapacity, "min=5 step=5");
+	
 	TwAddSeparator(DUC->g_pTweakBar, "siegfried", "");
 
 	TwAddVarRW(DUC->g_pTweakBar, "Compute simple", TW_TYPE_BOOLCPP, &m_useNaive, "");
@@ -64,7 +61,7 @@ void SphereSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 
 	// for every SphereSystem: add checkbox to disable rendering
 	std::string title = "Draw Sys ";
-	for (int i = 0; i < m_sphereSystems.size(); i++) {
+	for (unsigned int i = 0; i < m_sphereSystems.size(); i++) {
 		TwAddVarRW(DUC->g_pTweakBar, (title + std::to_string(i)).c_str(), TW_TYPE_BOOLCPP, &(m_sphereSystems[i].render), "");
 	}
 
