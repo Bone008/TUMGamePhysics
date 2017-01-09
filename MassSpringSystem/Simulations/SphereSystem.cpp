@@ -21,7 +21,9 @@ void SphereSystem::handleCollision(std::vector<Vec3>& forces)
 			if (sign * pos.value[f / 2] < -(BBOX_SIZE - m_fRadius))
 			{
 				pos.value[f / 2] = sign * -(BBOX_SIZE-m_fRadius);
-				vel.value[f / 2] = 0;
+
+				if (vel.value[f / 2] * sign < 0)
+					vel.value[f / 2] *= -0.6; // bounce off walls, but lose some energy along the way
 			}
 		}
 
@@ -57,17 +59,20 @@ void SphereSystem::handleCollision(std::vector<Vec3>& forces)
 	}
 }
 
-// TODO wrong!
+
 void SphereSystem::collisionResponse(int i, int u, std::vector<Vec3>& forces)
 {
 	const double sqDist = m_spheres[i].pos.squaredDistanceTo(m_spheres[u].pos);
 	const double diameter = 2 * m_fRadius;
 
-	const double lambda = 20.0f; // TODO
+	const double lambda = 250.0f; // TODO tweak
 	
 	const double f = lambda * (1 - (sqrt(sqDist) / diameter));
 
-	const Vec3 n = m_spheres[i].pos - m_spheres[u].pos;
+	//std::cout << "collision! " << i << "," << u << " - " << (1 - (sqrt(sqDist) / diameter)) << std::endl;
+
+	Vec3 n = m_spheres[i].pos - m_spheres[u].pos;
+	normalize(n); // unit length!!
 
 	forces[i] += f * n;
 	forces[u] -= f * n;
@@ -88,6 +93,12 @@ void SphereSystem::draw(DrawingUtilitiesClass * DUC)
 
 void SphereSystem::advanceMidPoint(float dt)
 {
+
+	// disabled midpoint integration because it was messing with velocities changed
+	// by wall collisions (within ComputeForces()). couldn't think of a simple way to refactor that,
+	// so I switched to leapfrog integration, which is also 2nd order (because of magic), but has no resets
+
+#ifdef USE_MIDPOINT
 	std::vector<Sphere> ori_points = m_spheres;// save x_old, v_old
 
 	std::vector<Vec3> forces = ComputeForces();// force = a( x_old, v_old), force_old
@@ -106,6 +117,12 @@ void SphereSystem::advanceMidPoint(float dt)
 		m_spheres[i].vel = ori_points[i].vel;
 	}
 	UpdateVelocities(dt, forces);// v = v( a (xtmp, vtmp) )
+#else
+	// use leap-frog because it's more simple
+	std::vector<Vec3> forces = ComputeForces();
+	UpdateVelocities(dt, forces);
+	UpdatePositions(dt);
+#endif
 }
 
 std::vector<Vec3> SphereSystem::ComputeForces()

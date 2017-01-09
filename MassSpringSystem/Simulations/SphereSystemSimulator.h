@@ -5,8 +5,8 @@
 #include "SphereSystem.h"
 
 // testcases
-#define TEST_NAIVE     0
-#define TEST_ACCEL	   1
+#define TEST_SIMPLE     0
+#define TEST_COMPLEX	   1
 #define TEST_PERF_COMP 2
 
 class SphereSystemSimulator:public Simulator{
@@ -34,11 +34,13 @@ protected:
 	Point2D m_mouse;
 	Point2D m_trackmouse;
 	Point2D m_oldtrackmouse;
+
+	// UI stuff
 	float m_fMass;
 	float m_fRadius;
-	float m_fForceScaling;
 	float m_fDamping;
 	int   m_iNumSpheres;
+	Vec3 m_gravity;
 	
 	int   m_iKernel; // index of the m_Kernels[5], more detials in SphereSystemSimulator.cpp
 	static std::function<float(float)> m_Kernels[5];

@@ -15,19 +15,14 @@ SphereSystemSimulator::SphereSystemSimulator()
 	// TODO test value
 	m_fRadius = 0.6f;
 	m_fMass = 1.0f;
-	m_fDamping = 0.5f;
-
-	// TODO test values
-	addSphereSystem(NAIVEACC, Vec3(0.86f, 0.44f, 0.31f));
-	addSphereSystem(GRIDACC, Vec3(0.44f, 0.86f, 0.31f));
-
-	addSphere(Vec3(-2, 0.3f, 0), Vec3(2, 0, 0));
-	addSphere(Vec3(2, 0, 0), Vec3(-2, 0, 0));
+	m_fDamping = 0.2f;
+	m_gravity = Vec3(0, -3, 0);
+	m_iNumSpheres = 100;
 }
 
 const char * SphereSystemSimulator::getTestCasesStr()
 {
-	return "Naive,Accelerated,Performance comparison";
+	return "Simple,Complex,Performance comparison";
 }
 
 void SphereSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
@@ -36,6 +31,15 @@ void SphereSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 
 	// add separator
 	TwAddSeparator(DUC->g_pTweakBar, "john", "");
+
+	TwAddVarRW(DUC->g_pTweakBar, "Spheres", TW_TYPE_INT32, &m_iNumSpheres, "");
+	TwAddVarRW(DUC->g_pTweakBar, "Radius", TW_TYPE_FLOAT, &m_fRadius, "");
+	TwAddVarRW(DUC->g_pTweakBar, "Mass", TW_TYPE_FLOAT, &m_fMass, "");
+	TwAddVarRW(DUC->g_pTweakBar, "Damping", TW_TYPE_FLOAT, &m_fDamping, "");
+	TwAddVarRW(DUC->g_pTweakBar, "Gravity", TW_TYPE_DIR3D, &m_gravity, "");
+
+	// add separator
+	TwAddSeparator(DUC->g_pTweakBar, "siegfried", "");
 
 	// for every SphereSystem: add checkbox to disable rendering
 	std::string title = "Draw Sys ";
@@ -48,9 +52,9 @@ void SphereSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 
 	switch (m_iTestCase)
 	{
-	case TEST_NAIVE:
+	case TEST_SIMPLE:
 		break;
-	case TEST_ACCEL:
+	case TEST_COMPLEX:
 		break;
 	case TEST_PERF_COMP:
 		break;
@@ -59,6 +63,7 @@ void SphereSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 
 void SphereSystemSimulator::reset()
 {
+	m_sphereSystems.clear();
 }
 
 void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext)
@@ -88,15 +93,34 @@ void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext
 	}
 }
 
+float randFloat(float min, float max)
+{
+	return min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - min)));
+}
+
 void SphereSystemSimulator::notifyCaseChanged(int testCase)
 {
 	m_iTestCase = testCase;
 
+	reset();
+
+	addSphereSystem(NAIVEACC, Vec3(0.86f, 0.44f, 0.31f));
+	//addSphereSystem(GRIDACC, Vec3(0.44f, 0.86f, 0.31f));
+
 	switch (m_iTestCase)
 	{
-	case TEST_NAIVE:
+	case TEST_SIMPLE:
+		addSphere(Vec3(-2, 0.3f, 0), Vec3(2, 0, 0));
+		addSphere(Vec3(2, 0, 0), Vec3(-2, 0, 0));
 		break;
-	case TEST_ACCEL:
+	case TEST_COMPLEX:
+		for (int i = 0; i < m_iNumSpheres; i++)
+		{
+			float r = BBOX_SIZE - 1;
+			Vec3 pos(randFloat(-r, r), randFloat(-r, r), randFloat(-r, r));
+			Vec3 vel(randFloat(-r, r), randFloat(-r, r), randFloat(-r, r));
+			addSphere(pos, vel);
+		}
 		break;
 	case TEST_PERF_COMP:
 		break;
@@ -130,7 +154,7 @@ void SphereSystemSimulator::onLeftMouseRelease()
 
 void SphereSystemSimulator::addSphereSystem(int collisionDetectionMethod, Vec3 color)
 {
-	SphereSystem sSys = SphereSystem(collisionDetectionMethod, color, m_fRadius, m_fMass, m_fDamping, Vec3(0, -2, 0)); // TODO gravity
+	SphereSystem sSys(collisionDetectionMethod, color, m_fRadius, m_fMass, m_fDamping, m_gravity);
 	m_sphereSystems.push_back(sSys);
 }
 
@@ -140,7 +164,6 @@ void SphereSystemSimulator::addSphere(Vec3 pos, Vec3 vel)
 	for (SphereSystem& s : m_sphereSystems) {
 		s.addSphere(pos, vel);
 	}
-	m_iNumSpheres++;
 }
 
 void SphereSystemSimulator::changeCameraPosition()
