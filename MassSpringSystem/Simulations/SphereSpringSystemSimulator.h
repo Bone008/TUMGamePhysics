@@ -2,6 +2,7 @@
 #define SPHERESPRINGSYSTEMSIMULATOR_H
 
 #include "Simulator.h"
+#include "SphereSpringSystem.h"
 
 class SphereSpringSystemSimulator : public Simulator {
 public:
@@ -24,6 +25,7 @@ public:
 	void onMouse(int x, int y);
 	
 private:
+	SphereSpringSystem* m_SphereSpringSystem;
 
 };
 

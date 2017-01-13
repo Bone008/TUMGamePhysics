@@ -17,6 +17,7 @@
     <ClCompile Include="SphereSystem.cpp" />
     <ClCompile Include="UniformGrid.cpp" />
     <ClCompile Include="SphereSpringSystemSimulator.cpp" />
+    <ClCompile Include="SphereSpringSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="util">
@@ -62,6 +63,8 @@
       <Filter>util</Filter>
     </ClInclude>
     <ClInclude Include="SphereSpringSystemSimulator.h" />
+    <ClInclude Include="SphereSpringSystem.h" />
+    <ClInclude Include="SphereSpring.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="effect.fx" />
