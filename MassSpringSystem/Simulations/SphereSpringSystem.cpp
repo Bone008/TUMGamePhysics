@@ -48,3 +48,73 @@ void SphereSpringSystem::draw(DrawingUtilitiesClass* DUC)
 	}
 	DUC->endLine();
 }
+
+void SphereSpringSystem::advanceLeapFrog(float timeStep)
+{
+	computeForces();
+	updateVelocities(timeStep);
+	updatePositions(timeStep);
+}
+
+void SphereSpringSystem::computeForces()
+{
+	// reset forces
+	for (Sphere& sphere : m_spheres)
+	{
+		sphere.computedForce = Vec3();
+	}
+
+	// TODO repulsion force
+	// TODO gravity
+
+	// spring forces
+	for (SphereSpring& spring : m_springs)
+	{
+		// Spring forces
+		int s1 = spring.sphere1;
+		int s2 = spring.sphere2;
+		Vec3 pos1 = m_spheres[s1].pos;
+		Vec3 pos2 = m_spheres[s2].pos;
+
+		Vec3 d = pos1 - pos2;
+		float l = norm(d);
+		float L = spring.initialLength;
+		float k = m_stiffness;
+
+		Vec3 f = d * (-k * (l - L) / l);
+
+		m_spheres[s1].computedForce += f;
+		m_spheres[s2].computedForce -= f;
+	}
+
+	// damping forces
+	for (Sphere& sphere : m_spheres)
+	{
+		sphere.computedForce += sphere.vel * -m_damping;
+	}
+}
+
+void SphereSpringSystem::updatePositions(float timeStep)
+{
+	for (Sphere& sphere : m_spheres)
+	{
+		Vec3 pos = sphere.pos;
+		Vec3 vel = sphere.vel;
+
+		pos += vel * timeStep;
+		sphere.pos = pos;
+	}
+}
+
+void SphereSpringSystem::updateVelocities(float timeStep)
+{
+	for (Sphere& sphere : m_spheres)
+	{
+		Vec3 vel = sphere.vel;
+		float m = m_mass;
+
+		vel += sphere.computedForce * (timeStep / m);
+
+		sphere.vel = vel;
+	}
+}

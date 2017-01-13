@@ -27,6 +27,9 @@ public:
 private:
 	SphereSpringSystem* m_SphereSpringSystem;
 
+	float m_stiffness;
+	float m_damping;
+	float m_mass;
 };
 
 #endif

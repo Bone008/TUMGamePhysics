@@ -2,11 +2,16 @@
 
 SphereSpringSystemSimulator::SphereSpringSystemSimulator()
 {
-	m_SphereSpringSystem = new SphereSpringSystem();
+	// TODO testing values
+	m_stiffness = 0.2;
+	m_damping = 0.1;
+	m_mass = 0.2;
+
+	m_SphereSpringSystem = new SphereSpringSystem(m_stiffness, m_damping, m_mass);
 
 	// TODO testing
-	int p0 = m_SphereSpringSystem->addSphere(Vec3(-1, 0, 0), Vec3());
-	int p1 = m_SphereSpringSystem->addSphere(Vec3(+1, 0, 0), Vec3());
+	int p0 = m_SphereSpringSystem->addSphere(Vec3(-1, 0, 0), Vec3(0, +1, 0));
+	int p1 = m_SphereSpringSystem->addSphere(Vec3(+1, 0, 0), Vec3(0, -1, 0));
 	m_SphereSpringSystem->addSpring(p0, p1, 1.0);
 }
 
@@ -34,6 +39,7 @@ void SphereSpringSystemSimulator::externalForcesCalculations(float timeElapsed)
 
 void SphereSpringSystemSimulator::simulateTimestep(float timeStep)
 {
+	m_SphereSpringSystem->advanceLeapFrog(timeStep);
 }
 
 void SphereSpringSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext)
