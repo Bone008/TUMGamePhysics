@@ -6,10 +6,11 @@ SphereSpringSystemSimulator::SphereSpringSystemSimulator()
 	m_stiffness = 0.2;
 	m_damping = 0.1;
 	m_mass = 0.2;
+	m_gravity = Vec3(0, -3, 0);
 	const int gridCells = 10;
 	const int cellCapacity = 10;
 
-	m_SphereSpringSystem = new SphereSpringSystem(m_stiffness, m_damping, m_mass, gridCells, cellCapacity);
+	m_SphereSpringSystem = new SphereSpringSystem(m_stiffness, m_damping, m_mass, m_gravity, gridCells, cellCapacity);
 
 	// TODO testing
 	const int p0 = m_SphereSpringSystem->addSphere(Vec3(-1, 0, 0), Vec3(0, +1, 0));

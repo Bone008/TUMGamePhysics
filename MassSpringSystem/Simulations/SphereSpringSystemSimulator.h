@@ -30,6 +30,7 @@ private:
 	float m_stiffness;
 	float m_damping;
 	float m_mass;
+	Vec3 m_gravity;
 };
 
 #endif

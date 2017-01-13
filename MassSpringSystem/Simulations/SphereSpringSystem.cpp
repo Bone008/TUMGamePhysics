@@ -67,12 +67,9 @@ void SphereSpringSystem::computeForces()
 	// repulsion forces
 	handleCollisions();
 
-	// TODO gravity
-
-	// spring forces
+	// spring forces	
 	for (SphereSpring& spring : m_springs)
 	{
-		// Spring forces
 		const int s1 = spring.sphere1;
 		const int s2 = spring.sphere2;
 		const Vec3 pos1 = m_spheres[s1].pos;
@@ -89,9 +86,12 @@ void SphereSpringSystem::computeForces()
 		m_spheres[s2].computedForce -= f;
 	}
 
-	// damping forces
+	// TODO maybe add camera rotation dependend gravity again
+	// gravity and damping forces
+	Vec3 gravityForce = m_gravity * m_mass;
 	for (Sphere& sphere : m_spheres)
 	{
+		sphere.computedForce += gravityForce;
 		sphere.computedForce += sphere.vel * -m_damping;
 	}
 }
@@ -123,9 +123,9 @@ void SphereSpringSystem::handleCollisions()
 		for (int f = 0; f < 6; f++)
 		{
 			float sign = (f % 2 == 0) ? -1.0f : 1.0f;
-			if (sign * pos.value[f / 2] < -(2 * BBOX_HALF_SIZE - SPHERE_RADIUS))
+			if (sign * pos.value[f / 2] < -(BBOX_HALF_SIZE - SPHERE_RADIUS))
 			{
-				pos.value[f / 2] = sign * -(2 * BBOX_HALF_SIZE - SPHERE_RADIUS - 0.001f);
+				pos.value[f / 2] = sign * -(BBOX_HALF_SIZE - SPHERE_RADIUS - 0.001f);
 
 				if (vel.value[f / 2] * sign < 0)
 					vel.value[f / 2] *= -0.6; // bounce off walls, but lose some energy along the way
