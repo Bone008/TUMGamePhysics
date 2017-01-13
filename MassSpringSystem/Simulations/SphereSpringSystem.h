@@ -13,7 +13,7 @@
 
 class SphereSpringSystem {
 public:
-	SphereSpringSystem(float springStiffness, float springDamping, float sphereMass, Vec3 gravity, int gridCells, int cellCapacity) : 
+	SphereSpringSystem(float springStiffness, float springDamping, float sphereMass, Vec3 gravity, int gridCells, int cellCapacity) :
 		m_stiffness(springStiffness), m_damping(springDamping), m_mass(sphereMass), m_gravity(gravity),
 		m_uniformGrid(BBOX_HALF_SIZE, gridCells, cellCapacity, SPHERE_RADIUS) {}
 

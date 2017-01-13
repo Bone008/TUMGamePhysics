@@ -23,7 +23,7 @@ public:
 	void onClick(int x, int y);
 	void onLeftMouseRelease();
 	void onMouse(int x, int y);
-	
+
 private:
 	SphereSpringSystem* m_SphereSpringSystem;
 
@@ -31,6 +31,8 @@ private:
 	float m_damping;
 	float m_mass;
 	Vec3 m_gravity;
+
+	void buildTower(Vec3 pos, Vec3 size);
 };
 
 #endif

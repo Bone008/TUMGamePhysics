@@ -154,15 +154,15 @@ void SphereSpringSystem::handleCollisions()
 
 void SphereSpringSystem::collisionResponse(Sphere & sphere1, Sphere & sphere2)
 {
-	const double sqDist = sphere1.pos.squaredDistanceTo(sphere2.pos);
+	Vec3 n = sphere1.pos - sphere2.pos;
+	const double dist = norm(n);
 	const double diameter = 2 * SPHERE_RADIUS;
 
 	const double lambda = 250.0f; // TODO tweak
 
 	// TODO maybe add kernel again?
-	const double f = lambda * (1 - (sqrt(sqDist) / diameter));
+	const double f = lambda * (1 - (dist / diameter));
 
-	Vec3 n = sphere1.pos - sphere2.pos;
 	normalize(n); // unit length!!
 
 	sphere1.computedForce += f * n;
