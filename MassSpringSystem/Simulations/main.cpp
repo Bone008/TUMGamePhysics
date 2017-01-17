@@ -53,7 +53,7 @@ int g_iTestCase = 0;
 int g_iPreTestCase = -1;
 bool  g_bSimulateByStep = false;
 bool firstTime = true;
-bool g_mouseInteraction = false;
+bool g_mouseInteraction = true;
 // Video recorder
 FFmpeg* g_pFFmpegVideoRecorder = nullptr;
 
@@ -206,14 +206,16 @@ void CALLBACK OnMouse( bool bLeftButtonDown, bool bRightButtonDown, bool bMiddle
                        int xPos, int yPos, void* pUserContext )
 {
 	if (g_mouseInteraction) {
+		g_pSimulator->onMouse(xPos, yPos);
+
 		if (bLeftButtonDown)
 		{
 			g_pSimulator->onClick(xPos, yPos);
 		}
 		else if (!bLeftButtonDown)
 			g_pSimulator->onLeftMouseRelease();
-
-		g_pSimulator->onMouse(xPos, yPos);
+		
+		
 	}
 	
 }

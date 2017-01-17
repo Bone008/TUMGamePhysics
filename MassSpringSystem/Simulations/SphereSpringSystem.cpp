@@ -49,11 +49,17 @@ void SphereSpringSystem::draw(DrawingUtilitiesClass* DUC)
 	DUC->endLine();
 }
 
-void SphereSpringSystem::advanceLeapFrog(float timeStep)
+void SphereSpringSystem::advanceLeapFrog(float timeStep,bool onMouseDown,Vec3 mouseForce)
 {
 	computeForces();
 	updateVelocities(timeStep);
 	updatePositions(timeStep);
+
+	// update velocites from mouse interaction
+	if (onMouseDown) {
+		for (Sphere& s : m_spheres)
+			s.vel += mouseForce * (timeStep / m_mass);
+	}
 }
 
 void SphereSpringSystem::computeForces()

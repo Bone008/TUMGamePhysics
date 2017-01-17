@@ -22,7 +22,7 @@ public:
 	void addSpring(int sphInd1, int sphInd2);
 	void draw(DrawingUtilitiesClass* DUC);
 
-	void advanceLeapFrog(float timeStep);
+	void advanceLeapFrog(float timeStep, bool onMouseDown, Vec3 mouseForce);
 
 private:
 	std::vector<Sphere> m_spheres;

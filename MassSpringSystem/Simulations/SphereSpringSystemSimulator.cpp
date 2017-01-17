@@ -19,6 +19,9 @@ SphereSpringSystemSimulator::SphereSpringSystemSimulator()
 	const int p0 = m_SphereSpringSystem->addSphere(BBOX_HALF_SIZE * Vec3(-1, 2, 1), Vec3(10, -10, -10));
 	const int p1 = m_SphereSpringSystem->addSphere(BBOX_HALF_SIZE * Vec3(+1, 2, 1), Vec3(10, -10, -10));
 	m_SphereSpringSystem->addSpring(p0, p1, 1.0);
+
+	onMouseDown = true;
+	initComplete = false;
 }
 
 void SphereSpringSystemSimulator::reset()
@@ -27,16 +30,37 @@ void SphereSpringSystemSimulator::reset()
 
 const char * SphereSpringSystemSimulator::getTestCasesStr()
 {
-	return "";
+	return "First, Second";
 }
 
 void SphereSpringSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 {
 	this->DUC = DUC;
+
+	// change the camera position
+	changeCameraPosition();
+
+	switch (m_iTestCase)
+	{
+	case TEST_FIRST:
+		break;
+	case TEST_SECOND:
+		break;
+	}
+
+	initComplete = true;
+
 }
 
 void SphereSpringSystemSimulator::notifyCaseChanged(int testCase)
 {
+	switch (m_iTestCase)
+	{
+	case TEST_FIRST:
+		break;
+	case TEST_SECOND:
+		break;
+	}
 }
 
 void SphereSpringSystemSimulator::externalForcesCalculations(float timeElapsed)
@@ -45,7 +69,10 @@ void SphereSpringSystemSimulator::externalForcesCalculations(float timeElapsed)
 
 void SphereSpringSystemSimulator::simulateTimestep(float timeStep)
 {
-	m_SphereSpringSystem->advanceLeapFrog(timeStep);
+	//it is substract by 10 to be more realistic and not that expensive
+	Vec3 mouseForce = (m_mouseLocalCoordinate - m_mouseOldLocalCoordinate) * 10;
+
+	m_SphereSpringSystem->advanceLeapFrog(timeStep,onMouseDown, mouseForce);
 }
 
 void SphereSpringSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext)
@@ -75,14 +102,64 @@ void SphereSpringSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateC
 
 void SphereSpringSystemSimulator::onClick(int x, int y)
 {
+	//if it is the first time just update the mouse vector
+	if (!onMouseDown) {
+		//update the mouse position
+		m_mouse = Vec3(x, y, 0);
+	}
+	else {
+		m_oldtrackmouse = m_mouse;
+		//update the mouse position
+		m_mouse = Vec3(x, y, 0);
+		//update the local mouse position with center on the screen at 0,0,0
+		m_mouseLocalCoordinate = toLocalCoordinate(m_mouse);
+
+		//update the old local mouse position with center on the screen at 0,0,0
+		m_mouseOldLocalCoordinate = toLocalCoordinate(m_oldtrackmouse);
+	}
+
+	//update the boolean
+	onMouseDown = true;
 }
 
 void SphereSpringSystemSimulator::onLeftMouseRelease()
 {
+	onMouseDown = false;
+
+	//reset mouse positions
+	m_mouse = Vec3();
+	m_oldtrackmouse = Vec3();
+	m_mouseOldLocalCoordinate = Vec3();
+	m_mouseLocalCoordinate = Vec3();
 }
 
 void SphereSpringSystemSimulator::onMouse(int x, int y)
 {
+	if (initComplete) {
+		//Mat4 viewMatrix(DUC->g_camera.GetLookAtPt());
+		//Vec3 test = DUC->g_camera.GetLookAtPt();
+		/*Vec3 test = Vec3(1, 0, 0);
+		Vec3 color = Vec3(1, 1, 0);
+		DUC->drawLine(test, color, test + 0.55f, color);*/
+	}
+	
+}
+
+
+/*
+As we have the screen of the center at [0,0] then we have to change the 'x' and 'y' coordinates of the mouse:
+'x' start from left to right and it global pixel positions are between [0,maxWidth]
+and it should be between [-maxWidth/2, +maxWidth/2] thus the center is at 0
+
+'y' start from the top (0) and it global pixel positions are between [0,maxHeight]
+where maxHeight points the bottom of the screen. We need it to be
+between [+maxHeight,-maxHeight] where 0 is the center.
+
+Here we make those changes of the 'x' and 'y' component of the mouse
+*/
+Vec3 SphereSpringSystemSimulator::toLocalCoordinate(Vec3 globalScreenPosition)
+{
+	return Vec3(globalScreenPosition.x - m_screenWidth / 2, m_screenHeight - globalScreenPosition.y - m_screenHeight / 2, globalScreenPosition.z);
 }
 
 void SphereSpringSystemSimulator::buildTower(Vec3 pos, Vec3 size)
@@ -99,4 +176,11 @@ void SphereSpringSystemSimulator::buildTower(Vec3 pos, Vec3 size)
 			}
 		}
 	}
+}
+
+void SphereSpringSystemSimulator::changeCameraPosition()
+{
+	XMFLOAT3 eye(.0f, .0f, -3.5f * BBOX_HALF_SIZE);
+	XMFLOAT3 lookAt(0.0f, 0.0f, 0.0f);
+	DUC->g_camera.SetViewParams(XMLoadFloat3(&eye), XMLoadFloat3(&lookAt));
 }

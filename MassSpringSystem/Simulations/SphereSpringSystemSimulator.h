@@ -4,6 +4,10 @@
 #include "Simulator.h"
 #include "SphereSpringSystem.h"
 
+// testcases
+#define TEST_FIRST 0
+#define TEST_SECOND	1
+
 class SphereSpringSystemSimulator : public Simulator {
 public:
 	// constructor
@@ -24,6 +28,8 @@ public:
 	void onLeftMouseRelease();
 	void onMouse(int x, int y);
 
+	Vec3 toLocalCoordinate(Vec3 globalScreenPosition);
+
 private:
 	SphereSpringSystem* m_SphereSpringSystem;
 
@@ -33,6 +39,16 @@ private:
 	Vec3 m_gravity;
 
 	void buildTower(Vec3 pos, Vec3 size);
+
+	void changeCameraPosition();    //usses the BBOX_HALF_SIZE variable
+
+	Vec3 m_mouse;
+	Vec3 m_mouseLocalCoordinate;		//our local coordinate system is with screen center at 0,0,0    
+	Vec3 m_mouseOldLocalCoordinate;     //our old local coordinate system is with screen center at 0,0,0    
+	Vec3 m_oldtrackmouse;
+
+	bool onMouseDown;
+	bool initComplete;
 };
 
 #endif
