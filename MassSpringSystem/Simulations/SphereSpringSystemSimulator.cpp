@@ -20,7 +20,7 @@ SphereSpringSystemSimulator::SphereSpringSystemSimulator()
 	const int p1 = m_SphereSpringSystem->addSphere(BBOX_HALF_SIZE * Vec3(+1, 2, 1), Vec3(10, -10, -10));
 	m_SphereSpringSystem->addSpring(p0, p1, 1.0);
 
-	onMouseDown = true;
+	onMouseDown = false;
 	initComplete = false;
 }
 
@@ -40,6 +40,8 @@ void SphereSpringSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 	// change the camera position
 	changeCameraPosition();
 
+	initComplete = true;
+
 	switch (m_iTestCase)
 	{
 	case TEST_FIRST:
@@ -47,13 +49,11 @@ void SphereSpringSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 	case TEST_SECOND:
 		break;
 	}
-
-	initComplete = true;
-
 }
 
 void SphereSpringSystemSimulator::notifyCaseChanged(int testCase)
 {
+	m_iTestCase = testCase;
 	switch (m_iTestCase)
 	{
 	case TEST_FIRST:
@@ -136,11 +136,39 @@ void SphereSpringSystemSimulator::onLeftMouseRelease()
 void SphereSpringSystemSimulator::onMouse(int x, int y)
 {
 	if (initComplete) {
-		//Mat4 viewMatrix(DUC->g_camera.GetLookAtPt());
-		//Vec3 test = DUC->g_camera.GetLookAtPt();
-		/*Vec3 test = Vec3(1, 0, 0);
-		Vec3 color = Vec3(1, 1, 0);
-		DUC->drawLine(test, color, test + 0.55f, color);*/
+		Vec3 toLocal = toLocalCoordinate(Vec3(x, y, 0));
+		float norm_x = (((2.0f * toLocal.x) / m_screenWidth));
+		float norm_y = (((2.0f * toLocal.y) / m_screenHeight));
+		float scallingFactor = 6.f;
+		Vec3 normPos = Vec3(norm_x*scallingFactor, norm_y*scallingFactor, CAMERA_POSITION_Z + 0.5f);
+		m_mouseShootingPosition = normPos;
+		cout << m_mouseShootingPosition << endl;
+	}
+}
+
+void SphereSpringSystemSimulator::onKeyboardSpaceDown()
+{
+	if (initComplete) {
+		int p0,p1;
+		switch (m_iTestCase)
+		{
+		case TEST_FIRST:
+			p0 = m_SphereSpringSystem->addSphere(m_mouseShootingPosition + SHOOT_SPHERE_SPRING_DIMENSION, SHOOT_SPHERE_SPRING_VELOCITY);
+			p1 = m_SphereSpringSystem->addSphere(m_mouseShootingPosition - SHOOT_SPHERE_SPRING_DIMENSION, SHOOT_SPHERE_SPRING_VELOCITY);
+			m_SphereSpringSystem->addSpring(p0, p1, 1.0);
+			cout << "Shooting\n";
+			break;
+		case TEST_SECOND:
+			//TODO i will remove it when add my scene :)
+			p0 = m_SphereSpringSystem->addSphere(m_mouseShootingPosition + SHOOT_SPHERE_SPRING_DIMENSION, SHOOT_SPHERE_SPRING_VELOCITY);
+			p1 = m_SphereSpringSystem->addSphere(m_mouseShootingPosition - SHOOT_SPHERE_SPRING_DIMENSION, SHOOT_SPHERE_SPRING_VELOCITY);
+			m_SphereSpringSystem->addSpring(p0, p1, 1.0);
+			cout << "Shooting\n";
+			break;
+		}
+		/*int p0 = m_SphereSpringSystem->addSphere(m_mouseShootingPosition + Vec3(0.5, 0, 0), Vec3(0, 0, 1000));
+		int p1 = m_SphereSpringSystem->addSphere(m_mouseShootingPosition - Vec3(0.5, 0, 0), Vec3(0, 0, 1000));
+		m_SphereSpringSystem->addSpring(p0, p1, 1.0);*/
 	}
 	
 }
@@ -180,7 +208,7 @@ void SphereSpringSystemSimulator::buildTower(Vec3 pos, Vec3 size)
 
 void SphereSpringSystemSimulator::changeCameraPosition()
 {
-	XMFLOAT3 eye(.0f, .0f, -3.5f * BBOX_HALF_SIZE);
+	XMFLOAT3 eye(.0f, .0f, CAMERA_POSITION_Z);
 	XMFLOAT3 lookAt(0.0f, 0.0f, 0.0f);
 	DUC->g_camera.SetViewParams(XMLoadFloat3(&eye), XMLoadFloat3(&lookAt));
 }

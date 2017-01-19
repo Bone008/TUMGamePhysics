@@ -250,6 +250,10 @@ void RigidBodySystemSimulator::onMouse(int x, int y)
 {
 }
 
+void RigidBodySystemSimulator::onKeyboardSpaceDown()
+{
+}
+
 
 void RigidBodySystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext)
 {

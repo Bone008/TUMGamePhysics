@@ -53,7 +53,7 @@ int g_iTestCase = 0;
 int g_iPreTestCase = -1;
 bool  g_bSimulateByStep = false;
 bool firstTime = true;
-bool g_mouseInteraction = true;
+bool g_mouseInteraction = false;
 // Video recorder
 FFmpeg* g_pFFmpegVideoRecorder = nullptr;
 
@@ -160,6 +160,11 @@ void CALLBACK OnKeyboard( UINT nChar, bool bKeyDown, bool bAltDown, void* pUserC
 	{
 		switch(nChar)
 		{
+			case VK_SPACE:
+			{
+				g_pSimulator->onKeyboardSpaceDown();
+				break;
+			}
             // RETURN: toggle fullscreen
 			case VK_RETURN :
 			{
