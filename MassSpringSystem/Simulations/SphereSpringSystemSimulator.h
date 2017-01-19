@@ -8,6 +8,13 @@
 #define TEST_FIRST 0
 #define TEST_SECOND	1
 
+// for shooting things
+#define SHOOT_SPHERE_SPRING_DIMENSION Vec3(0.5, 0, 0)
+#define SHOOT_SPHERE_SPRING_VELOCITY Vec3(0, 0, 1000)
+
+// camera
+#define CAMERA_POSITION_Z (-3.5f * BBOX_HALF_SIZE)
+
 class SphereSpringSystemSimulator : public Simulator {
 public:
 	// constructor
@@ -27,6 +34,7 @@ public:
 	void onClick(int x, int y);
 	void onLeftMouseRelease();
 	void onMouse(int x, int y);
+	void onKeyboardSpaceDown();
 
 	Vec3 toLocalCoordinate(Vec3 globalScreenPosition);
 
@@ -50,6 +58,7 @@ private:
 	Vec3 m_mouseLocalCoordinate;		//our local coordinate system is with screen center at 0,0,0    
 	Vec3 m_mouseOldLocalCoordinate;     //our old local coordinate system is with screen center at 0,0,0    
 	Vec3 m_oldtrackmouse;
+	Vec3 m_mouseShootingPosition;
 
 	bool onMouseDown;
 	bool initComplete;

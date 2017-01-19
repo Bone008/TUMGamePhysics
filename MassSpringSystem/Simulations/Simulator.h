@@ -32,6 +32,8 @@ public:
 
 	virtual void reset() = 0;
 	
+	virtual void onKeyboardSpaceDown() = 0;
+
 	/*
 	This Function is used to initialize the GUI with customized componnents per simulations 
 	input: DUC pointer for the DrawingUtilities to setup the UI componnents
