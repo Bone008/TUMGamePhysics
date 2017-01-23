@@ -31,12 +31,15 @@ public:
 	Vec3 toLocalCoordinate(Vec3 globalScreenPosition);
 
 private:
-	SphereSpringSystem* m_SphereSpringSystem;
+	std::unique_ptr<SphereSpringSystem> m_SphereSpringSystem;
 
 	float m_stiffness;
 	float m_damping;
 	float m_mass;
 	Vec3 m_gravity;
+
+	int m_gridCells;
+	int m_gridCellCapacity;
 
 	void buildTower(Vec3 pos, Vec3 size);
 

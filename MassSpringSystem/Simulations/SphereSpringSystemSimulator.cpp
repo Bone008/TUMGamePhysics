@@ -3,22 +3,12 @@
 SphereSpringSystemSimulator::SphereSpringSystemSimulator()
 {
 	// TODO testing values
-	m_stiffness = 0.2;
-	m_damping = 0.1;
+	m_stiffness = 400;
+	m_damping = 0.5;
 	m_mass = 0.2;
 	m_gravity = Vec3(0, -3, 0);
-	const int gridCells = 15;
-	const int cellCapacity = 50;
-
-	m_SphereSpringSystem = new SphereSpringSystem(m_stiffness, m_damping, m_mass, m_gravity, gridCells, cellCapacity);
-
-	// build tower
-	buildTower(Vec3(0, -BBOX_HALF_SIZE, 0), Vec3(1, BBOX_HALF_SIZE, 1));
-
-	// FIXME this spring moves more towards point p1
-	const int p0 = m_SphereSpringSystem->addSphere(BBOX_HALF_SIZE * Vec3(-1, 2, 1), Vec3(10, -10, -10));
-	const int p1 = m_SphereSpringSystem->addSphere(BBOX_HALF_SIZE * Vec3(+1, 2, 1), Vec3(10, -10, -10));
-	m_SphereSpringSystem->addSpring(p0, p1, 1.0);
+	m_gridCells = 15;
+	m_gridCellCapacity = 50;
 
 	onMouseDown = true;
 	initComplete = false;
@@ -36,6 +26,16 @@ const char * SphereSpringSystemSimulator::getTestCasesStr()
 void SphereSpringSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 {
 	this->DUC = DUC;
+	
+	TwAddSeparator(DUC->g_pTweakBar, "Lucifer", "");
+	TwAddVarRW(DUC->g_pTweakBar, "Damp factor", TW_TYPE_FLOAT, &m_damping, "min=0.0");
+	TwAddVarRW(DUC->g_pTweakBar, "Spring Stiffness", TW_TYPE_FLOAT, &m_stiffness, "min=0.0");
+	TwAddVarRW(DUC->g_pTweakBar, "Point Mass", TW_TYPE_FLOAT, &m_mass, "min=0.0");
+	TwAddVarRW(DUC->g_pTweakBar, "Gravity force", TW_TYPE_DIR3D, &m_gravity, "");
+	TwAddSeparator(DUC->g_pTweakBar, "Siegfried", "");
+	TwAddVarRW(DUC->g_pTweakBar, "Grid cells", TW_TYPE_INT32, &m_gridCells, "min=1");
+	TwAddVarRW(DUC->g_pTweakBar, "Cell capacity", TW_TYPE_INT32, &m_gridCellCapacity, "min=5 step=5");
+
 
 	// change the camera position
 	changeCameraPosition();
@@ -54,10 +54,26 @@ void SphereSpringSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 
 void SphereSpringSystemSimulator::notifyCaseChanged(int testCase)
 {
+	m_iTestCase = testCase;
+	reset();
+
+	// use unique pointer for automagic memory management
+	m_SphereSpringSystem = std::make_unique<SphereSpringSystem>(SphereSpringSystem(m_stiffness, m_damping, m_mass, m_gravity, m_gridCells, m_gridCellCapacity));
+
 	switch (m_iTestCase)
 	{
-	case TEST_FIRST:
+	case TEST_FIRST: {
+
+		// build tower
+		buildTower(Vec3(0, -BBOX_HALF_SIZE, 0), Vec3(1, BBOX_HALF_SIZE, 1));
+
+		// FIXME this spring moves more towards point p1
+		const int p0 = m_SphereSpringSystem->addSphere(BBOX_HALF_SIZE * Vec3(-1, 2, 1), Vec3(10, -10, -10));
+		const int p1 = m_SphereSpringSystem->addSphere(BBOX_HALF_SIZE * Vec3(+1, 2, 1), Vec3(10, -10, -10));
+		m_SphereSpringSystem->addSpring(p0, p1, 1.0);
 		break;
+	}
+
 	case TEST_SECOND:
 		break;
 	}
