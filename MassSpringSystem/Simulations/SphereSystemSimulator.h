@@ -24,7 +24,6 @@ public:
 	void onClick(int x, int y);
 	void onMouse(int x, int y);
 	void onLeftMouseRelease();
-	void onKeyboardSpaceDown();
 
 	void addSphereSystem(int collisionDetectionMethod, Vec3 color);
 	void addSphere(Vec3 pos, Vec3 vel);

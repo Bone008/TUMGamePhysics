@@ -42,7 +42,6 @@ public:
 	void onClick(int x, int y);
 	void onLeftMouseRelease();
 	void onMouse(int x, int y);
-	void onKeyboardSpaceDown();
 
 	// ExtraFunctions
 	int getNumberOfRigidBodies();

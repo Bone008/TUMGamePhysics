@@ -246,10 +246,6 @@ void SphereSystemSimulator::onLeftMouseRelease()
 	m_mouseLocalCoordinate = Vec3();
 }
 
-void SphereSystemSimulator::onKeyboardSpaceDown()
-{
-}
-
 void SphereSystemSimulator::addSphereSystem(int collisionDetectionMethod, Vec3 color)
 {
 	// push_back, but with more magic and less copy
