@@ -37,6 +37,7 @@ private:
 	float m_damping;
 	float m_mass;
 	Vec3 m_gravity;
+	bool m_camRotDependentGravity;
 
 	int m_gridCells;
 	int m_gridCellCapacity;

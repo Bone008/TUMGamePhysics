@@ -7,6 +7,7 @@ SphereSpringSystemSimulator::SphereSpringSystemSimulator()
 	m_damping = 0.5;
 	m_mass = 0.2;
 	m_gravity = Vec3(0, -3, 0);
+	m_camRotDependentGravity = false;
 	m_gridCells = 15;
 	m_gridCellCapacity = 50;
 
@@ -28,11 +29,15 @@ void SphereSpringSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 	this->DUC = DUC;
 	
 	TwAddSeparator(DUC->g_pTweakBar, "Lucifer", "");
+
 	TwAddVarRW(DUC->g_pTweakBar, "Damp factor", TW_TYPE_FLOAT, &m_damping, "min=0.0");
 	TwAddVarRW(DUC->g_pTweakBar, "Spring Stiffness", TW_TYPE_FLOAT, &m_stiffness, "min=0.0");
 	TwAddVarRW(DUC->g_pTweakBar, "Point Mass", TW_TYPE_FLOAT, &m_mass, "min=0.0");
 	TwAddVarRW(DUC->g_pTweakBar, "Gravity force", TW_TYPE_DIR3D, &m_gravity, "");
+	TwAddVarRW(DUC->g_pTweakBar, "->Rotation Dependent", TW_TYPE_BOOLCPP, &m_camRotDependentGravity, "");
+
 	TwAddSeparator(DUC->g_pTweakBar, "Siegfried", "");
+
 	TwAddVarRW(DUC->g_pTweakBar, "Grid cells", TW_TYPE_INT32, &m_gridCells, "min=1");
 	TwAddVarRW(DUC->g_pTweakBar, "Cell capacity", TW_TYPE_INT32, &m_gridCellCapacity, "min=5 step=5");
 
@@ -58,7 +63,7 @@ void SphereSpringSystemSimulator::notifyCaseChanged(int testCase)
 	reset();
 
 	// use unique pointer for automagic memory management
-	m_SphereSpringSystem = std::make_unique<SphereSpringSystem>(SphereSpringSystem(m_stiffness, m_damping, m_mass, m_gravity, m_gridCells, m_gridCellCapacity));
+	m_SphereSpringSystem = std::make_unique<SphereSpringSystem>(SphereSpringSystem(m_stiffness, m_damping, m_mass, m_gravity, DUC, m_gridCells, m_gridCellCapacity));
 
 	switch (m_iTestCase)
 	{
@@ -88,7 +93,7 @@ void SphereSpringSystemSimulator::simulateTimestep(float timeStep)
 	//it is substract by 10 to be more realistic and not that expensive
 	Vec3 mouseForce = (m_mouseLocalCoordinate - m_mouseOldLocalCoordinate) * 10;
 
-	m_SphereSpringSystem->advanceLeapFrog(timeStep,onMouseDown, mouseForce);
+	m_SphereSpringSystem->advanceLeapFrog(timeStep, DUC, onMouseDown, mouseForce);
 }
 
 void SphereSpringSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext)

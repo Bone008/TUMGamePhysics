@@ -49,9 +49,9 @@ void SphereSpringSystem::draw(DrawingUtilitiesClass* DUC)
 	DUC->endLine();
 }
 
-void SphereSpringSystem::advanceLeapFrog(float timeStep,bool onMouseDown,Vec3 mouseForce)
+void SphereSpringSystem::advanceLeapFrog(float timeStep, DrawingUtilitiesClass* DUC, bool onMouseDown, Vec3 mouseForce)
 {
-	computeForces();
+	computeForces(DUC);
 	updateVelocities(timeStep);
 	updatePositions(timeStep);
 
@@ -62,7 +62,7 @@ void SphereSpringSystem::advanceLeapFrog(float timeStep,bool onMouseDown,Vec3 mo
 	}
 }
 
-void SphereSpringSystem::computeForces()
+void SphereSpringSystem::computeForces(DrawingUtilitiesClass* DUC)
 {
 	// reset forces
 	for (Sphere& sphere : m_spheres)
@@ -92,9 +92,15 @@ void SphereSpringSystem::computeForces()
 		m_spheres[s2].computedForce -= f;
 	}
 
-	// TODO maybe add camera rotation dependend gravity again
-	// gravity and damping forces
+	// Gravity & Damping forces
 	Vec3 gravityForce = m_gravity * m_mass;
+	if (m_camRotDependentGravity)
+	{
+		// direction of gravity will be the bottom of the screen
+		Mat4 viewMatrix(DUC->g_camera.GetViewMatrix());
+		gravityForce = viewMatrix * gravityForce;
+	}
+
 	for (Sphere& sphere : m_spheres)
 	{
 		sphere.computedForce += gravityForce;

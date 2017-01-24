@@ -13,8 +13,8 @@
 
 class SphereSpringSystem {
 public:
-	SphereSpringSystem(float springStiffness, float springDamping, float sphereMass, Vec3 gravity, int gridCells, int cellCapacity) :
-		m_stiffness(springStiffness), m_damping(springDamping), m_mass(sphereMass), m_gravity(gravity),
+	SphereSpringSystem(float springStiffness, float springDamping, float sphereMass, Vec3 gravity, bool camRotDependentGravity, int gridCells, int cellCapacity) :
+		m_stiffness(springStiffness), m_damping(springDamping), m_mass(sphereMass), m_gravity(gravity), m_camRotDependentGravity(camRotDependentGravity),
 		m_uniformGrid(BBOX_HALF_SIZE, gridCells, cellCapacity, SPHERE_RADIUS) {}
 
 	int addSphere(Vec3 pos, Vec3 vel);
@@ -22,7 +22,7 @@ public:
 	void addSpring(int sphInd1, int sphInd2);
 	void draw(DrawingUtilitiesClass* DUC);
 
-	void advanceLeapFrog(float timeStep, bool onMouseDown, Vec3 mouseForce);
+	void advanceLeapFrog(float timeStep, DrawingUtilitiesClass* duc, bool onMouseDown, Vec3 mouseForce);
 
 private:
 	std::vector<Sphere> m_spheres;
@@ -32,10 +32,11 @@ private:
 	float m_damping;
 	float m_mass;
 	Vec3 m_gravity;
+	bool m_camRotDependentGravity;
 
 	UniformGrid m_uniformGrid;
 
-	void computeForces();
+	void computeForces(DrawingUtilitiesClass* DUC);
 	void updatePositions(float timeStep);
 	void updateVelocities(float timeStep);
 	void handleCollisions();
