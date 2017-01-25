@@ -22,13 +22,12 @@ namespace std {
 
 class UniformGrid {
 public:
-	UniformGrid(float boxSize, int cellsPerDimension, int maxSpheresPerCell, float sphereRadius);
+	UniformGrid(float boxSize, int cellsPerDimension, int maxSpheresPerCell);
 
 	void updateGrid(const std::vector<Sphere>& spheres);
 	const std::unordered_set<std::pair<Sphere*, Sphere*>>& computeCollisionPairs();
 
 private:
-	float m_sphereRadius;
 	float m_boxHalfSize;
 	int m_cellsPerDimension;
 	int m_maxSpheresPerCell;

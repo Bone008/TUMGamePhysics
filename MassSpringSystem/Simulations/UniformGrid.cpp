@@ -1,11 +1,11 @@
 #include "UniformGrid.h"
 
-UniformGrid::UniformGrid(float boxSize, int cellsPerDim, int maxSpheresPerCell, float sphereRadius)
-	: m_boxHalfSize(boxSize), m_cellsPerDimension(cellsPerDim), m_maxSpheresPerCell(maxSpheresPerCell), m_sphereRadius(sphereRadius),
+UniformGrid::UniformGrid(float boxSize, int cellsPerDim, int maxSpheresPerCell)
+	: m_boxHalfSize(boxSize), m_cellsPerDimension(cellsPerDim), m_maxSpheresPerCell(maxSpheresPerCell),
 	m_gridV(maxSpheresPerCell * cellsPerDim * cellsPerDim * cellsPerDim, nullptr),
 	m_occupiedCountsV(cellsPerDim * cellsPerDim * cellsPerDim, 0)
 {
-	std::cout << "sphere diameter = " << (2 * sphereRadius) << "; grid size = " << (2.0 * m_boxHalfSize / m_cellsPerDimension) << std::endl;
+	std::cout << "grid size = " << (2.0 * m_boxHalfSize / m_cellsPerDimension) << std::endl;
 	std::cout << "grid memory use = " << (m_gridV.size() * sizeof(Sphere*)) << " bytes" << std::endl;
 }
 
@@ -51,8 +51,8 @@ void UniformGrid::updateGrid(const std::vector<Sphere>& spheres)
 	int c = 0;
 	for (const Sphere& sphere : spheres)
 	{
-		Vec3 localMin = sphere.pos - cellsOrigin - m_sphereRadius;
-		Vec3 localMax = sphere.pos - cellsOrigin + m_sphereRadius;
+		Vec3 localMin = sphere.pos - cellsOrigin - sphere.radius;
+		Vec3 localMax = sphere.pos - cellsOrigin + sphere.radius;
 		int xmin = floor(localMin.x / cellSize);
 		int ymin = floor(localMin.y / cellSize);
 		int zmin = floor(localMin.z / cellSize);

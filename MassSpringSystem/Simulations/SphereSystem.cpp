@@ -5,6 +5,7 @@ void SphereSystem::addSphere(Vec3 pos, Vec3 vel)
 	Sphere s;
 	s.pos = pos;
 	s.vel = vel;
+	s.radius = m_fRadius;
 	m_spheres.push_back(s);
 }
 

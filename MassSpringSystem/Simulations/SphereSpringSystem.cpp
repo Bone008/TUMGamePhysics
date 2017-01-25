@@ -1,11 +1,12 @@
 #include "SphereSpringSystem.h"
 
-int SphereSpringSystem::addSphere(Vec3 pos, Vec3 vel)
+int SphereSpringSystem::addSphere(Vec3 pos, Vec3 vel, float radius)
 {
 	Sphere s;
 	s.pos = pos;
 	s.vel = vel;
 	s.computedForce = Vec3();
+	s.radius = radius;
 
 	m_spheres.push_back(s);
 
@@ -33,17 +34,17 @@ void SphereSpringSystem::draw(DrawingUtilitiesClass* DUC)
 	DUC->setUpLighting(Vec3(), 0.4 * Vec3(1), 100, 0.6 * SPHERE_COLOR);
 
 	// draw spheres
-	for (Sphere& s : m_spheres)
+	for (const Sphere& s : m_spheres)
 	{
-		DUC->drawSphere(s.pos, Vec3(SPHERE_RADIUS));
+		DUC->drawSphere(s.pos, Vec3(s.radius));
 	}
 
 	// draw springs
 	DUC->beginLine();
-	for (SphereSpring& s : m_springs)
+	for (const SphereSpring& s : m_springs)
 	{
-		const Sphere s1 = m_spheres[s.sphere1];
-		const Sphere s2 = m_spheres[s.sphere2];
+		const Sphere& s1 = m_spheres[s.sphere1];
+		const Sphere& s2 = m_spheres[s.sphere2];
 		DUC->drawLine(s1.pos, SPRING_COLOR, s2.pos, SPRING_COLOR);
 	}
 	DUC->endLine();
@@ -52,8 +53,7 @@ void SphereSpringSystem::draw(DrawingUtilitiesClass* DUC)
 void SphereSpringSystem::advanceLeapFrog(float timeStep, DrawingUtilitiesClass* DUC, bool onMouseDown, Vec3 mouseForce)
 {
 	computeForces(DUC);
-	updateVelocities(timeStep);
-	updatePositions(timeStep);
+	updatePosAndVel(timeStep);
 
 	// update velocites from mouse interaction
 	if (onMouseDown) {
@@ -108,19 +108,12 @@ void SphereSpringSystem::computeForces(DrawingUtilitiesClass* DUC)
 	}
 }
 
-void SphereSpringSystem::updatePositions(float timeStep)
-{
-	for (Sphere& sphere : m_spheres)
-	{
-		sphere.pos += sphere.vel * timeStep;
-	}
-}
-
-void SphereSpringSystem::updateVelocities(float timeStep)
+void SphereSpringSystem::updatePosAndVel(float timeStep)
 {
 	for (Sphere& sphere : m_spheres)
 	{
 		sphere.vel += sphere.computedForce * (timeStep / m_mass);
+		sphere.pos += sphere.vel * timeStep;
 	}
 }
 
@@ -135,9 +128,9 @@ void SphereSpringSystem::handleCollisions()
 		for (int f = 0; f < 6; f++)
 		{
 			float sign = (f % 2 == 0) ? -1.0f : 1.0f;
-			if (sign * pos.value[f / 2] < -(BBOX_HALF_SIZE - SPHERE_RADIUS))
+			if (sign * pos.value[f / 2] < -(BBOX_HALF_SIZE - sphere.radius))
 			{
-				pos.value[f / 2] = sign * -(BBOX_HALF_SIZE - SPHERE_RADIUS - 0.001f);
+				pos.value[f / 2] = sign * -(BBOX_HALF_SIZE - sphere.radius - 0.001f);
 
 				if (vel.value[f / 2] * sign < 0)
 					vel.value[f / 2] *= -0.6; // bounce off walls, but lose some energy along the way
@@ -155,9 +148,9 @@ void SphereSpringSystem::handleCollisions()
 	for (auto& pair : possiblyCollidingPairs)
 	{
 		const double sqDist = pair.first->pos.squaredDistanceTo(pair.second->pos);
-		const double diameter = 2 * SPHERE_RADIUS;
+		const double diameter = pair.first->radius + pair.second->radius;
 
-		// |d2-d1| < 2r --> collision
+		// |d2-d1| < r1+r2 --> collision
 		if (sqDist < diameter * diameter) {
 			collisionResponse(*pair.first, *pair.second);
 		}
@@ -168,15 +161,16 @@ void SphereSpringSystem::collisionResponse(Sphere & sphere1, Sphere & sphere2)
 {
 	Vec3 n = sphere1.pos - sphere2.pos;
 	const double dist = norm(n);
-	const double diameter = 2 * SPHERE_RADIUS;
+	const double diameter = sphere1.radius + sphere2.radius;
 
-	const double lambda = 250.0f; // TODO tweak
+	const double lambda = 250.0f;
 
 	// TODO maybe add kernel again?
 	const double f = lambda * (1 - (dist / diameter));
 
 	normalize(n); // unit length!!
 
+	// TODO adjust response distribution according to sphere radius/mass
 	sphere1.computedForce += f * n;
 	sphere2.computedForce -= f * n;
 }

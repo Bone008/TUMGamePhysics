@@ -8,8 +8,8 @@ SphereSpringSystemSimulator::SphereSpringSystemSimulator()
 	m_mass = 0.2;
 	m_gravity = Vec3(0, -3, 0);
 	m_camRotDependentGravity = false;
-	m_gridCells = 15;
-	m_gridCellCapacity = 50;
+	m_gridCells = 4;
+	m_gridCellCapacity = 100;
 
 	onMouseDown = false;
 	initComplete = false;
@@ -71,10 +71,11 @@ void SphereSpringSystemSimulator::notifyCaseChanged(int testCase)
 		// build tower
 		buildTower(Vec3(0, -BBOX_HALF_SIZE, 0), Vec3(1, BBOX_HALF_SIZE, 1));
 
-		// FIXME this spring moves more towards point p1
-		const int p0 = m_SphereSpringSystem->addSphere(BBOX_HALF_SIZE * Vec3(-1, 2, 1), Vec3(10, -10, -10));
-		const int p1 = m_SphereSpringSystem->addSphere(BBOX_HALF_SIZE * Vec3(+1, 2, 1), Vec3(10, -10, -10));
-		m_SphereSpringSystem->addSpring(p0, p1, 1.0);
+		//const int p0 = m_SphereSpringSystem->addSphere(BBOX_HALF_SIZE * Vec3(-1, 2, 1), Vec3(10, -10, -10));
+		//const int p1 = m_SphereSpringSystem->addSphere(BBOX_HALF_SIZE * Vec3(+1, 2, 1), Vec3(10, -10, -10));
+		//m_SphereSpringSystem->addSpring(p0, p1, 1.0);
+
+		m_SphereSpringSystem->addSphere(Vec3(0, 2, 5), Vec3(0, -4, -15), 1);
 		break;
 	}
 
@@ -173,15 +174,15 @@ void SphereSpringSystemSimulator::onKeyboardSpaceDown()
 		switch (m_iTestCase)
 		{
 		case TEST_FIRST:
-			p0 = m_SphereSpringSystem->addSphere(m_mouseShootingPosition + SHOOT_SPHERE_SPRING_DIMENSION, SHOOT_SPHERE_SPRING_VELOCITY);
-			p1 = m_SphereSpringSystem->addSphere(m_mouseShootingPosition - SHOOT_SPHERE_SPRING_DIMENSION, SHOOT_SPHERE_SPRING_VELOCITY);
+			p0 = m_SphereSpringSystem->addSphere(m_mouseShootingPosition + SHOOT_SPHERE_SPRING_DIMENSION, SHOOT_SPHERE_SPRING_VELOCITY, 0.5);
+			p1 = m_SphereSpringSystem->addSphere(m_mouseShootingPosition - SHOOT_SPHERE_SPRING_DIMENSION, SHOOT_SPHERE_SPRING_VELOCITY, 0.5);
 			m_SphereSpringSystem->addSpring(p0, p1, 1.0);
 			cout << "Shooting\n";
 			break;
 		case TEST_SECOND:
 			//TODO i will remove it when add my scene :)
-			p0 = m_SphereSpringSystem->addSphere(m_mouseShootingPosition + SHOOT_SPHERE_SPRING_DIMENSION, SHOOT_SPHERE_SPRING_VELOCITY);
-			p1 = m_SphereSpringSystem->addSphere(m_mouseShootingPosition - SHOOT_SPHERE_SPRING_DIMENSION, SHOOT_SPHERE_SPRING_VELOCITY);
+			p0 = m_SphereSpringSystem->addSphere(m_mouseShootingPosition + SHOOT_SPHERE_SPRING_DIMENSION, SHOOT_SPHERE_SPRING_VELOCITY, 0.5);
+			p1 = m_SphereSpringSystem->addSphere(m_mouseShootingPosition - SHOOT_SPHERE_SPRING_DIMENSION, SHOOT_SPHERE_SPRING_VELOCITY, 0.5);
 			m_SphereSpringSystem->addSpring(p0, p1, 1.0);
 			cout << "Shooting\n";
 			break;
@@ -212,11 +213,13 @@ Vec3 SphereSpringSystemSimulator::toLocalCoordinate(Vec3 globalScreenPosition)
 
 void SphereSpringSystemSimulator::buildTower(Vec3 pos, Vec3 size)
 {
-	for (float y = 0; y < size.y; y += 2 * SPHERE_RADIUS) {
-		const int p0 = m_SphereSpringSystem->addSphere(pos + Vec3(-size.x / 2, y, -size.z / 2), Vec3());
-		const int p1 = m_SphereSpringSystem->addSphere(pos + Vec3(-size.x / 2, y, +size.z / 2), Vec3());
-		const int p2 = m_SphereSpringSystem->addSphere(pos + Vec3(+size.x / 2, y, -size.z / 2), Vec3());
-		const int p3 = m_SphereSpringSystem->addSphere(pos + Vec3(+size.x / 2, y, +size.z / 2), Vec3());
+	const float sradius = 0.15;
+
+ 	for (float y = 0; y < size.y; y += 2 * sradius) {
+		const int p0 = m_SphereSpringSystem->addSphere(pos + Vec3(-size.x / 2, y, -size.z / 2), Vec3(), sradius);
+		const int p1 = m_SphereSpringSystem->addSphere(pos + Vec3(-size.x / 2, y, +size.z / 2), Vec3(), sradius);
+		const int p2 = m_SphereSpringSystem->addSphere(pos + Vec3(+size.x / 2, y, -size.z / 2), Vec3(), sradius);
+		const int p3 = m_SphereSpringSystem->addSphere(pos + Vec3(+size.x / 2, y, +size.z / 2), Vec3(), sradius);
 
 		for (int a = p0; a < p3; a++) {
 			for (int b = a + 1; b <= p3; b++) {

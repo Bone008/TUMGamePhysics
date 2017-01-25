@@ -7,7 +7,6 @@
 
 #define BBOX_HALF_SIZE 6.0
 
-#define SPHERE_RADIUS 0.1
 #define SPHERE_COLOR Vec3(0.8, 0.2, 0.2) // red
 #define SPRING_COLOR Vec3(0.2, 0.5, 0.8) // blue
 
@@ -15,9 +14,9 @@ class SphereSpringSystem {
 public:
 	SphereSpringSystem(float springStiffness, float springDamping, float sphereMass, Vec3 gravity, bool camRotDependentGravity, int gridCells, int cellCapacity) :
 		m_stiffness(springStiffness), m_damping(springDamping), m_mass(sphereMass), m_gravity(gravity), m_camRotDependentGravity(camRotDependentGravity),
-		m_uniformGrid(BBOX_HALF_SIZE, gridCells, cellCapacity, SPHERE_RADIUS) {}
+		m_uniformGrid(BBOX_HALF_SIZE, gridCells, cellCapacity) {}
 
-	int addSphere(Vec3 pos, Vec3 vel);
+	int addSphere(Vec3 pos, Vec3 vel, float radius);
 	void addSpring(int sphInd1, int sphInd2, float initialLength);
 	void addSpring(int sphInd1, int sphInd2);
 	void draw(DrawingUtilitiesClass* DUC);
@@ -37,8 +36,7 @@ private:
 	UniformGrid m_uniformGrid;
 
 	void computeForces(DrawingUtilitiesClass* DUC);
-	void updatePositions(float timeStep);
-	void updateVelocities(float timeStep);
+	void updatePosAndVel(float timeStep);
 	void handleCollisions();
 	void collisionResponse(Sphere& sphere1, Sphere& sphere2);
 };
