@@ -3,9 +3,9 @@
 SphereSpringSystemSimulator::SphereSpringSystemSimulator()
 {
 	// TODO testing values
-	m_stiffness = 400;
-	m_damping = 0.5;
-	m_mass = 0.2;
+	m_stiffness = 1000;
+	m_breakThreshold = 80;
+	m_damping = 0.1;
 	m_gravity = Vec3(0, -3, 0);
 	m_camRotDependentGravity = false;
 	m_gridCells = 4;
@@ -18,6 +18,8 @@ SphereSpringSystemSimulator::SphereSpringSystemSimulator()
 void SphereSpringSystemSimulator::reset()
 {
 }
+
+float gAmazingSphereSize = 0.8;
 
 const char * SphereSpringSystemSimulator::getTestCasesStr()
 {
@@ -32,7 +34,7 @@ void SphereSpringSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 
 	TwAddVarRW(DUC->g_pTweakBar, "Damp factor", TW_TYPE_FLOAT, &m_damping, "min=0.0");
 	TwAddVarRW(DUC->g_pTweakBar, "Spring Stiffness", TW_TYPE_FLOAT, &m_stiffness, "min=0.0");
-	TwAddVarRW(DUC->g_pTweakBar, "Point Mass", TW_TYPE_FLOAT, &m_mass, "min=0.0");
+	TwAddVarRW(DUC->g_pTweakBar, "Spring Threshold", TW_TYPE_FLOAT, &m_breakThreshold, "min=0.0");
 	TwAddVarRW(DUC->g_pTweakBar, "Gravity force", TW_TYPE_DIR3D, &m_gravity, "");
 	TwAddVarRW(DUC->g_pTweakBar, "->Rotation Dependent", TW_TYPE_BOOLCPP, &m_camRotDependentGravity, "");
 
@@ -40,6 +42,7 @@ void SphereSpringSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 
 	TwAddVarRW(DUC->g_pTweakBar, "Grid cells", TW_TYPE_INT32, &m_gridCells, "min=1");
 	TwAddVarRW(DUC->g_pTweakBar, "Cell capacity", TW_TYPE_INT32, &m_gridCellCapacity, "min=5 step=5");
+	TwAddVarRW(DUC->g_pTweakBar, "AMOUNT OF DEATH", TW_TYPE_FLOAT, &gAmazingSphereSize, "");
 
 
 	// change the camera position
@@ -62,20 +65,28 @@ void SphereSpringSystemSimulator::notifyCaseChanged(int testCase)
 	reset();
 
 	// use unique pointer for automagic memory management
-	m_SphereSpringSystem = std::make_unique<SphereSpringSystem>(SphereSpringSystem(m_stiffness, m_damping, m_mass, m_gravity, DUC, m_gridCells, m_gridCellCapacity));
+	m_SphereSpringSystem = std::make_unique<SphereSpringSystem>(SphereSpringSystem(m_stiffness, m_breakThreshold, m_damping, m_gravity, m_camRotDependentGravity, m_gridCells, m_gridCellCapacity));
 
 	switch (m_iTestCase)
 	{
 	case TEST_FIRST: {
 
 		// build tower
-		buildTower(Vec3(0, -BBOX_HALF_SIZE, 0), Vec3(1, BBOX_HALF_SIZE, 1));
+		buildTower(Vec3(0, -BBOX_HALF_SIZE, 0), Vec3(0.7, 8, 0.7));
+		//buildTower(Vec3(0, -BBOX_HALF_SIZE, 0), Vec3(1.4, BBOX_HALF_SIZE, 1.4));
+		//buildTower(0.75*Vec3(-1, -BBOX_HALF_SIZE, -1), Vec3(0.7, BBOX_HALF_SIZE, 0.7));
+		//buildTower(0.75*Vec3(-1, -BBOX_HALF_SIZE, 1), Vec3(0.7, BBOX_HALF_SIZE, 0.7));
+		//buildTower(0.75*Vec3(1, -BBOX_HALF_SIZE, 1), Vec3(0.7, BBOX_HALF_SIZE, 0.7));
+		//buildTower(0.75*Vec3(1, -BBOX_HALF_SIZE, -1), Vec3(0.7, BBOX_HALF_SIZE, 0.7));
 
 		//const int p0 = m_SphereSpringSystem->addSphere(BBOX_HALF_SIZE * Vec3(-1, 2, 1), Vec3(10, -10, -10));
 		//const int p1 = m_SphereSpringSystem->addSphere(BBOX_HALF_SIZE * Vec3(+1, 2, 1), Vec3(10, -10, -10));
 		//m_SphereSpringSystem->addSpring(p0, p1, 1.0);
 
-		m_SphereSpringSystem->addSphere(Vec3(-4.5, 0, 0), Vec3(25, -4, 0), 1);
+		m_SphereSpringSystem->addSphere(Vec3(-4.5, 0, 0), 0.5*Vec3(25, -5, 0), gAmazingSphereSize);
+		m_SphereSpringSystem->addSphere(Vec3(4.5, -2.5, 0), 0.6*Vec3(-25, 0, 0), gAmazingSphereSize);
+		//m_SphereSpringSystem->addSphere(Vec3(4.5, -1, 0), 0.2*Vec3(-25, 1, 0), 0.3);
+		//m_SphereSpringSystem->addSphere(Vec3(0, 4, 0), Vec3(0, -1, 0), gAmazingSphereSize);
 		break;
 	}
 
@@ -213,17 +224,27 @@ Vec3 SphereSpringSystemSimulator::toLocalCoordinate(Vec3 globalScreenPosition)
 
 void SphereSpringSystemSimulator::buildTower(Vec3 pos, Vec3 size)
 {
-	const float sradius = 0.15;
+	const float sradius = 0.2;
+	pos += Vec3(0, sradius + 0.01, 0);
 
- 	for (float y = 0; y < size.y; y += 2 * sradius) {
-		const int p0 = m_SphereSpringSystem->addSphere(pos + Vec3(-size.x / 2, y, -size.z / 2), Vec3(), sradius);
-		const int p1 = m_SphereSpringSystem->addSphere(pos + Vec3(-size.x / 2, y, +size.z / 2), Vec3(), sradius);
-		const int p2 = m_SphereSpringSystem->addSphere(pos + Vec3(+size.x / 2, y, -size.z / 2), Vec3(), sradius);
-		const int p3 = m_SphereSpringSystem->addSphere(pos + Vec3(+size.x / 2, y, +size.z / 2), Vec3(), sradius);
+ 	for (float y = 0; y < size.y; y += 3.5 * sradius) {
+		const int p0 = m_SphereSpringSystem->addSphere(pos + Vec3(-size.x / 2, y, -size.z / 2), Vec3(), sradius, y == 0);
+		const int p1 = m_SphereSpringSystem->addSphere(pos + Vec3(-size.x / 2, y, +size.z / 2), Vec3(), sradius, y == 0);
+		const int p2 = m_SphereSpringSystem->addSphere(pos + Vec3(+size.x / 2, y, +size.z / 2), Vec3(), sradius, y == 0);
+		const int p3 = m_SphereSpringSystem->addSphere(pos + Vec3(+size.x / 2, y, -size.z / 2), Vec3(), sradius, y == 0);
 
-		for (int a = p0; a < p3; a++) {
+		for (int a = p0; a <= p3; a++) {
 			for (int b = a + 1; b <= p3; b++) {
 				m_SphereSpringSystem->addSpring(a, b);
+			}
+
+			if (y > 0)
+			{
+				m_SphereSpringSystem->addSpring(a, p0 - 4);
+				m_SphereSpringSystem->addSpring(a, p0 - 3);
+				m_SphereSpringSystem->addSpring(a, p0 - 2);
+				m_SphereSpringSystem->addSpring(a, p0 - 1);
+				//m_SphereSpringSystem->addSpring(a, p0 - 4 + ((a - p0 + 2) % 4));
 			}
 		}
 	}

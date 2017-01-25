@@ -11,6 +11,11 @@ struct Sphere
 	Vec3 computedForce;
 
 	float radius;
+	bool fixed;
+
+	inline float getMass() {
+		return radius*radius*radius;
+	}
 };
 
 #endif

@@ -1,12 +1,13 @@
 #include "SphereSpringSystem.h"
 
-int SphereSpringSystem::addSphere(Vec3 pos, Vec3 vel, float radius)
+int SphereSpringSystem::addSphere(Vec3 pos, Vec3 vel, float radius, bool fixed)
 {
 	Sphere s;
 	s.pos = pos;
 	s.vel = vel;
 	s.computedForce = Vec3();
 	s.radius = radius;
+	s.fixed = fixed;
 
 	m_spheres.push_back(s);
 
@@ -54,11 +55,12 @@ void SphereSpringSystem::advanceLeapFrog(float timeStep, DrawingUtilitiesClass* 
 {
 	computeForces(DUC);
 	updatePosAndVel(timeStep);
+	handleWallCollisions();
 
 	// update velocites from mouse interaction
 	if (onMouseDown) {
 		for (Sphere& s : m_spheres)
-			s.vel += mouseForce * (timeStep / m_mass);
+			s.vel += mouseForce * (timeStep / s.getMass());
 	}
 }
 
@@ -74,36 +76,45 @@ void SphereSpringSystem::computeForces(DrawingUtilitiesClass* DUC)
 	handleCollisions();
 
 	// spring forces	
-	for (SphereSpring& spring : m_springs)
+	for(auto i=m_springs.begin(); i != m_springs.end();)
 	{
-		const int s1 = spring.sphere1;
-		const int s2 = spring.sphere2;
-		const Vec3 pos1 = m_spheres[s1].pos;
-		const Vec3 pos2 = m_spheres[s2].pos;
+		SphereSpring& spring = *i;
+		Sphere& sphere1 = m_spheres[spring.sphere1];
+		Sphere& sphere2 = m_spheres[spring.sphere2];
 
-		const Vec3 d = pos1 - pos2;
+		const Vec3 d = sphere1.pos - sphere2.pos;
 		const float l = norm(d);
 		const float L = spring.initialLength;
 		const float k = m_stiffness;
 
 		const Vec3 f = d * (-k * (l - L) / l);
 
-		m_spheres[s1].computedForce += f;
-		m_spheres[s2].computedForce -= f;
+		if (normNoSqrt(f) > m_breakThreshold * m_breakThreshold) {
+			i = m_springs.erase(i);
+		}
+		else {
+			const double m1 = pow(sphere1.radius, 3);
+			const double m2 = pow(sphere2.radius, 3);
+
+			sphere1.computedForce += f * m2 / m1;
+			sphere2.computedForce -= f * m1 / m2;
+
+			i++;	
+		}
 	}
 
 	// Gravity & Damping forces
-	Vec3 gravityForce = m_gravity * m_mass;
+	Vec3 gravity = m_gravity;
 	if (m_camRotDependentGravity)
 	{
 		// direction of gravity will be the bottom of the screen
 		Mat4 viewMatrix(DUC->g_camera.GetViewMatrix());
-		gravityForce = viewMatrix * gravityForce;
+		gravity = viewMatrix * gravity;
 	}
 
 	for (Sphere& sphere : m_spheres)
 	{
-		sphere.computedForce += gravityForce;
+		sphere.computedForce += gravity * sphere.getMass();
 		sphere.computedForce += sphere.vel * -m_damping;
 	}
 }
@@ -112,12 +123,31 @@ void SphereSpringSystem::updatePosAndVel(float timeStep)
 {
 	for (Sphere& sphere : m_spheres)
 	{
-		sphere.vel += sphere.computedForce * (timeStep / m_mass);
+		if (sphere.fixed) continue;
+		sphere.vel += sphere.computedForce * (timeStep / sphere.getMass());
 		sphere.pos += sphere.vel * timeStep;
 	}
 }
 
 void SphereSpringSystem::handleCollisions()
+{
+	// collision between spheres
+	m_uniformGrid.updateGrid(m_spheres);
+	const std::unordered_set<std::pair<Sphere*, Sphere*>>& possiblyCollidingPairs = m_uniformGrid.computeCollisionPairs();
+
+	for (auto& pair : possiblyCollidingPairs)
+	{
+		const double sqDist = pair.first->pos.squaredDistanceTo(pair.second->pos);
+		const double diameter = pair.first->radius + pair.second->radius;
+
+		// |d2-d1| < r1+r2 --> collision
+		if (sqDist < diameter * diameter) {
+			collisionResponse(*pair.first, *pair.second);
+		}
+	}
+}
+
+void SphereSpringSystem::handleWallCollisions()
 {
 	// collision with walls
 	for (Sphere& sphere : m_spheres)
@@ -140,21 +170,6 @@ void SphereSpringSystem::handleCollisions()
 		sphere.pos = pos;
 		sphere.vel = vel;
 	}
-
-	// collision between spheres
-	m_uniformGrid.updateGrid(m_spheres);
-	const std::unordered_set<std::pair<Sphere*, Sphere*>>& possiblyCollidingPairs = m_uniformGrid.computeCollisionPairs();
-
-	for (auto& pair : possiblyCollidingPairs)
-	{
-		const double sqDist = pair.first->pos.squaredDistanceTo(pair.second->pos);
-		const double diameter = pair.first->radius + pair.second->radius;
-
-		// |d2-d1| < r1+r2 --> collision
-		if (sqDist < diameter * diameter) {
-			collisionResponse(*pair.first, *pair.second);
-		}
-	}
 }
 
 void SphereSpringSystem::collisionResponse(Sphere & sphere1, Sphere & sphere2)
@@ -163,7 +178,7 @@ void SphereSpringSystem::collisionResponse(Sphere & sphere1, Sphere & sphere2)
 	const double dist = norm(n);
 	const double diameter = sphere1.radius + sphere2.radius;
 
-	const double lambda = 250.0f;
+	const double lambda = 1000.0f;
 
 	// TODO maybe add kernel again?
 	const double f = lambda * (1 - (dist / diameter));
@@ -174,6 +189,7 @@ void SphereSpringSystem::collisionResponse(Sphere & sphere1, Sphere & sphere2)
 	const double m2 = pow(sphere2.radius, 3);
 
 
-	sphere1.computedForce += f * m2 / m1 * n;
-	sphere2.computedForce -= f * m1 / m2 * n;
+	// colliding with a heavier object 2 results in a larger force on 1!
+	sphere1.computedForce += f * m2 * n;
+	sphere2.computedForce -= f * m1 * n;
 }

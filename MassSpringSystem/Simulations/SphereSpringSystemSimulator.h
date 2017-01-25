@@ -42,8 +42,8 @@ private:
 	std::unique_ptr<SphereSpringSystem> m_SphereSpringSystem;
 
 	float m_stiffness;
+	float m_breakThreshold;
 	float m_damping;
-	float m_mass;
 	Vec3 m_gravity;
 	bool m_camRotDependentGravity;
 
