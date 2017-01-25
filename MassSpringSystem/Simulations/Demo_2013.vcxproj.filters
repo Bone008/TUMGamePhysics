@@ -7,21 +7,40 @@
     <ClCompile Include="util\FFmpeg.cpp">
       <Filter>util</Filter>
     </ClCompile>
-    <ClCompile Include="TemplateSimulator.cpp" />
-    <ClCompile Include="MassSpringSystemSimulator.cpp" />
-    <ClCompile Include="point.cpp" />
-    <ClCompile Include="spring.cpp" />
-    <ClCompile Include="RigidBodySystemSimulator.cpp" />
-    <ClCompile Include="RigidBody.cpp" />
-    <ClCompile Include="SphereSystemSimulator.cpp" />
-    <ClCompile Include="SphereSystem.cpp" />
     <ClCompile Include="UniformGrid.cpp" />
     <ClCompile Include="SphereSpringSystemSimulator.cpp" />
     <ClCompile Include="SphereSpringSystem.cpp" />
+    <ClCompile Include="MassSpringSystemSimulator.cpp">
+      <Filter>older than granny</Filter>
+    </ClCompile>
+    <ClCompile Include="point.cpp">
+      <Filter>older than granny</Filter>
+    </ClCompile>
+    <ClCompile Include="RigidBody.cpp">
+      <Filter>older than granny</Filter>
+    </ClCompile>
+    <ClCompile Include="RigidBodySystemSimulator.cpp">
+      <Filter>older than granny</Filter>
+    </ClCompile>
+    <ClCompile Include="SphereSystem.cpp">
+      <Filter>older than granny</Filter>
+    </ClCompile>
+    <ClCompile Include="SphereSystemSimulator.cpp">
+      <Filter>older than granny</Filter>
+    </ClCompile>
+    <ClCompile Include="spring.cpp">
+      <Filter>older than granny</Filter>
+    </ClCompile>
+    <ClCompile Include="TemplateSimulator.cpp">
+      <Filter>older than granny</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="util">
       <UniqueIdentifier>{ba535b4e-0c95-4992-8a48-6babc14c1f7c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="older than granny">
+      <UniqueIdentifier>{4e26efbd-bd25-4eb5-8c53-34f9947c461a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -32,27 +51,17 @@
       <Filter>util</Filter>
     </ClInclude>
     <ClInclude Include="DrawingUtilitiesClass.h" />
-    <ClInclude Include="MassSpringSystemSimulator.h" />
     <ClInclude Include="Simulator.h" />
-    <ClInclude Include="TemplateSimulator.h" />
-    <ClInclude Include="point.h" />
-    <ClInclude Include="spring.h" />
     <ClInclude Include="util\collisionDetect.h">
       <Filter>util</Filter>
     </ClInclude>
-    <ClInclude Include="RigidBodySystemSimulator.h" />
-    <ClInclude Include="RigidBody.h" />
     <ClInclude Include="util\quaternion.h">
       <Filter>util</Filter>
     </ClInclude>
-    <ClInclude Include="RigidBodyCollisionSystem.h" />
     <ClInclude Include="util\vector4d.h">
       <Filter>util</Filter>
     </ClInclude>
-    <ClInclude Include="SphereSystemSimulator.h" />
-    <ClInclude Include="SphereSystem.h" />
     <ClInclude Include="UniformGrid.h" />
-    <ClInclude Include="Sphere.h" />
     <ClInclude Include="util\matrixbase.h">
       <Filter>util</Filter>
     </ClInclude>
@@ -65,6 +74,34 @@
     <ClInclude Include="SphereSpringSystemSimulator.h" />
     <ClInclude Include="SphereSpringSystem.h" />
     <ClInclude Include="SphereSpring.h" />
+    <ClInclude Include="MassSpringSystemSimulator.h">
+      <Filter>older than granny</Filter>
+    </ClInclude>
+    <ClInclude Include="point.h">
+      <Filter>older than granny</Filter>
+    </ClInclude>
+    <ClInclude Include="RigidBody.h">
+      <Filter>older than granny</Filter>
+    </ClInclude>
+    <ClInclude Include="RigidBodyCollisionSystem.h">
+      <Filter>older than granny</Filter>
+    </ClInclude>
+    <ClInclude Include="RigidBodySystemSimulator.h">
+      <Filter>older than granny</Filter>
+    </ClInclude>
+    <ClInclude Include="SphereSystem.h">
+      <Filter>older than granny</Filter>
+    </ClInclude>
+    <ClInclude Include="SphereSystemSimulator.h">
+      <Filter>older than granny</Filter>
+    </ClInclude>
+    <ClInclude Include="spring.h">
+      <Filter>older than granny</Filter>
+    </ClInclude>
+    <ClInclude Include="TemplateSimulator.h">
+      <Filter>older than granny</Filter>
+    </ClInclude>
+    <ClInclude Include="Sphere.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="effect.fx" />
