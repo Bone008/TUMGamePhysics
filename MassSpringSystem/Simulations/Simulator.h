@@ -32,7 +32,7 @@ public:
 
 	virtual void reset() = 0;
 	
-	virtual void onKeyboardSpaceDown() = 0;
+	virtual void onKeyboardSpaceDown() {}
 
 	/*
 	This Function is used to initialize the GUI with customized componnents per simulations 

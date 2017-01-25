@@ -40,7 +40,6 @@ public:
 	void simulateTimestep(float timeStep);
 	void onClick(int x, int y);
 	void onLeftMouseRelease();
-	void onKeyboardSpaceDown();
 	void onMouse(int x, int y);
 
 	// Specific Functions
