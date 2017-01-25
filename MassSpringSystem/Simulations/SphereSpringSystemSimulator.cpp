@@ -75,7 +75,7 @@ void SphereSpringSystemSimulator::notifyCaseChanged(int testCase)
 		//const int p1 = m_SphereSpringSystem->addSphere(BBOX_HALF_SIZE * Vec3(+1, 2, 1), Vec3(10, -10, -10));
 		//m_SphereSpringSystem->addSpring(p0, p1, 1.0);
 
-		m_SphereSpringSystem->addSphere(Vec3(0, 2, 5), Vec3(0, -4, -15), 1);
+		m_SphereSpringSystem->addSphere(Vec3(-4.5, 0, 0), Vec3(25, -4, 0), 1);
 		break;
 	}
 

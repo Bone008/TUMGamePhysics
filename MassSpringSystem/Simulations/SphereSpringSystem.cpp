@@ -170,7 +170,10 @@ void SphereSpringSystem::collisionResponse(Sphere & sphere1, Sphere & sphere2)
 
 	normalize(n); // unit length!!
 
-	// TODO adjust response distribution according to sphere radius/mass
-	sphere1.computedForce += f * n;
-	sphere2.computedForce -= f * n;
+	const double m1 = pow(sphere1.radius, 3);
+	const double m2 = pow(sphere2.radius, 3);
+
+
+	sphere1.computedForce += f * m2 / m1 * n;
+	sphere2.computedForce -= f * m1 / m2 * n;
 }
