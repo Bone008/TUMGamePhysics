@@ -72,7 +72,9 @@ void SphereSpringSystemSimulator::notifyCaseChanged(int testCase)
 	case TEST_FIRST: {
 
 		// build tower
-		buildTower(Vec3(0, -BBOX_HALF_SIZE, 0), Vec3(0.7, 8, 0.7));
+		//buildTower(Vec3(0, -BBOX_HALF_SIZE, 0), Vec3(0.7, 8, 0.7));
+		buildBuilding(Vec3(3, -BBOX_HALF_SIZE, 0), Vec3(2, 4, 4), Vec3(2, 4, 4), 0.25f, true, true, true);
+		buildBuilding(Vec3(-3, -BBOX_HALF_SIZE, 0), Vec3(2, 4, 4), Vec3(2, 4, 4), 0.25f, true, false, false);
 		//buildTower(Vec3(0, -BBOX_HALF_SIZE, 0), Vec3(1.4, BBOX_HALF_SIZE, 1.4));
 		//buildTower(0.75*Vec3(-1, -BBOX_HALF_SIZE, -1), Vec3(0.7, BBOX_HALF_SIZE, 0.7));
 		//buildTower(0.75*Vec3(-1, -BBOX_HALF_SIZE, 1), Vec3(0.7, BBOX_HALF_SIZE, 0.7));
@@ -220,6 +222,80 @@ Here we make those changes of the 'x' and 'y' component of the mouse
 Vec3 SphereSpringSystemSimulator::toLocalCoordinate(Vec3 globalScreenPosition)
 {
 	return Vec3(globalScreenPosition.x - m_screenWidth / 2, m_screenHeight - globalScreenPosition.y - m_screenHeight / 2, globalScreenPosition.z);
+}
+
+Vec3 SphereSpringSystemSimulator::get3dPosFrom1dIndex(int index, Vec3 maxs) {
+	// turns the index into its x/y/z coordinates
+	int tmp = index;
+	const int y = tmp / (maxs.x * maxs.z);
+	tmp -= y * (maxs.x * maxs.z);
+	const int x = tmp / maxs.z;
+	const int z = tmp % (int)maxs.z;
+
+	return Vec3(x, y, z);
+}
+
+void SphereSpringSystemSimulator::buildBuilding(Vec3 basePos, Vec3 size, Vec3 numSpheres, float sphereRadius, bool basementFixed, bool faceDiagonals, bool bodyDiagonals)
+{
+	basePos += Vec3(0, sphereRadius + 0.01, 0);
+	
+	// length of the springs in every dimension
+	const Vec3 springLengths = size / (numSpheres - Vec3(1));
+
+	// position of the corner sphere
+	const Vec3 minBasePos = basePos - Vec3(size.x / 2, 0, size.z / 2);
+	
+	// for every floor, save the last sphere index
+	int indLast = -1;
+	for (int y = 0; y < numSpheres.y; y++) {
+		// only lowest floor is fixed, if param basementFixed is true
+		const bool fixed = basementFixed && y == 0;
+
+		// create spheres for the whole floor, remember index of last one
+		int lastIndex = -1;
+		for (int x = 0; x < numSpheres.x; x++) {
+			for (int z = 0; z < numSpheres.z; z++) {
+				const Vec3 pos = minBasePos + Vec3(x, y, z) * springLengths;
+				indLast = m_SphereSpringSystem->addSphere(pos, Vec3(), sphereRadius, fixed);
+			}
+		}
+	}
+
+	const int numTotalSpheres = numSpheres.x * numSpheres.y * numSpheres.z;
+	const int indFirst = indLast - numTotalSpheres + 1;
+
+	// for every added sphere
+	for (int index1 = indFirst; index1 <= indLast; index1++) {
+		// get pos of that sphere
+		Vec3 pos1 = get3dPosFrom1dIndex(index1 - indFirst, numSpheres);
+
+		// for every other added sphere
+		for (int index2 = index1 + 1; index2 <= indLast; index2++) {
+			// get pos again
+			Vec3 pos2 = get3dPosFrom1dIndex(index2 - indFirst, numSpheres);
+
+			// the absolute differences between both positions x/y/z
+			Vec3 absOffset = (pos1 - pos2).getAbsolutes();
+
+			// the Vec3 method didnt work...
+			int maxComponent = max(absOffset.x, max(absOffset.y, absOffset.z));
+
+			// we only want (diagonally/directly) adjacent spheres
+			if (maxComponent == 1) {
+				int componentSum = absOffset.x + absOffset.y + absOffset.z;
+
+				// componentSum:
+				// + 1: offset in 1 dimension  -> directly adjacent
+				// + 2: offset in 2 dimensions -> face diagonals
+				// + 3: offset in 3 dimensions -> body diagonals
+				if (componentSum == 1
+					|| componentSum == 2 && faceDiagonals
+					|| componentSum == 3 && bodyDiagonals) {
+					m_SphereSpringSystem->addSpring(index1, index2);
+				}
+			}
+		}
+	}
 }
 
 void SphereSpringSystemSimulator::buildTower(Vec3 pos, Vec3 size)
