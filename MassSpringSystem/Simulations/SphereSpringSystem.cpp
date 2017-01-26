@@ -46,7 +46,14 @@ void SphereSpringSystem::draw(DrawingUtilitiesClass* DUC)
 	{
 		const Sphere& s1 = m_spheres[s.sphere1];
 		const Sphere& s2 = m_spheres[s.sphere2];
-		DUC->drawLine(s1.pos, SPRING_COLOR, s2.pos, SPRING_COLOR);
+
+		Vec3 color = SPRING_COLOR;
+		if (m_bridgeBuilderView) {
+			Vec3 colorGood = Vec3(0, 1, 0);
+			Vec3 colorBad = Vec3(1, 0, 0);
+			color = (colorBad - colorGood) * s.suicideProgress + colorGood;
+		}
+		DUC->drawLine(s1.pos, color, s2.pos, color);
 	}
 	DUC->endLine();
 }
@@ -89,7 +96,11 @@ void SphereSpringSystem::computeForces(DrawingUtilitiesClass* DUC)
 
 		const Vec3 f = d * (-k * (l - L) / l);
 
-		if (normNoSqrt(f) > m_breakThreshold * m_breakThreshold) {
+		const float normSquared = normNoSqrt(f);
+
+		spring.suicideProgress = normSquared / m_breakThreshold;
+
+		if (normSquared > m_breakThreshold * m_breakThreshold) {
 			i = m_springs.erase(i);
 		}
 		else {

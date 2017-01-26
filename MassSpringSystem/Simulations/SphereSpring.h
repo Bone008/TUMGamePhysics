@@ -6,6 +6,8 @@ struct SphereSpring
 	int sphere1;
 	int sphere2;
 	float initialLength;
+
+	float suicideProgress;
 };
 
 #endif

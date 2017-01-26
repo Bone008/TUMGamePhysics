@@ -50,6 +50,8 @@ private:
 	int m_gridCells;
 	int m_gridCellCapacity;
 
+	bool m_bridgeBuilderView;
+
 	Vec3 get3dPosFrom1dIndex(int index, Vec3 maxs);
 	void buildBuilding(Vec3 basePos, Vec3 size, Vec3 numSpheres, float sphereRadius = 0.2f, bool basementFixed = true, bool faceDiagonals = true, bool bodyDiagonals = true);
 	void buildTower(Vec3 pos, Vec3 size);

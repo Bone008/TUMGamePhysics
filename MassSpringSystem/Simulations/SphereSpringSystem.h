@@ -12,9 +12,9 @@
 
 class SphereSpringSystem {
 public:
-	SphereSpringSystem(float springStiffness, float springBreakThreshold, float springDamping, Vec3 gravity, bool camRotDependentGravity, int gridCells, int cellCapacity) :
+	SphereSpringSystem(float springStiffness, float springBreakThreshold, float springDamping, Vec3 gravity, bool camRotDependentGravity, bool bridgeBuilderView, int gridCells, int cellCapacity) :
 		m_stiffness(springStiffness), m_breakThreshold(springBreakThreshold), m_damping(springDamping), m_gravity(gravity), m_camRotDependentGravity(camRotDependentGravity),
-		m_uniformGrid(BBOX_HALF_SIZE, gridCells, cellCapacity) {}
+		m_bridgeBuilderView(bridgeBuilderView), m_uniformGrid(BBOX_HALF_SIZE, gridCells, cellCapacity) {}
 
 	int addSphere(Vec3 pos, Vec3 vel, float radius, bool fixed = false);
 	void addSpring(int sphInd1, int sphInd2, float initialLength);
@@ -32,6 +32,7 @@ private:
 	float m_damping;
 	Vec3 m_gravity;
 	bool m_camRotDependentGravity;
+	bool m_bridgeBuilderView;
 
 	UniformGrid m_uniformGrid;
 

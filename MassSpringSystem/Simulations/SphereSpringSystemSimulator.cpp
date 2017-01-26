@@ -10,6 +10,7 @@ SphereSpringSystemSimulator::SphereSpringSystemSimulator()
 	m_camRotDependentGravity = false;
 	m_gridCells = 4;
 	m_gridCellCapacity = 100;
+	m_bridgeBuilderView = false;
 
 	onMouseDown = false;
 	initComplete = false;
@@ -44,6 +45,9 @@ void SphereSpringSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 	TwAddVarRW(DUC->g_pTweakBar, "Cell capacity", TW_TYPE_INT32, &m_gridCellCapacity, "min=5 step=5");
 	TwAddVarRW(DUC->g_pTweakBar, "AMOUNT OF DEATH", TW_TYPE_FLOAT, &gAmazingSphereSize, "");
 
+	TwAddSeparator(DUC->g_pTweakBar, "Shaniqua", "");
+
+	TwAddVarRW(DUC->g_pTweakBar, "Bridge Builder View", TW_TYPE_BOOLCPP, &m_bridgeBuilderView, "");
 
 	// change the camera position
 	changeCameraPosition();
@@ -65,14 +69,14 @@ void SphereSpringSystemSimulator::notifyCaseChanged(int testCase)
 	reset();
 
 	// use unique pointer for automagic memory management
-	m_SphereSpringSystem = std::make_unique<SphereSpringSystem>(SphereSpringSystem(m_stiffness, m_breakThreshold, m_damping, m_gravity, m_camRotDependentGravity, m_gridCells, m_gridCellCapacity));
+	m_SphereSpringSystem = std::make_unique<SphereSpringSystem>(SphereSpringSystem(m_stiffness, m_breakThreshold, m_damping, m_gravity, m_camRotDependentGravity, m_bridgeBuilderView, m_gridCells, m_gridCellCapacity));
 
 	switch (m_iTestCase)
 	{
 	case TEST_FIRST: {
 
 		// build tower
-		//buildTower(Vec3(0, -BBOX_HALF_SIZE, 0), Vec3(0.7, 8, 0.7));
+		buildTower(Vec3(0, -BBOX_HALF_SIZE, 0), Vec3(0.7, 8, 0.7));
 		buildBuilding(Vec3(3, -BBOX_HALF_SIZE, 0), Vec3(2, 4, 4), Vec3(2, 4, 4), 0.25f, true, true, true);
 		buildBuilding(Vec3(-3, -BBOX_HALF_SIZE, 0), Vec3(2, 4, 4), Vec3(2, 4, 4), 0.25f, true, false, false);
 		//buildTower(Vec3(0, -BBOX_HALF_SIZE, 0), Vec3(1.4, BBOX_HALF_SIZE, 1.4));
