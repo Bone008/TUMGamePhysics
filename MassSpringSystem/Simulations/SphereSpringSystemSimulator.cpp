@@ -76,9 +76,7 @@ void SphereSpringSystemSimulator::notifyCaseChanged(int testCase)
 	case TEST_FIRST: {
 
 		// build tower
-		buildTower(Vec3(0, -BBOX_HALF_SIZE, 0), Vec3(0.7, 8, 0.7));
-		buildBuilding(Vec3(3, -BBOX_HALF_SIZE, 0), Vec3(2, 4, 4), Vec3(2, 4, 4), 0.25f, true, true, true);
-		buildBuilding(Vec3(-3, -BBOX_HALF_SIZE, 0), Vec3(2, 4, 4), Vec3(2, 4, 4), 0.25f, true, false, false);
+		buildTower(Vec3(0, -BBOX_HALF_SIZE, 0), Vec3(0.7, 8, 0.7));		
 		//buildTower(Vec3(0, -BBOX_HALF_SIZE, 0), Vec3(1.4, BBOX_HALF_SIZE, 1.4));
 		//buildTower(0.75*Vec3(-1, -BBOX_HALF_SIZE, -1), Vec3(0.7, BBOX_HALF_SIZE, 0.7));
 		//buildTower(0.75*Vec3(-1, -BBOX_HALF_SIZE, 1), Vec3(0.7, BBOX_HALF_SIZE, 0.7));
@@ -97,6 +95,12 @@ void SphereSpringSystemSimulator::notifyCaseChanged(int testCase)
 	}
 
 	case TEST_SECOND:
+		buildBuilding(Vec3(3, -BBOX_HALF_SIZE, 0), Vec3(2, 2, 2), Vec3(2, 4, 4), 0.20f, false, true, true);
+		buildBuilding(Vec3(-3, -BBOX_HALF_SIZE, 0), Vec3(2, 4, 4), Vec3(4, 4, 4), 0.10f, true, false, false);
+
+		m_SphereSpringSystem->addSphere(Vec3(-4.5, 0, 0), 0.5*Vec3(25, -5, 0), gAmazingSphereSize);
+		m_SphereSpringSystem->addSphere(Vec3(4.5, -2.5, 0), 0.6*Vec3(-25, 0, 0), gAmazingSphereSize);
+
 		break;
 	}
 }
