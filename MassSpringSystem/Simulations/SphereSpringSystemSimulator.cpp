@@ -55,36 +55,28 @@ void SphereSpringSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 
 	initComplete = true;
 
-	switch (m_iTestCase)
-	{
-	case TEST_FIRST:
-		TwAddButton(DUC->g_pTweakBar, "Mayhem", [](void* arg) {
-			auto self = (SphereSpringSystemSimulator*)arg;
-			gAmazingSphereSize = 1.7;
-			self->m_damping = 0.01;
-			self->m_stiffness = 600;
-			self->m_breakThreshold = 30;
-			self->m_gravity = Vec3(0, -10, 0);
+	TwAddButton(DUC->g_pTweakBar, "Mayhem", [](void* arg) {
+		auto self = (SphereSpringSystemSimulator*)arg;
+		gAmazingSphereSize = 1.7;
+		self->m_damping = 0.01;
+		self->m_stiffness = 600;
+		self->m_breakThreshold = 30;
+		self->m_gravity = Vec3(0, -10, 0);
 
-			g_iPreTestCase = -1; // reset
-		}, this, "");
+		g_iPreTestCase = -1; // reset
+	}, this, "");
 
-		TwAddButton(DUC->g_pTweakBar, "Immortal", [](void* arg) {
-			auto self = (SphereSpringSystemSimulator*)arg;
-			gAmazingSphereSize = 1.2;
-			self->m_damping = 0.01;
-			self->m_stiffness = 70;
-			self->m_breakThreshold = 10000;
-			self->m_gravity = Vec3(0, -7, 0);
+	TwAddButton(DUC->g_pTweakBar, "Immortal", [](void* arg) {
+		auto self = (SphereSpringSystemSimulator*)arg;
+		gAmazingSphereSize = 1.2;
+		self->m_damping = 0.01;
+		self->m_stiffness = 70;
+		self->m_breakThreshold = 10000;
+		self->m_gravity = Vec3(0, -7, 0);
 
-			g_iPreTestCase = -1; // reset
-		}, this, "");
-		break;
-
-	case TEST_SECOND:
-
-		break;
-	}
+		g_iPreTestCase = -1; // reset
+	}, this, "");
+	
 }
 
 void SphereSpringSystemSimulator::notifyCaseChanged(int testCase)
