@@ -160,7 +160,7 @@ void CALLBACK OnKeyboard( UINT nChar, bool bKeyDown, bool bAltDown, void* pUserC
 	{
 		switch(nChar)
 		{
-			case VK_SPACE:
+			case VK_TAB:
 			{
 				g_pSimulator->onKeyboardSpaceDown();
 				break;

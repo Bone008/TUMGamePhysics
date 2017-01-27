@@ -67,7 +67,7 @@ void SphereSpringSystem::advanceLeapFrog(float timeStep, DrawingUtilitiesClass* 
 	// update velocites from mouse interaction
 	if (onMouseDown) {
 		for (Sphere& s : m_spheres)
-			s.vel += mouseForce * (timeStep / s.getMass());
+			s.vel += mouseForce * timeStep; // mouse force is independent from mass
 	}
 }
 

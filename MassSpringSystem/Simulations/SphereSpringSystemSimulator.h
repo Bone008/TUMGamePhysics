@@ -10,7 +10,7 @@
 
 // for shooting things
 #define SHOOT_SPHERE_SPRING_DIMENSION Vec3(0.5, 0, 0)
-#define SHOOT_SPHERE_SPRING_VELOCITY Vec3(0, 0, 1000)
+#define SHOOT_SPHERE_SPRING_VELOCITY Vec3(0, 0, 100)
 
 // camera
 #define CAMERA_POSITION_Z (-3.5f * BBOX_HALF_SIZE)

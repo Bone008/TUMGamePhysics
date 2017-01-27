@@ -1,15 +1,16 @@
 #include "SphereSpringSystemSimulator.h"
 
+extern int g_iPreTestCase;
+
 SphereSpringSystemSimulator::SphereSpringSystemSimulator()
 {
-	// TODO testing values
-	m_stiffness = 1000;
-	m_breakThreshold = 80;
-	m_damping = 0.1;
-	m_gravity = Vec3(0, -3, 0);
+	m_stiffness = 800;
+	m_breakThreshold = 50;
+	m_damping = 0.01;
+	m_gravity = Vec3(0, -10, 0);
 	m_camRotDependentGravity = false;
-	m_gridCells = 4;
-	m_gridCellCapacity = 100;
+	m_gridCells = 6;
+	m_gridCellCapacity = 256;
 	m_bridgeBuilderView = false;
 
 	onMouseDown = false;
@@ -20,7 +21,7 @@ void SphereSpringSystemSimulator::reset()
 {
 }
 
-float gAmazingSphereSize = 0.8;
+float gAmazingSphereSize = 0.9;
 
 const char * SphereSpringSystemSimulator::getTestCasesStr()
 {
@@ -33,6 +34,7 @@ void SphereSpringSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 	
 	TwAddSeparator(DUC->g_pTweakBar, "Lucifer", "");
 
+	TwAddVarRW(DUC->g_pTweakBar, "Demolition size", TW_TYPE_FLOAT, &gAmazingSphereSize, "");
 	TwAddVarRW(DUC->g_pTweakBar, "Damp factor", TW_TYPE_FLOAT, &m_damping, "min=0.0");
 	TwAddVarRW(DUC->g_pTweakBar, "Spring Stiffness", TW_TYPE_FLOAT, &m_stiffness, "min=0.0");
 	TwAddVarRW(DUC->g_pTweakBar, "Spring Threshold", TW_TYPE_FLOAT, &m_breakThreshold, "min=0.0");
@@ -43,7 +45,6 @@ void SphereSpringSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 
 	TwAddVarRW(DUC->g_pTweakBar, "Grid cells", TW_TYPE_INT32, &m_gridCells, "min=1");
 	TwAddVarRW(DUC->g_pTweakBar, "Cell capacity", TW_TYPE_INT32, &m_gridCellCapacity, "min=5 step=5");
-	TwAddVarRW(DUC->g_pTweakBar, "AMOUNT OF DEATH", TW_TYPE_FLOAT, &gAmazingSphereSize, "");
 
 	TwAddSeparator(DUC->g_pTweakBar, "Shaniqua", "");
 
@@ -57,8 +58,31 @@ void SphereSpringSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 	switch (m_iTestCase)
 	{
 	case TEST_FIRST:
+		TwAddButton(DUC->g_pTweakBar, "Mayhem", [](void* arg) {
+			auto self = (SphereSpringSystemSimulator*)arg;
+			gAmazingSphereSize = 1.7;
+			self->m_damping = 0.01;
+			self->m_stiffness = 600;
+			self->m_breakThreshold = 30;
+			self->m_gravity = Vec3(0, -10, 0);
+
+			g_iPreTestCase = -1; // reset
+		}, this, "");
+
+		TwAddButton(DUC->g_pTweakBar, "Immortal", [](void* arg) {
+			auto self = (SphereSpringSystemSimulator*)arg;
+			gAmazingSphereSize = 1.2;
+			self->m_damping = 0.01;
+			self->m_stiffness = 70;
+			self->m_breakThreshold = 10000;
+			self->m_gravity = Vec3(0, -7, 0);
+
+			g_iPreTestCase = -1; // reset
+		}, this, "");
 		break;
+
 	case TEST_SECOND:
+
 		break;
 	}
 }
@@ -87,19 +111,19 @@ void SphereSpringSystemSimulator::notifyCaseChanged(int testCase)
 		//const int p1 = m_SphereSpringSystem->addSphere(BBOX_HALF_SIZE * Vec3(+1, 2, 1), Vec3(10, -10, -10));
 		//m_SphereSpringSystem->addSpring(p0, p1, 1.0);
 
-		m_SphereSpringSystem->addSphere(Vec3(-4.5, 0, 0), 0.5*Vec3(25, -5, 0), gAmazingSphereSize);
-		m_SphereSpringSystem->addSphere(Vec3(4.5, -2.5, 0), 0.6*Vec3(-25, 0, 0), gAmazingSphereSize);
+		m_SphereSpringSystem->addSphere(Vec3(-4.5, 0, 0), 0.5*Vec3(15, 0, 0), gAmazingSphereSize);
+		m_SphereSpringSystem->addSphere(Vec3(4.5, -2.5, 0), 0.6*Vec3(-15, 0, 0), gAmazingSphereSize);
 		//m_SphereSpringSystem->addSphere(Vec3(4.5, -1, 0), 0.2*Vec3(-25, 1, 0), 0.3);
 		//m_SphereSpringSystem->addSphere(Vec3(0, 4, 0), Vec3(0, -1, 0), gAmazingSphereSize);
 		break;
 	}
 
 	case TEST_SECOND:
-		buildBuilding(Vec3(3, -BBOX_HALF_SIZE, 0), Vec3(2, 2, 2), Vec3(2, 4, 4), 0.20f, false, true, true);
-		buildBuilding(Vec3(-3, -BBOX_HALF_SIZE, 0), Vec3(2, 4, 4), Vec3(4, 4, 4), 0.10f, true, false, false);
+		buildBuilding(Vec3(3, -BBOX_HALF_SIZE, 0), Vec3(2, 2, 2), Vec3(3, 4, 4), 0.20f, false, true, true);
+		buildBuilding(Vec3(-3, -BBOX_HALF_SIZE, 0), Vec3(2, 4, 4), Vec3(6, 6, 6), 0.10f, true, false, false);
 
-		m_SphereSpringSystem->addSphere(Vec3(-4.5, 0, 0), 0.5*Vec3(25, -5, 0), gAmazingSphereSize);
-		m_SphereSpringSystem->addSphere(Vec3(4.5, -2.5, 0), 0.6*Vec3(-25, 0, 0), gAmazingSphereSize);
+		m_SphereSpringSystem->addSphere(Vec3(2.9, 0, 0), Vec3(0, -2, 0), gAmazingSphereSize);
+		m_SphereSpringSystem->addSphere(Vec3(4.5, -2.5, 0), 0.6*Vec3(-25, -2, 0), gAmazingSphereSize);
 
 		break;
 	}
