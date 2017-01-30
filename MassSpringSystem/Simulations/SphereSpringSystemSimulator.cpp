@@ -25,7 +25,7 @@ float gAmazingSphereSize = 0.9;
 
 const char * SphereSpringSystemSimulator::getTestCasesStr()
 {
-	return "First, Second";
+	return "First, Second, Third";
 }
 
 void SphereSpringSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
@@ -110,12 +110,10 @@ void SphereSpringSystemSimulator::notifyCaseChanged(int testCase)
 		break;
 	}
 
-	case TEST_SECOND:
-		buildBuilding(Vec3(3, -BBOX_HALF_SIZE, 0), Vec3(2, 2, 2), Vec3(3, 4, 4), 0.20f, false, true, true);
-		buildBuilding(Vec3(-3, -BBOX_HALF_SIZE, 0), Vec3(2, 4, 4), Vec3(6, 6, 6), 0.10f, true, false, false);
+	case TEST_THIRD:
+		buildBuilding(Vec3(0, -5.5, 0), Vec3(11, 2.5, 11), Vec3(15, 4, 15), 0.35, false);
 
-		m_SphereSpringSystem->addSphere(Vec3(2.9, 0, 0), Vec3(0, -2, 0), gAmazingSphereSize);
-		m_SphereSpringSystem->addSphere(Vec3(4.5, -2.5, 0), 0.6*Vec3(-25, -2, 0), gAmazingSphereSize);
+		m_SphereSpringSystem->addSphere(Vec3(1, 4, 0), Vec3(0, 0, 0), gAmazingSphereSize);
 
 		break;
 	}

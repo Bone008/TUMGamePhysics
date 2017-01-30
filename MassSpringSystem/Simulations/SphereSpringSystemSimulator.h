@@ -7,6 +7,7 @@
 // testcases
 #define TEST_FIRST 0
 #define TEST_SECOND	1
+#define TEST_THIRD	2
 
 // for shooting things
 #define SHOOT_SPHERE_SPRING_DIMENSION Vec3(0.5, 0, 0)
